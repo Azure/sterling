@@ -1,0 +1,23 @@
+#cloud-config
+
+runcmd:
+ - sudo wget https://aka.ms/downloadazcopy-v10-linux -O /tmp/azcopy.tar.gz
+ - sudo tar -xvf /tmp/azcopy.tar.gz -C /tmp
+ - sudo mv /tmp/azcopy_linux* /tmp/azcopy
+ - sudo sed -i 's/enforcing/disabled/g' /etc/selinux/config /etc/selinux/config
+ - sudo /tmp/azcopy/azcopy copy  "https://${installerStorageAccountName}.blob.core.windows.net/${installerContainerName}/v11.5.7_linuxx64_server_dec.tar.gz${installerContainerName}" /tmp/db2.tar.gz
+ - sudo tar -xf /tmp/db2.tar.gz -C /mnt
+ - sudo rm /tmp/db2.tar.gz
+ - sudo yum -y install libstdc++.i686 libXmu.i686 libacl.i686 ncurses-libs.i686 ncurses-compat-libs.i686 motif.i686 xterm libmount.i686 libgcc.i686 libnsl.i686 libXdmcp.i686 libxcrypt.i686 libXdmcp libnsl psmisc elfutils-libelf-devel make
+ - sudo yum -y install ksh mksh
+ - sudo /tmp/azcopy/azcopy copy  "https://${installerStorageAccountName}.blob.core.windows.net/${installerContainerName}/install.rsp${installerContainerName}" /mnt/install.rsp
+ - echo "inst1.PASSWORD = ${adminPassword}" >> /mnt/install.rsp
+ - echo "inst1.FENCED_PASSWORD = ${adminPassword}" >> /mnt/install.rsp 
+ - sudo /mnt/server_dec/db2setup -r /mnt/install.rsp
+ - sudo firewall-cmd --permanent --zone=public --add-port=25000/tcp
+ - sudo firewall-cmd --permanent --zone=public --add-port=25010/tcp
+ - sudo /var/ibm/db2/V11.5/bin/db2fmcu -u -p /var/ibm/db2/V11.5/bin/db2fmcd
+ - sudo /var/ibm/db2/V11.5/bin/db2fm -i db2inst1 -U
+ - sudo /var/ibm/db2/V11.5/bin/db2fm -i db2inst1 -u
+ - sudo /var/ibm/db2/V11.5/bin/db2fm -i db2inst1 -f on
+ - sudo shutdown -r now
