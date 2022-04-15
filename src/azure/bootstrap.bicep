@@ -24,7 +24,6 @@ param installerStorageAccountName string
 param installerContainerName string
 @secure()
 param installerSASToken string
-@secure()
 param mqsharename string
 
 
