@@ -23,10 +23,10 @@
             ]
         },
         "jumpboxVirtualMachineName": {
-            "value": "JumpBoxVMtest"
+            "value": "JumpBoxVM"
         },
         "db2VirtualMachineName": {
-            "value": "db2VMtest"
+            "value": "db2VM-2"
         },
         "mqVirtualMachineName": {
             "value": "mqVM"
@@ -79,18 +79,8 @@
         "bastionHostName": {
             "value": "sterlingBastionHost"
         },
-        "installerStorageAccountName":{
-            "value": "ibmsterlingdemo"
-        },
-        "installerContainerName":{
-            "value": "bin"
-        },
-        "installerSASToken":{
-            "value": "?sv=2020-10-02&st=2022-04-01T14%3A54%3A23Z&se=2022-04-09T14%3A54%3A00Z&sr=c&sp=rl&sig=9xgWvWsZAAONO2LLJUm8ujZuvZUct4s4%2FBec%2BJX8FLw%3D"
-        },
         "mqsharename":{
             "value": "mqha"
         }
-
     }
 }

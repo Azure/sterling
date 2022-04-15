@@ -8,7 +8,6 @@ param virtualMachineSize string
 param adminUsername string
 @secure()
 param adminPassword string
-param zone string
 param vnetName string
 param vnetAddressPrefix string
 param subnetControlNodePrefix string
@@ -23,10 +22,12 @@ param subnetBastionName string
 param bastionHostName string
 param installerStorageAccountName string
 param installerContainerName string
+@secure()
 param installerSASToken string
+@secure()
 param mqsharename string
 
-/*
+
 module network 'networking.bicep' = {
   name: 'VNet'
   scope: resourceGroup()
@@ -42,9 +43,7 @@ module network 'networking.bicep' = {
     location: location
   }
 }
-*/
 
-/*
 module premiumStorage 'storage.bicep' = {
   name: 'privateStorage'
   scope: resourceGroup()
@@ -60,9 +59,7 @@ module premiumStorage 'storage.bicep' = {
   ]
   
 }
-*/
 
-/*
 module bastionHost 'bastion.bicep' = {
   name: 'bastionHost'
   scope: resourceGroup()
@@ -77,16 +74,15 @@ module bastionHost 'bastion.bicep' = {
     network
   ]
 }
-*/
 
-/*
-module db2vm 'db2.bicep' = {
-  name: 'db2vm'
+
+module db2vm_1 'db2.bicep' = {
+  name: 'db2vm-1'
   scope: resourceGroup()
   params: {
     location: location
-    networkInterfaceName: '${db2VirtualMachineName}-nic'
-    networkSecurityGroupName: '${db2VirtualMachineName}-nsg'
+    networkInterfaceName: '${db2VirtualMachineName}-z1-nic'
+    networkSecurityGroupName: '${db2VirtualMachineName}-z1-nsg'
     networkSecurityGroupRules:networkSecurityGroupRules
     subnetName: subnetWorkerNodeName
     virtualNetworkName: vnetName
@@ -95,7 +91,7 @@ module db2vm 'db2.bicep' = {
     virtualMachineSize: virtualMachineSize
     adminUsername: adminUsername
     adminPassword: adminPassword
-    zones: zones
+    zone: '1'
     installerStorageAccountName: installerStorageAccountName
     installerContainerName: installerContainerName
     installerSASToken: installerSASToken
@@ -104,7 +100,31 @@ module db2vm 'db2.bicep' = {
     network
   ]
 }
-*/
+
+module db2vm_2 'db2.bicep' = {
+  name: 'db2vm-2'
+  scope: resourceGroup()
+  params: {
+    location: location
+    networkInterfaceName: '${db2VirtualMachineName}-z3-nic'
+    networkSecurityGroupName: '${db2VirtualMachineName}-z3-nsg'
+    networkSecurityGroupRules:networkSecurityGroupRules
+    subnetName: subnetWorkerNodeName
+    virtualNetworkName: vnetName
+    virtualMachineName: db2VirtualMachineName
+    osDiskType: osDiskType
+    virtualMachineSize: virtualMachineSize
+    adminUsername: adminUsername
+    adminPassword: adminPassword
+    zone: '3'
+    installerStorageAccountName: installerStorageAccountName
+    installerContainerName: installerContainerName
+    installerSASToken: installerSASToken
+  }
+  dependsOn: [
+    network
+  ]
+}
 
 module mqvm1 'mq.bicep' = {
   name: 'mqvm-1'
@@ -127,17 +147,14 @@ module mqvm1 'mq.bicep' = {
     installerSASToken: installerSASToken
     storageNamePrefix: storageNamePrefix
     mqsharename: mqsharename    
-    installScript: 'create-queuemanager.sh'
   }
-  /*
   dependsOn: [
     network
   ]
-  */
 }
 
 module mqvm3 'mq.bicep' = {
-  name: 'mqvm-3'
+  name: 'mqvm-2'
   scope: resourceGroup()
   params: {
     location: location
@@ -157,18 +174,12 @@ module mqvm3 'mq.bicep' = {
     installerSASToken: installerSASToken
     storageNamePrefix: storageNamePrefix
     mqsharename: mqsharename
-    installScript: 'add-queuemanager.sh'
   }
   dependsOn: [
+    network
     mqvm1
   ]
-  /*
-  dependsOn: [
-    network
-  ]
-  */
 }
-
 
 //output adminUsername string = adminUsername
 //output adminPassword string = adminPassword

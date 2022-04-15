@@ -3,6 +3,7 @@
 runcmd:
  - sudo yum update
  - sudo yum install -y nfs-utils
+ - sudo yum install -y java-1.8.0-openjdk
  - sudo mkdir /MQHA
  - sudo mount -t nfs ${storageNamePrefix}prm.file.core.windows.net:/${storageNamePrefix}prm/${mqsharename} /MQHA -o vers=4,minorversion=1,sec=sys
  - sudo mkdir -p /MQHA/logs
@@ -18,10 +19,14 @@ runcmd:
  - cd /mnt/MQServer
  - ./mqlicense.sh -accept
  - sudo rpm -ivh MQSeriesGSKit-* MQSeriesRuntime-*.rpm MQSeriesServer-*.rpm
+ - sudo rpm -Uvh MQSeriesJava-*.rpm
+ - sudo sed -i 's+home/user/JNDI-Directory+var/mqm/jndi+g' /opt/mqm/java/bin/JMSAdmin.config
  - sudo usermod -G azureuser mqm
+ - sudo firewall-cmd --permanent --zone=public --add-port=6566/tcp
  - sudo chown -R mqm:mqm /MQHA
  - sudo chmod -R ug+rwx /MQHA
  - sudo echo "${storageNamePrefix}prm.file.core.windows.net:/${storageNamePrefix}prm/${mqsharename} /MQHA nfs rw,hard,noatime,nolock,vers=4,tcp,_netdev 0 0" >> /etc/fstab
- - [ wget, -nv, "https://raw.githubusercontent.com/Azure/sterling/main/src/installers/${installScript}.sh", -O, /tmp/script.sh ]
- - chmod +x /tmp/script.sh
- - sudo -E /tmp/script.sh
+# TBD: Any MQ Configuration post-install?
+# - [ wget, -nv, "https://${repoURL}/${repoBranch}/src/installers/${installScript}", -O, /tmp/script.sh ]
+# - chmod +x /tmp/script.sh
+# - sudo -E /tmp/script.sh

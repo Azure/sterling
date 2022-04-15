@@ -5,19 +5,46 @@ runcmd:
  - sudo tar -xvf /tmp/azcopy.tar.gz -C /tmp
  - sudo mv /tmp/azcopy_linux* /tmp/azcopy
  - sudo sed -i 's/enforcing/disabled/g' /etc/selinux/config /etc/selinux/config
- - sudo /tmp/azcopy/azcopy copy  "https://${installerStorageAccountName}.blob.core.windows.net/${installerContainerName}/v11.5.7_linuxx64_server_dec.tar.gz${installerContainerName}" /tmp/db2.tar.gz
+ - sudo /tmp/azcopy/azcopy copy "https://${installerStorageAccountName}.blob.core.windows.net/${installerContainerName}/v11.5.7_linuxx64_server_dec.tar.gz${installerSASToken}" /tmp/db2.tar.gz
  - sudo tar -xf /tmp/db2.tar.gz -C /mnt
  - sudo rm /tmp/db2.tar.gz
  - sudo yum -y install libstdc++.i686 libXmu.i686 libacl.i686 ncurses-libs.i686 ncurses-compat-libs.i686 motif.i686 xterm libmount.i686 libgcc.i686 libnsl.i686 libXdmcp.i686 libxcrypt.i686 libXdmcp libnsl psmisc elfutils-libelf-devel make
  - sudo yum -y install ksh mksh
- - sudo /tmp/azcopy/azcopy copy  "https://${installerStorageAccountName}.blob.core.windows.net/${installerContainerName}/install.rsp${installerContainerName}" /mnt/install.rsp
+ - sudo yum install -y java-1.8.0-openjdk
+ - sudo /tmp/azcopy/azcopy copy "https://${installerStorageAccountName}.blob.core.windows.net/${installerContainerName}/install.rsp${installerSASToken}" /mnt/install.rsp
  - echo "inst1.PASSWORD = ${adminPassword}" >> /mnt/install.rsp
  - echo "inst1.FENCED_PASSWORD = ${adminPassword}" >> /mnt/install.rsp 
  - sudo /mnt/server_dec/db2setup -r /mnt/install.rsp
- - sudo firewall-cmd --permanent --zone=public --add-port=25000/tcp
- - sudo firewall-cmd --permanent --zone=public --add-port=25010/tcp
  - sudo /var/ibm/db2/V11.5/bin/db2fmcu -u -p /var/ibm/db2/V11.5/bin/db2fmcd
  - sudo /var/ibm/db2/V11.5/bin/db2fm -i db2inst1 -U
  - sudo /var/ibm/db2/V11.5/bin/db2fm -i db2inst1 -u
  - sudo /var/ibm/db2/V11.5/bin/db2fm -i db2inst1 -f on
- - sudo shutdown -r now
+ - /home/db2inst1/sqllib/db2profile
+ - sudo dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+ - sudo dnf install -y python3-dnf-plugin-versionlock
+ - cd /mnt/server_dec/db2/linuxamd64/pcmk 
+ - sudo ./db2installPCMK -i
+ - cd /var/ibm/db2/V11.5/install/pcmk
+ - sudo sudo ./db2cppcmk -i
+ - sudo parted /dev/sdc --script mklabel gpt mkpart xfspart xfs 0% 100%
+ - sudo mkfs.xfs /dev/sdc1
+ - sudo partprobe /dev/sdc1 
+ - sudo mkdir /mnt/db2data
+ - sudo mount /dev/sdc1 /mnt/db2data
+ - FSTAB="$(blkid | grep sdc1 | awk '$0=$2' | sed 's/"//g')   /mnt/db2data   xfs   defaults,nofail   1   2"
+ - sudo su -c "echo $FSTAB >> /etc/fstab"
+ - sudo rm /mnt/install.rsp
+ - sudo su db2inst1 -c "ssh-keygen -q -t rsa -N '' -f ~/.ssh/id_rsa"
+ - sudo su - -c "ssh-keygen -q -t rsa -N '' -f ~/.ssh/id_rsa"
+ - sudo cp /home/db2inst1/db2vm-instance* /home/${adminUsername}
+ - sudo chown -R ${adminUsername}:${adminUsername} /home/${adminUsername}/
+ - exit
+ - sudo firewall-cmd --permanent --zone=public --add-port=25000/tcp
+ - sudo firewall-cmd --permanent --zone=public --add-port=25010/tcp
+ - sudo firewall-cmd --permanent --zone=public --add-port=3121/tcp
+ - sudo firewall-cmd --permanent --zone=public --add-port=5403/tcp
+ - sudo firewall-cmd --permanent --zone=public --add-port=5404/udp
+ - sudo firewall-cmd --permanent --zone=public --add-port=5405/udp
+#TODO: Any post-configuration scripts/database creation scripts
+# - [ wget, -nv, "https://${repoURL}/${repoBranch}/src/installers/${installScript}", -O, /tmp/script.sh ]
+# - sudo shutdown -r now
