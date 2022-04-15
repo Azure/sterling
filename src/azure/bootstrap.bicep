@@ -76,7 +76,7 @@ module bastionHost 'bastion.bicep' = {
 }
 
 
-module db2vm_1 'db2.bicep' = {
+module db2vm1 'db2.bicep' = {
   name: 'db2vm-1'
   scope: resourceGroup()
   params: {
@@ -101,7 +101,7 @@ module db2vm_1 'db2.bicep' = {
   ]
 }
 
-module db2vm_2 'db2.bicep' = {
+module db2vm2 'db2.bicep' = {
   name: 'db2vm-2'
   scope: resourceGroup()
   params: {
@@ -150,6 +150,7 @@ module mqvm1 'mq.bicep' = {
   }
   dependsOn: [
     network
+    db2vm1
   ]
 }
 
@@ -178,6 +179,28 @@ module mqvm3 'mq.bicep' = {
   dependsOn: [
     network
     mqvm1
+  ]
+}
+
+module jumpbox 'jumpbox.bicep' = {
+  name: 'jumpbox'
+  scope: resourceGroup()
+  params: {
+    location: location
+    networkInterfaceName: '${jumpboxVirtualMachineName}-nic'
+    networkSecurityGroupName: '${jumpboxVirtualMachineName}-nsg'
+    networkSecurityGroupRules:networkSecurityGroupRules
+    subnetName: subnetWorkerNodeName
+    virtualNetworkName: vnetName
+    virtualMachineName: jumpboxVirtualMachineName
+    osDiskType: osDiskType
+    virtualMachineSize: virtualMachineSize
+    adminUsername: adminUsername
+    adminPassword: adminPassword
+    zone: '1'
+  }
+  dependsOn: [
+    network
   ]
 }
 
