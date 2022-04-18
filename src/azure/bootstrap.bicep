@@ -25,6 +25,7 @@ param installerContainerName string
 @secure()
 param installerSASToken string
 param mqsharename string
+param loadBalancerName string
 
 
 module network 'networking.bicep' = {
@@ -85,7 +86,7 @@ module db2vm1 'db2.bicep' = {
     networkSecurityGroupRules:networkSecurityGroupRules
     subnetName: subnetWorkerNodeName
     virtualNetworkName: vnetName
-    virtualMachineName: db2VirtualMachineName
+    virtualMachineName: '${db2VirtualMachineName}-z1'
     osDiskType: osDiskType
     virtualMachineSize: virtualMachineSize
     adminUsername: adminUsername
@@ -110,7 +111,7 @@ module db2vm2 'db2.bicep' = {
     networkSecurityGroupRules:networkSecurityGroupRules
     subnetName: subnetWorkerNodeName
     virtualNetworkName: vnetName
-    virtualMachineName: db2VirtualMachineName
+    virtualMachineName: '${db2VirtualMachineName}-z3'
     osDiskType: osDiskType
     virtualMachineSize: virtualMachineSize
     adminUsername: adminUsername
@@ -200,6 +201,23 @@ module jumpbox 'jumpbox.bicep' = {
   }
   dependsOn: [
     network
+  ]
+}
+
+
+module loadbalancer 'loadbalancer.bicep' = {
+  name: 'db2-lb'
+  scope: resourceGroup()
+  params :{
+    loadbalancerName: loadBalancerName
+    location: location
+    db2vmName: db2VirtualMachineName
+    virtualNetworkName: vnetName
+    subnetName: subnetWorkerNodeName
+  }
+  dependsOn: [
+    db2vm1
+    db2vm2
   ]
 }
 

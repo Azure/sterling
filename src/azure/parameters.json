@@ -40,9 +40,6 @@
         "adminUsername": {
             "value": "azureuser"
         },
-        "zone": {
-            "value": "1"
-        },
         "vnetName": {
             "value": "vnet1"
         },
@@ -81,6 +78,9 @@
         },
         "mqsharename":{
             "value": "mqha"
+        },
+        "loadBalancerName":{
+            "value": "db2-lb"
         }
     }
 }
