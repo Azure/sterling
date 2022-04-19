@@ -45,6 +45,7 @@ runcmd:
  - sudo firewall-cmd --permanent --zone=public --add-port=5403/tcp
  - sudo firewall-cmd --permanent --zone=public --add-port=5404/udp
  - sudo firewall-cmd --permanent --zone=public --add-port=5405/udp
+ - sudo firewall-cmd --permanent --zone=public --add-port=62500/udp
 #TODO: Any post-configuration scripts/database creation scripts
 # - [ wget, -nv, "https://${repoURL}/${repoBranch}/src/installers/${installScript}", -O, /tmp/script.sh ]
 # - sudo shutdown -r now
