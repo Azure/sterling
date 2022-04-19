@@ -28,6 +28,7 @@ param mqsharename string
 param loadBalancerName string
 param db2lbprivateIP string
 
+/*
 module network 'networking.bicep' = {
   name: 'VNet'
   scope: resourceGroup()
@@ -89,7 +90,7 @@ module bastionHost 'bastion.bicep' = {
     network
   ]
 }
-
+*/
 
 module db2vm1 'db2.bicep' = {
   name: 'db2vm-1'
@@ -112,9 +113,12 @@ module db2vm1 'db2.bicep' = {
     installerSASToken: installerSASToken
     loadBalancerName: loadBalancerName
   }
+  /*
   dependsOn: [
     network
+    loadbalancer
   ]
+  */
 }
 
 module db2vm2 'db2.bicep' = {
@@ -138,12 +142,15 @@ module db2vm2 'db2.bicep' = {
     installerSASToken: installerSASToken
     loadBalancerName: loadBalancerName
   }
+  /*
   dependsOn: [
     network
     loadbalancer
   ]
+  */
 }
 
+/*
 module mqvm1 'mq.bicep' = {
   name: 'mqvm-1'
   scope: resourceGroup()
@@ -167,7 +174,6 @@ module mqvm1 'mq.bicep' = {
     mqsharename: mqsharename    
   }
   dependsOn: [
-    loadbalancer
     network
     db2vm1
   ]
@@ -201,6 +207,28 @@ module mqvm3 'mq.bicep' = {
   ]
 }
 
+module devvm 'devvm.bicep' = {
+  name: 'devvm'
+  scope: resourceGroup()
+  params: {
+    location: location
+    networkInterfaceName: '${devvmName}-nic'
+    networkSecurityGroupName: '${devvmName}-nsg'
+    networkSecurityGroupRules:networkSecurityGroupRules
+    subnetName: subnetWorkerNodeName
+    virtualNetworkName: vnetName
+    virtualMachineName: devvmName
+    osDiskType: osDiskType
+    virtualMachineSize: virtualMachineSize
+    adminUsername: adminUsername
+    adminPassword: adminPassword
+    zone: '1'
+  }
+  dependsOn: [
+    network
+  ]
+}
+
 module jumpbox 'jumpbox.bicep' = {
   name: 'jumpbox'
   scope: resourceGroup()
@@ -222,6 +250,7 @@ module jumpbox 'jumpbox.bicep' = {
     network
   ]
 }
+*/
 
 //output adminUsername string = adminUsername
 //output adminPassword string = adminPassword
