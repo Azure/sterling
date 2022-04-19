@@ -15,6 +15,7 @@ param installerStorageAccountName string
 param installerContainerName string
 @secure()
 param installerSASToken string
+param loadBalancerName string
 
 
 var nsgId = resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', networkSecurityGroupName)
@@ -35,6 +36,11 @@ resource networkInterfaceName_resource 'Microsoft.Network/networkInterfaces@2018
             id: subnetRef
           }
           privateIPAllocationMethod: 'Dynamic'
+          loadBalancerBackendAddressPools: [
+          {
+            id: resourceId('Microsoft.Network/loadBalancers/backendAddressPools', loadBalancerName, '${loadBalancerName}-bep')
+          }
+        ]
         }
       }
     ]

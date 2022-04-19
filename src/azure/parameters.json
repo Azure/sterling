@@ -25,8 +25,8 @@
         "jumpboxVirtualMachineName": {
             "value": "JumpBoxVM"
         },
-        "db2VirtualMachineName": {
-            "value": "db2VM-2"
+        "db2VirtualMachineNamePrefix": {
+            "value": "db2VM"
         },
         "mqVirtualMachineName": {
             "value": "mqVM"
@@ -81,6 +81,10 @@
         },
         "loadBalancerName":{
             "value": "db2-lb"
+        },
+        "db2lbprivateIP":{
+            "value": "10.0.3.100"
         }
+
     }
 }
