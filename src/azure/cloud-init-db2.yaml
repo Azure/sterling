@@ -36,7 +36,6 @@ runcmd:
  - sudo rm /mnt/install.rsp
  - sudo su db2inst1 -c "ssh-keygen -q -t rsa -N '' -f ~/.ssh/id_rsa"
  - sudo su - -c "ssh-keygen -q -t rsa -N '' -f ~/.ssh/id_rsa"
- - sudo cp /home/db2inst1/db2vm-instance* /home/${adminUsername}
  - sudo chown -R ${adminUsername}:${adminUsername} /home/${adminUsername}/
  - exit
  - sudo firewall-cmd --permanent --zone=public --add-port=25000/tcp
@@ -45,7 +44,7 @@ runcmd:
  - sudo firewall-cmd --permanent --zone=public --add-port=5403/tcp
  - sudo firewall-cmd --permanent --zone=public --add-port=5404/udp
  - sudo firewall-cmd --permanent --zone=public --add-port=5405/udp
- - sudo firewall-cmd --permanent --zone=public --add-port=62500/udp
+ - sudo firewall-cmd --permanent --zone=public --add-port=62500/tcp
 #TODO: Any post-configuration scripts/database creation scripts
 # - [ wget, -nv, "https://${repoURL}/${repoBranch}/src/installers/${installScript}", -O, /tmp/script.sh ]
 # - sudo shutdown -r now

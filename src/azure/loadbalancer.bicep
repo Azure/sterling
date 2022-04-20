@@ -20,7 +20,7 @@ resource loadbalancer_resource 'Microsoft.Network/loadBalancers@2021-05-01' = {
         properties: {
           privateIPAddress: db2lbprivateIP
           privateIPAddressVersion: 'IPv4'
-          privateIPAllocationMethod: 'Dynamic'
+          privateIPAllocationMethod: 'Static'
           subnet: {
               id: '${vnetId}/subnets/${subnetName}'
           }      
@@ -61,7 +61,7 @@ resource loadbalancer_resource 'Microsoft.Network/loadBalancers@2021-05-01' = {
                 id: resourceId('Microsoft.Network/loadBalancers/probes', loadbalancerName, '${loadbalancerName}-hp')
               }
               disableOutboundSnat: true
-              enableTcpReset: false
+              enableTcpReset: true
               backendAddressPools: [
                   {
                     id: resourceId('Microsoft.Network/loadBalancers/backendAddressPools', loadbalancerName, '${loadbalancerName}-bep')
