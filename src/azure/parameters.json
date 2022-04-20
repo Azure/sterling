@@ -53,22 +53,28 @@
             "value": "control"
         },
         "subnetEndpointsPrefix": {
-            "value": "10.0.1.0/24"
+            "value": "10.0.3.0/24"
         },
         "subnetEndpointsName": {
             "value": "endpoints"
         },
         "subnetWorkerNodePrefix": {
-            "value": "10.0.2.0/24"
+            "value": "10.0.1.0/24"
         },
         "subnetWorkerNodeName": {
             "value": "worker"
         },
         "subnetBastionPrefix": {
-            "value": "10.0.4.0/26"
+            "value": "10.0.2.0/26"
         },
         "subnetBastionName": {
             "value": "AzureBastionSubnet"
+        },
+        "subnetVMName": {
+            "value": "VMs"
+        },
+        "subnetVMPrefix": {
+            "value": "10.0.5.0/26"
         },
         "storageNamePrefix": {
             "value": "sterlingfiles"
@@ -82,9 +88,14 @@
         "loadBalancerName":{
             "value": "db2-lb"
         },
+        "gatewayName":{
+            "value": "workerGateway"
+        },
         "db2lbprivateIP":{
-            "value": "10.0.3.100"
+            "value": "10.0.4.100"
+        },
+        "devVMName":{
+            "value": "devVM"
         }
-
     }
 }

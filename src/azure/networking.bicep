@@ -25,6 +25,10 @@ param subnetEndpointsName string
 @description('Location for all resources.')
 param location string
 
+param NATGatewayName string
+param subnetVMName string
+param subnetVMPrefix string
+
 resource vnet 'Microsoft.Network/virtualNetworks@2021-03-01' = {
   name: vnetName
   location: location
@@ -45,6 +49,15 @@ resource vnet 'Microsoft.Network/virtualNetworks@2021-03-01' = {
         name: subnetWorkerNodeName
         properties: {
           addressPrefix: subnetWorkerNodePrefix
+        }
+      }
+      {
+        name: subnetVMName
+        properties: {
+          addressPrefix: subnetVMPrefix
+          natGateway: {
+            id: resourceId('Microsoft.Network/natGateways@2021-05-01',NATGatewayName)
+          }
         }
       }
       {

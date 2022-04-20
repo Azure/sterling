@@ -44,13 +44,17 @@ resource networkInterfaceName_resource 'Microsoft.Network/networkInterfaces@2018
         }
       }
     ]
+    /*
     networkSecurityGroup: {
       id: nsgId
     }
+    */
   }
+  /*
   dependsOn: [
     networkSecurityGroupName_resource
   ]
+  */
 }
 
 resource datadisk_resource 'Microsoft.Compute/disks@2021-12-01' = {
@@ -77,7 +81,7 @@ resource datadisk_resource 'Microsoft.Compute/disks@2021-12-01' = {
   }
 }
 
-
+/*
 resource networkSecurityGroupName_resource 'Microsoft.Network/networkSecurityGroups@2019-02-01' = {
   name: networkSecurityGroupName
   location: location
@@ -85,6 +89,7 @@ resource networkSecurityGroupName_resource 'Microsoft.Network/networkSecurityGro
     securityRules: networkSecurityGroupRules
   }
 }
+*/
 
 resource virtualMachineName_resource 'Microsoft.Compute/virtualMachines@2021-03-01' = {
   name: virtualMachineName
