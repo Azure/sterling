@@ -96,6 +96,9 @@
         },
         "devVMName":{
             "value": "devVM"
+        },
+        "registryName":{
+            "value": "sterlingdemoacr"
         }
     }
 }
