@@ -29,9 +29,9 @@ runcmd:
  - sudo parted /dev/sdc --script mklabel gpt mkpart xfspart xfs 0% 100%
  - sudo mkfs.xfs /dev/sdc1
  - sudo partprobe /dev/sdc1 
- - sudo mkdir /mnt/db2data
+ - sudo mkdir /db2data
  - sudo mount /dev/sdc1 /mnt/db2data
- - FSTAB="$(blkid | grep sdc1 | awk '$0=$2' | sed 's/"//g')   /mnt/db2data   xfs   defaults,nofail   1   2"
+ - FSTAB="$(blkid | grep sdc1 | awk '$0=$2' | sed 's/"//g')   /db2data   xfs   defaults,nofail   1   2"
  - sudo su -c "echo $FSTAB >> /etc/fstab"
  - sudo rm /mnt/install.rsp
  - sudo su db2inst1 -c "ssh-keygen -q -t rsa -N '' -f ~/.ssh/id_rsa"
@@ -45,6 +45,7 @@ runcmd:
  - sudo firewall-cmd --permanent --zone=public --add-port=5404/udp
  - sudo firewall-cmd --permanent --zone=public --add-port=5405/udp
  - sudo firewall-cmd --permanent --zone=public --add-port=62500/tcp
+ - sudo chown -R db2inst1:db2iadm1 /mnt/db2data/
 #TODO: Any post-configuration scripts/database creation scripts
 # - [ wget, -nv, "https://${repoURL}/${repoBranch}/src/installers/${installScript}", -O, /tmp/script.sh ]
 # - sudo shutdown -r now
