@@ -20,7 +20,7 @@ runcmd:
  - ./mqlicense.sh -accept
  - sudo rpm -ivh MQSeriesGSKit-* MQSeriesRuntime-*.rpm MQSeriesServer-*.rpm
  - sudo rpm -Uvh MQSeriesJava-*.rpm
- - sudo sed -i 's+home/user/JNDI-Directory+var/mqm/jndi+g' /opt/mqm/java/bin/JMSAdmin.config
+ - sudo sed -i 's+home/user/JNDI-Directory+MQHA/jndi+g' /opt/mqm/java/bin/JMSAdmin.config
  - sudo usermod -G azureuser mqm
  - sudo firewall-cmd --permanent --zone=public --add-port=6566/tcp
  - sudo chown -R mqm:mqm /MQHA
