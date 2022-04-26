@@ -31,6 +31,7 @@ param gatewayName string
 param subnetVMName string
 param subnetVMPrefix string
 param devVMName string
+param registryName string
 
 module network 'networking.bicep' = {
   name: 'VNet'
@@ -48,6 +49,18 @@ module network 'networking.bicep' = {
     subnetVMPrefix: subnetVMPrefix
     location: location
     NATGatewayName: gatewayName
+  }
+}
+
+module containerRegistery 'containerregistry.bicep' = {
+  name: 'containerregistry'
+  scope: resourceGroup()
+  params : {
+
+    subnetEndpointsName: subnetEndpointsName
+    location: location
+    registryname: registryName
+    vnetName: vnetName
   }
 }
 
@@ -170,12 +183,12 @@ module mqvm1 'mq.bicep' = {
   scope: resourceGroup()
   params: {
     location: location
-    networkInterfaceName: '${mqVirtualMachineName}-z1-nic'
-    networkSecurityGroupName: '${mqVirtualMachineName}-z1-nsg'
+    networkInterfaceName: '${mqVirtualMachineName}-1-nic'
+    networkSecurityGroupName: '${mqVirtualMachineName}-1-nsg'
     networkSecurityGroupRules:networkSecurityGroupRules
     subnetName: subnetWorkerNodeName
     virtualNetworkName: vnetName
-    virtualMachineName: '${mqVirtualMachineName}-z1'
+    virtualMachineName: '${mqVirtualMachineName}-1'
     osDiskType: osDiskType
     virtualMachineSize: virtualMachineSize
     adminUsername: adminUsername
@@ -198,12 +211,12 @@ module mqvm3 'mq.bicep' = {
   scope: resourceGroup()
   params: {
     location: location
-    networkInterfaceName: '${mqVirtualMachineName}-z3-nic'
-    networkSecurityGroupName: '${mqVirtualMachineName}-z3-nsg'
+    networkInterfaceName: '${mqVirtualMachineName}-2-nic'
+    networkSecurityGroupName: '${mqVirtualMachineName}-2-nsg'
     networkSecurityGroupRules:networkSecurityGroupRules
     subnetName: subnetWorkerNodeName
     virtualNetworkName: vnetName
-    virtualMachineName: '${mqVirtualMachineName}-z3'
+    virtualMachineName: '${mqVirtualMachineName}-2'
     osDiskType: osDiskType
     virtualMachineSize: virtualMachineSize
     adminUsername: adminUsername
