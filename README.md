@@ -1,14 +1,54 @@
-# Project
+# QuickStart Guide: Sterling Order Management on Azure
 
-> This repo has been populated by an initial template to help get you started. Please
-> make sure to update the content to build a great experience for community-building.
+This repository provides deployument guidance and best practices for running IBM Sterling Order management (OMS) on Azure Redhat OpenShift (ARO) in the Azure public cloud. This guide was written and tested with Azure RedHat OpenShift 4.9.9 and OMS Version X.XX
 
-As the maintainer of this project, please make a few updates:
+> 🚧 **NOTE**: The scripts contained within this repo were written with the intention of testing various configurations and integrations on Azure. They allow you to quickly deploy the required infrastructure on Azure so that you migrate an existing OMS to Azure, or start fresh with new development.
 
-- Improving this README.MD file to provide a great experience
-- Updating SUPPORT.MD with content about this project's support experience
-- Understanding the security reporting process in SECURITY.MD
-- Remove this section from the README
+> 🚧 **WARNING** this guide is currently under active development. If you would like to contribute or use this right now, please reach out so we can support you.
+
+## Table of Contents:
+
+- What's in this repository?
+- Overview of Deployment
+- Before You Begin
+- Step 1: Preparing your Azure Environment
+- Step 2: Install Azure Redhat OpenShift & Required Infastructure
+  - Required Components
+- Accessing your Cluster...
+  - As an Adminstrator
+  - As a Developer
+- Post-Installation Considerations
+  - Creating an OMS Namespace for your application
+  - Authorizing your OMS Namespace to your Azure Container Registry
+  - Pushing your containers to your Azure Container Registry
+  - Creating required secrets
+  - Configuring your Cluster's Storage Drivers for Azure File Shares
+  - Licensing your DB2 and MQ Instances
+  - SSL Connections and Keystore Configuration(s)
+
+
+## What's in this repository?
+
+./azure - Contains a series of .bicep files that can be used to boostrap a reference deployment of all the required Azure resources for your deployment
+./installers - Contains scripting examples for automating the installation of applications like IBM MQ, IBM DB2, the OpenShift CLI Tool (oc), etc
+./config - Contains files used by the installer examples or Azure automation scripts to configure services
+./examples - Contains example files as references for your deployments, such as a sample OMS secrets file 
+
+## Overview of Deployment
+
+## Before You Begin
+
+## Step 1: Preparing Your Azure Environment
+
+## Step 2: Install Azure RedHat Openshift & Required Infrastructure
+
+## Acessing your ARO Cluster
+
+### As an Administrator
+
+### As a Developer
+
+### Post-Installation Considerations
 
 ## Contributing
 
