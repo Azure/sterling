@@ -11,3 +11,7 @@ runcmd:
  - chmod 700 get_helm.sh
  - ./get_helm.sh
  - sudo usermod -aG docker $USER
+ - mkdir /tmp/OCPInstall
+ - [ wget, -nv, "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz", -O, /tmp/OCPInstall/openshift-client-linux.tar.gz ]
+ - tar xvf /tmp/OCPInstall/openshift-client-linux.tar.gz -C /tmp/OCPInstall
+ - sudo cp /tmp/OCPInstall/oc /usr/bin
