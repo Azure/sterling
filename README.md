@@ -38,7 +38,7 @@ This repository provides deployument guidance and best practices for running IBM
 
 This repository is designed to help you plan your Sterling Order Management deployment on Microsoft Azure with a configuration simialar to the below diagram:
 
-<image>
+![A Sample OMS Networking/Resource Digram](/docs/images/SterlingNetworkDiagram.png)
 
 To get started, you'll need to accomplish the following tasks:
 
@@ -83,13 +83,16 @@ At a minimum, your Azure environment should contain the following a resource gro
 4. A Jump Box VM: This machine should be deployed and configured with any management tools you'll need to administer your environment.
 5. An Azure Container Registry for storing your custom Sterling OMS containers.
 
-For a more detailed accounting of the suggsted Azure resources, check out this guide and for sample deployment scripts to help you get started, check out the ./azure folder in this repository for some .bicep files you can just to quick start your environment.
+For a more detailed accounting of the suggsted Azure resources, check out this guide and for sample deployment scripts to help you get started, check out the ./azure folder in this repository for some .bicep files you can just to quick start your environment. In addition, for a more detailed explanation of the Azure resources, please review this guide.
 
 ## Step 2: Install Azure RedHat Openshift & Required Infrastructure
 
-Once all of the networking requirements are met, you should install Azure RedHat OpenShift. This guide was written and tested with ARO 4.9.9. When configuring ARO, make sure you select the approproate subnets. After your deployment completes, you can retreive your portal URL and admin credentials by running the following commands:
+Once all of the networking requirements are met, you should install Azure RedHat OpenShift. This guide was written and tested with ARO 4.9.9. When configuring ARO, make sure you select the approproate subnets. You can also decide if you want your cluster to be available publically or not (note that if you choose to not make it public, you'll only be able to access the cluster from within the virtual network, from your Jump Box virtual machine). Your deployment may take a few minutes to complete.
 
 ## Acessing your ARO Cluster
+
+After your deployment completes, you can retreive your portal URL and admin credentials by running the following commands:
+
 ```
 az aro show --name <your clustername> --resource-group <your resource group name> --query "consoleProfile.url" -o tsv
 az aro list-credentials --name <your clustername> --resource-group <your resource group name>
