@@ -11,25 +11,26 @@ This repository provides deployument guidance and best practices for running IBM
 - What's in this repository?
 - Overview of Deployment
 - Before You Begin
-- Step 1: Preparing your Azure Environment
-  - Creating a storage account for required IBM applications
-- Step 2: Install Azure Redhat OpenShift
-  - Required Components
-- Accessing your Cluster
-- Post-Installation Considerations
-  - Creating an OMS Namespace for your application
-  - Authorizing your OMS Namespace to your Azure Container Registry
-  - Pushing your containers to your Azure Container Registry
-  - Creating required secrets
-  - Configuring your Cluster's Storage Drivers for Azure File Shares
-  - Licensing your DB2 and MQ Instances
-  - SSL Connections and Keystore Configuration(s)
+- [Step 1: Preparing your Azure Environment](#step-1-preparing-your-azure-environment)
+  - [Creating a storage account for required IBM applications](#creating-a-storage-account-for-required-ibm-application-installers)
+- [Step 2: Install Azure Redhat OpenShift](#step-2-install-azure-redhat-openshift)
+- [Step 3: Accessing your Azure RedHat OpenShift Cluster](#step-3-acessing-your-aro-cluster)
+- [Step 4: Post-Installation Steps](#step-4-post-azure-deployment-tasks)
+  - [Creating an OMS Namespace for your application](#create-oms-namespace)
+  - [Creating required secrets](#create-oms-secret)
+  - [Creating RBAC role](#create-rbac-role)  
+  
+  - [Authorizing your OMS Namespace to your Azure Container Registry]()
+  - [Pushing your containers to your Azure Container Registry]()
+  - [Creating required secrets]()
+  - [Configuring your Cluster's Storage Drivers for Azure File Shares]
+  - [Licensing your DB2 and MQ Instances]
+  - [SSL Connections and Keystore Configuration(s)]
 
 
 ## What's in this repository?
 
 - ./azure - Contains a series of .bicep files that can be used to boostrap a reference deployment of all the required Azure resources for your deployment
-- ./installers - Contains scripting examples for automating the installation of applications like IBM MQ, IBM DB2, the OpenShift CLI Tool (oc), etc
 - ./config - Contains files used by the installer examples or Azure automation scripts to configure services
 - ./examples - Contains example files as references for your deployments, such as a sample OMS secrets file 
 
@@ -58,10 +59,10 @@ To sucessfully install and configure OMS on Azure, you'll need to make sure you 
  * A quota of at least 40 vCPU allowed for your VM type(s) of choice. Request a quota increase if needed.
  * You will need subscription owner permissions for the deployment.
 * A copy of IBM MQ and IBM DB2. You can obtain these installers in one of two ways:
- * For testing and development, IBM provides free versions of both DB2 and MQ you can use for evaluation purposes:
-    *
-    *
- * For a licensed version that may be included in your OMS agreement, please obtain a version from Passport Advantage: https://www-112.ibm.com/software/howtobuy/passportadvantage/paoreseller/LoginPage?abu=
+  * For testing and development, IBM provides free versions of both DB2 and MQ you can use for evaluation purposes:
+    * DB2 Community Edition: https://www.ibm.com/products/db2-database/developers
+    * IBM MQ For Developers: https://developer.ibm.com/articles/mq-downloads/
+  * For a licensed version that may be included in your OMS agreement, please obtain a version from Passport Advantage: https://www-112.ibm.com/software/howtobuy/passportadvantage/paoreseller/LoginPage?abu=
 * The Azure CLI: https://docs.microsoft.com/en-us/cli/azure/install-azure-cli
 * *TODO: Sterling OMS Licensing Information?*
 
@@ -75,16 +76,16 @@ Finally, for managing and configuring Azure Redhat OpenShift, you'll also need t
 At a minimum, your Azure environment should contain a resource group that contains the following resources:
 
 1. A Virtual Network: This virtual network will host the following subnets (with reccomended CIDR ranges*):
-  * control (/24): the control subnet is used by Azure RedHat OpenShift control nodes.
-  * worker (/24): the worker subnet is used by Azure RedHat OpenShift worker nodes.
-  * data (/27): this subnet holds the virtual machines running services related to data, such as IBM DB2 Virtual Machines and IBM MQ servers.
-  * management (/30): this subnet is used for your "Jump Box" virtual machine(s) that can be used to securely connect to all other resources inside this network
-  * development (/28): this subnet can be used to deploy developer virtual machines, if needed, to develop, test, and deploy OMS customized container images securely to the Azure Container Registry.
-  * endpoints (/25): this subnet exists for hosting private endpoints for Azure services such as storage accounts, container registries, and other services to provide private connectivity.
+    - control (/24): the control subnet is used by Azure RedHat OpenShift control nodes.
+    - worker (/24): the worker subnet is used by Azure RedHat OpenShift worker nodes.
+    - data (/27): this subnet holds the virtual machines running services related to data, such as IBM DB2 Virtual Machines and IBM MQ servers.
+    - management (/30): this subnet is used for your "Jump Box" virtual machine(s) that can be used to securely connect to all other resources inside this network
+    - development (/28): this subnet can be used to deploy developer virtual machines, if needed, to develop, test, and deploy OMS customized container images securely to the Azure Container Registry.
+    - endpoints (/25): this subnet exists for hosting private endpoints for Azure services such as storage accounts, container registries, and other services to provide private connectivity.
 2. Azure Premium Files storage account: For hosting MQ Queue Manager data
 3. Azure Virtual Machines:
-    * At least one Virtual Machine to host IBM DB2. For production scenarios, you should consider configuring more than one host and using high availability for the instances. More information on this configuration can be found here:
-    * At least one Virtual Machine to host IBM MQ. For production scenarios, you should consider configuring more than one host and using a shared storage location (aka Azure Premium Files) for the queue storage
+    - At least one Virtual Machine to host IBM DB2. For production scenarios, you should consider configuring more than one host and using high availability for the instances. More information on this configuration can be found here:
+    - At least one Virtual Machine to host IBM MQ. For production scenarios, you should consider configuring more than one host and using a shared storage location (aka Azure Premium Files) for the queue storage
 4. A Jump Box VM: This machine should be deployed and configured with any management tools you'll need to administer your environment.
 5. An Azure Container Registry for storing your custom Sterling OMS containers.
 
@@ -92,18 +93,20 @@ At a minimum, your Azure environment should contain a resource group that contai
 
 For a more detailed accounting of the suggsted Azure resources, check out this guide and for sample deployment scripts to help you get started, check out the ./azure folder in this repository for some .bicep files you can just to quick start your environment. In addition, for a more detailed explanation of the Azure resources, please review this guide.
 
-### Creating a storage account for required IBM applications
+### Creating a storage account for required IBM application installers
 
 IBM Sterling Order Management requires a database and MQ instance, and reccomends installing these services *outside* of your OpenShift cluster for scaling and performance purposes. As such, you will need to obtain setup files for each of these applications. You can obtain developer editions of these applications from the following links (IBM registration is required):
 
-* 
-* 
+* DB2 Commmunity Edition: https://www.ibm.com/products/db2-database/developers
+* IBM MQ For Developers: https://developer.ibm.com/articles/mq-downloads/
 
-Or, you can acquire these applications via your Passport Advantage portal (which also should include your applicable licenses): https://www-112.ibm.com/software/howtobuy/passportadvantage/paoreseller/LoginPage?abu=
+Alternativly, for testing you can also consider container versions of these applications, but this is NOT reccomended for production or production-like environemnets.
+
+You can also acquire these applications via your Passport Advantage portal (which also should include your applicable licenses): https://www-112.ibm.com/software/howtobuy/passportadvantage/paoreseller/LoginPage?abu=
 
 To make these files available during installation, it is reccomended that you create a seperate storage account and place the compressed archives into a storage container. Once you upload your files to the storage account, you can then install and use [```azcopy```](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-v10) to copy the archives to your virtual machine(s) and install them as neccessary. The easiest way to do this is to [create a shared access signature (SAS) for the container](https://docs.microsoft.com/en-us/azure/cognitive-services/translator/document-translation/create-sas-tokens?tabs=Containers). Then, from your virtual machines, you can download the files as follows:
 
-```
+```bash
 azcopy copy "https://<storage account name with setup archive>.blob.core.windows.net/<storage container name with setup archive>/<name of db2 archive>" /tmp/db2.tar.gz
 azcopy copy "https://<storage account name with setup archive>.blob.core.windows.net/<storage container name with setup archive>/<name of mq archive>" /tmp/mq.tar.gz
 ```
@@ -114,20 +117,20 @@ Once all of the networking requirements are met, you should install Azure RedHat
 
 You can create a new cluster through the Azure Portal, or from the Azure CLI:
 
-```
+```bash
 az aro create --resource-group $RESOURCEGROUP --name $CLUSTER --vnet aro-vnet --master-subnet master-subnet --worker-subnet worker-subnet
 ```
 
-### Acessing your ARO Cluster
+## Step 3: Acessing your ARO Cluster
 
 After your deployment completes, you can retreive your portal URL and admin credentials by running the following commands:
 
-```
+```bash
 az aro show --name <your clustername> --resource-group <your resource group name> --query "consoleProfile.url" -o tsv
 az aro list-credentials --name <your clustername> --resource-group <your resource group name>
 ```
 
-## Post-Deployment Tasks:
+## Step 4: Post Azure Deployment Tasks
 
 Once you have all your resources deployed, you will need to complete the following steps:
 
@@ -135,16 +138,17 @@ Once you have all your resources deployed, you will need to complete the followi
 
 If you did not deploy your Azure VMs with a public IP address, and you need to download and install applications like IBM MQ and IBM DB2 from a publicly available source, you may need to add a NAT Gateway to provide outbound connectivity to the internet. Please see this link for more information.
 
-### Install and Configure IBM DB2:
+### Install and Configure IBM DB2
 
 After downloading and extracting the required setup files for DB2, install your IBM DB2 instance and make sure you add any required firewall openings on the Virtual Machines. In the config subfolder is a sample DB2 response file you can use to automate the installation.
 
 To use this response file, first you need to add your desired password to the file (this sample file does not contain one). For example, assuming you extracted the DB2 setup files to the /mnt path on your virtual machine, you can do this by running the following commands (replacing ```<your password>``` with your desired admin and fenced user password):
 
-```
-wget wget -nv https://raw.githubusercontent.com/Azure/maximo/main/config/db2/install.rsp -O /mnt/install.rsp
-echo "inst1.PASSWORD = <your password>" >> /mnt/install.rsp
-echo "inst1.FENCED_PASSWORD = <your password>" >> /mnt/install.rsp 
+```bash
+ wget -nv https://raw.githubusercontent.com/Azure/sterling/main/config/db2/install.rsp -O /mnt/install.rsp
+export DBPASSWORD=""
+export DBFENCED_PASSWORD=""
+envsubst < /mnt/install.rsp >/mnt/install.rsp
 sudo /mnt/server_dec/db2setup -r /mnt/install.rsp
 ```
 
@@ -154,13 +158,13 @@ This will complete the DB2 install. Once the installation completes, you should 
 
 For performance and high availability, it is reccomended to configure your MQ Queue Manager to use Azure Files Premium NFS shares on your MQ Virtual Machines. To do this, first create a new NFS share on your storage account:
 
-```
+```bash
 az storage share-rm create --resource-group <your resource gorup name> --storage-account <premium file storage account name> --name mq --quota 1024 --enabled-protocols NFS --output none
 ```
 
 Then, on the MQ virtual machine(s), you can mount by running the following commands (as well as seting the default "mqm" user to have permissions on the share):
 
-```
+```bash
 sudo mount -t nfs <your storage account name>.file.core.windows.net:/<your storage account name>/mq /MQHA -o vers=4,minorversion=1,sec=sys
 sudo chown -R mqm:mqm /MQHA
 sudo chmod -R ug+rwx /MQHA
@@ -168,7 +172,7 @@ sudo chmod -R ug+rwx /MQHA
 
 Finally, to make sure this mount is persisten through reboots, add the mount information to your ```fstab``` file:
 
-```
+```bash
 sudo echo "<your storage account name>prm.file.core.windows.net:/<your storage account name>/mq /MQHA nfs rw,hard,noatime,nolock,vers=4,tcp,_netdev 0 0" >> /etc/fstab
 ```
 
@@ -182,14 +186,13 @@ First, download and set up the ```oc``` command line too. You can download the O
 
 Next, install [Helm](https://helm.sh/):
 
-```
+```bash
 curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
 chmod 700 get_helm.sh
 ./get_helm.sh
 ```
 
-Then, install the latest Helm charts for Sterling OMS:
-
+Then, install the latest Helm charts for Sterling OMS. For information how to download the approproate chart, see this documentation from IBM: https://www.ibm.com/docs/en/order-management-sw/10.0?topic=container-downloading-helm-charts 
 
 
 ## Deploy OMS Prerequisites
@@ -202,7 +205,7 @@ Note: You will need to create a Azure Application Registration (service principa
 
 This repository has scripts that can help you set up these drivers:
 
-```
+```bash
 export deployRegion="eastus"
 export resourceGroupName="myRG"
 export tenantId="tenantId"
@@ -220,7 +223,7 @@ oc apply -f azurefiles-standard.yaml
 
 You will need to create the namespace used for your OMS deployment:
 
-```
+```bash
 oc create namespace <your namespace name>
 ```
 
@@ -228,7 +231,7 @@ oc create namespace <your namespace name>
 
 OMS Requires that a secret be created that contains relevant credentials for your database, your trust keystores, etc. A sample configuration file can be found in this repository under ./config/oms and can be modified to suit your needs (just supple the appropriate credentails to each variable):
 
-```
+```bash
 export NAMESPACE=""
 export CONSOLEADMINPW=""
 export CONSOLENONADMINPW=""
@@ -243,9 +246,20 @@ oc create -f oms-secret.yaml
 
 ### Create Required PVC(s)
 
+TODO
+
 ### Create RBAC Role
 
+```bash
+export NAMESPACE=""
+wget -nv https://raw.githubusercontent.com/Azure/sterling/main/config/oms-rbac.yaml -O oms-rbac.yaml
+envsubst < oms-rbac.yaml > oms-rbac.yaml
+oc create -f oms-rbac.yaml
+```
+
 ### Set up development VM(s)
+
+TODO
 
 ### Add Azure Container Registery Credentials to Namespace Docker Credential Secret
 
