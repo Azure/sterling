@@ -1,0 +1,32 @@
+*  Product Installation
+LIC_AGREEMENT       = ACCEPT
+PROD       = DB2_SERVER_EDITION
+FILE       = /var/ibm/db2/V11.5
+INSTALL_TYPE       = TYPICAL
+*-----------------------------------------------
+*  Das properties
+*-----------------------------------------------
+DAS_CONTACT_LIST       = LOCAL
+* ----------------------------------------------
+*  Instance properties
+* ----------------------------------------------
+INSTANCE       = inst1
+inst1.TYPE       = ese
+*  Instance-owning user
+inst1.NAME       = db2inst1
+inst1.GROUP_NAME       = db2iadm1
+inst1.HOME_DIRECTORY       = /home/db2inst1
+inst1.AUTOSTART       = YES
+inst1.SVCENAME       = db2c_db2inst1
+inst1.PORT_NUMBER       = 25010
+inst1.FCM_PORT_NUMBER       = 20016
+inst1.MAX_LOGICAL_NODES       = 6
+inst1.CONFIGURE_TEXT_SEARCH       = NO
+*  Fenced user
+inst1.FENCED_USERNAME       = db2fenc1
+inst1.FENCED_GROUP_NAME       = db2fadm1
+inst1.FENCED_HOME_DIRECTORY       = /home/db2fenc1
+*-----------------------------------------------
+*  Installed Languages
+*-----------------------------------------------
+LANG       = EN
