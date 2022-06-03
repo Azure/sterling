@@ -1,0 +1,24 @@
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: oms-role-<namespace>
+  namespace: <namespace>
+rules:
+  - apiGroups: ['']
+    resources: ['secrets']
+    verbs: ['get', 'watch', 'list', 'create', 'delete', 'patch', 'update']
+
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: oms-rolebinding-<namespace>
+  namespace: <namespace>
+subjects:
+  - kind: ServiceAccount
+    name: default
+    namespace: <namespace>
+roleRef:
+  kind: Role
+  name: oms-role-<namespace>
+  apiGroup: rbac.authorization.k8s.io
