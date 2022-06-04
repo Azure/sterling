@@ -19,7 +19,7 @@ This repository provides deployument guidance and best practices for running IBM
   - [Creating an OMS Namespace for your application](#create-oms-namespace)
   - [Creating required secrets](#create-oms-secret)
   - [Creating RBAC role](#create-rbac-role)  
-  
+
   - [Authorizing your OMS Namespace to your Azure Container Registry]()
   - [Pushing your containers to your Azure Container Registry]()
   - [Creating required secrets]()
@@ -227,6 +227,10 @@ You will need to create the namespace used for your OMS deployment:
 oc create namespace <your namespace name>
 ```
 
+### Add Azure Container Registry Credentials to Namespace Docker Credential Secret
+
+TODO
+
 ### Create OMS Secret
 
 OMS Requires that a secret be created that contains relevant credentials for your database, your trust keystores, etc. A sample configuration file can be found in this repository under ./config/oms and can be modified to suit your needs (just supple the appropriate credentails to each variable):
@@ -258,10 +262,6 @@ oc create -f oms-rbac.yaml
 ```
 
 ### Set up development VM(s)
-
-TODO
-
-### Add Azure Container Registery Credentials to Namespace Docker Credential Secret
 
 TODO
 
