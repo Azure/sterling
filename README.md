@@ -119,8 +119,8 @@ You can also acquire these applications via your Passport Advantage portal (whic
 To make these files available during installation, it is reccomended that you create a seperate storage account and place the compressed archives into a storage container. Once you upload your files to the storage account, you can then install and use [```azcopy```](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-v10) to copy the archives to your virtual machine(s) and install them as neccessary. The easiest way to do this is to [create a shared access signature (SAS) for the container](https://docs.microsoft.com/en-us/azure/cognitive-services/translator/document-translation/create-sas-tokens?tabs=Containers). Then, from your virtual machines, you can download the files as follows:
 
 ```bash
-azcopy copy "https://<storage account name with setup archive>.blob.core.windows.net/<storage container name with setup archive>/<name of db2 archive>" /tmp/db2.tar.gz
-azcopy copy "https://<storage account name with setup archive>.blob.core.windows.net/<storage container name with setup archive>/<name of mq archive>" /tmp/mq.tar.gz
+azcopy copy "https://<storage account name with setup archive>.blob.core.windows.net/<storage container name with setup archive>/<name of db2 archive>?<sastoken>" /tmp/db2.tar.gz
+azcopy copy "https://<storage account name with setup archive>.blob.core.windows.net/<storage container name with setup archive>/<name of mq archive>?<sastoken>" /tmp/mq.tar.gz
 ```
 
 ## Step 2: Install Azure RedHat Openshift
@@ -133,7 +133,7 @@ You can create a new cluster through the Azure Portal, or from the Azure CLI:
 az aro create --resource-group $RESOURCEGROUP --name $CLUSTER --vnet aro-vnet --master-subnet master-subnet --worker-subnet worker-subnet
 ```
 
-## Step 3: Acessing your ARO Cluster
+## Step 3: Accessing your ARO Cluster
 
 After your deployment completes, you can retreive your portal URL and admin credentials by running the following commands:
 
