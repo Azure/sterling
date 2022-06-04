@@ -8,25 +8,36 @@ This repository provides deployument guidance and best practices for running IBM
 
 ## Table of Contents:
 
-- What's in this repository?
-- Overview of Deployment
-- Before You Begin
+- [What's in this repository?](#whats-in-this-repository)
+- [Overview of Deployment](#overview)
+- [Before You Begin](#before-you-begin)
 - [Step 1: Preparing your Azure Environment](#step-1-preparing-your-azure-environment)
   - [Creating a storage account for required IBM applications](#creating-a-storage-account-for-required-ibm-application-installers)
 - [Step 2: Install Azure Redhat OpenShift](#step-2-install-azure-redhat-openshift)
 - [Step 3: Accessing your Azure RedHat OpenShift Cluster](#step-3-acessing-your-aro-cluster)
-- [Step 4: Post-Installation Steps](#step-4-post-azure-deployment-tasks)
+- [Step 4: Post Azure Deployment Steps](#step-4-post-azure-deployment-tasks)
+  - [Private VM Internet Access](#private-vm-outbound-internet-access)
   - [Creating an OMS Namespace for your application](#create-oms-namespace)
+  - [Install and Configure IBM DB2](#install-and-configure-ibm-db2)
+  - [Install and Configure IBM MQ](#install-and-configure-ibm-mq)
+  - [Install Tools and Helm Charts](#install-tools-and-helm-charts)
+- [Step 5: OMS Prerequisites](#step-5-deploy-oms-prerequisites)
+  - [Installing the Azure Files CSI Driver](#install-azure-files-csi-driver)
+  - [Create an OMS Namespace](#create-oms-namespace)
   - [Creating required secrets](#create-oms-secret)
-  - [Creating RBAC role](#create-rbac-role)  
-
-  - [Authorizing your OMS Namespace to your Azure Container Registry]()
-  - [Pushing your containers to your Azure Container Registry]()
-  - [Creating required secrets]()
-  - [Configuring your Cluster's Storage Drivers for Azure File Shares]
-  - [Licensing your DB2 and MQ Instances]
-  - [SSL Connections and Keystore Configuration(s)]
-
+  - [Add the Azure Container Registry Pull Secret](#add-azure-container-registry-credentials-to-namespace-docker-credential-secret)
+  - [Create PVC(s)](#create-required-pvcs)
+  - [Creating RBAC role](#create-rbac-role)
+  - [Setting up Development VM(s)](#set-up-development-vms)
+- [Step 6: Deploying OMS](#step-6-deploying-oms)
+  - [SSL Connections and Keystore Configuration(s)](#ssl-connections-and-keystore-configuration)
+  - [Pushing your containers to your Azure Container Registry](#pushing-your-containers-to-your-azure-container-registry)
+  - [Deploying OMS via Helm Charts](#deploying-oms-via-helm-charts)
+  - [Deploying OMS via the OpenShift Operator](#deploying-oms-via-the-openshift-operator)
+- [Step 7: Post-Deployment Tasks](#step-7-post-deployment-tasks)
+  - [Licensing your DB2 and MQ Instances](#licensing-your-db2-and-mq-instances)
+  - [Migrating your Data](#migrating-your-data)
+  - [Other Best Practices and Considerations](#other-best-practices-and-considerations)
 
 ## What's in this repository?
 
@@ -89,7 +100,7 @@ At a minimum, your Azure environment should contain a resource group that contai
 4. A Jump Box VM: This machine should be deployed and configured with any management tools you'll need to administer your environment.
 5. An Azure Container Registry for storing your custom Sterling OMS containers.
 
-* Note: Aside from the control and worker subnets, your CIDR ranges are completely up to you and should be sized appropriatley for any additional growth you forsee.
+*Note:* Aside from the control and worker subnets, your CIDR ranges are completely up to you and should be sized appropriatley for any additional growth you forsee.
 
 For a more detailed accounting of the suggsted Azure resources, check out this guide and for sample deployment scripts to help you get started, check out the ./azure folder in this repository for some .bicep files you can just to quick start your environment. In addition, for a more detailed explanation of the Azure resources, please review this guide.
 
@@ -195,7 +206,7 @@ chmod 700 get_helm.sh
 Then, install the latest Helm charts for Sterling OMS. For information how to download the approproate chart, see this documentation from IBM: https://www.ibm.com/docs/en/order-management-sw/10.0?topic=container-downloading-helm-charts 
 
 
-## Deploy OMS Prerequisites
+## Step 5: Deploy OMS Prerequisites
 
 ### Install Azure Files CSI Driver
 
@@ -262,6 +273,43 @@ oc create -f oms-rbac.yaml
 ```
 
 ### Set up development VM(s)
+
+TODO
+
+
+## Step 6: Deploying OMS
+
+TODO
+
+### Pushing your containers to your Azure Container Registry
+
+TODO
+
+### SSL Connections and Keystore Configuration
+
+TODO
+
+### Deploying OMS Via Helm Charts
+
+TODO
+
+### Deploying OMS Via the OpenShift Operator
+
+TODO
+
+## Step 7: Post Deployment Tasks
+
+TODO
+
+### Licensing your DB2 and MQ Instances
+
+TODO
+
+### Migrating Your Data
+
+TODO
+
+### Other Best Practices and Considerations
 
 TODO
 
