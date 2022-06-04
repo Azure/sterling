@@ -97,7 +97,8 @@ At a minimum, your Azure environment should contain a resource group that contai
 3. Azure Virtual Machines:
     - At least one Virtual Machine to host IBM DB2. For production scenarios, you should consider configuring more than one host and using high availability for the instances. More information on this configuration can be found here:
     - At least one Virtual Machine to host IBM MQ. For production scenarios, you should consider configuring more than one host and using a shared storage location (aka Azure Premium Files) for the queue storage
-4. A Jump Box VM: This machine should be deployed and configured with any management tools you'll need to administer your environment.
+    - A Jump Box VM: This machine should be deployed and configured with any management tools you'll need to administer your environment.
+    - Development VM(s): Machines that can be used be developers for that can connect to any required cluster, data, or queue resources inside the virtual network
 5. An Azure Container Registry for storing your custom Sterling OMS containers.
 
 *Note:* Aside from the control and worker subnets, your CIDR ranges are completely up to you and should be sized appropriatley for any additional growth you forsee.
