@@ -8,36 +8,40 @@ This repository provides deployument guidance and best practices for running IBM
 
 ## Table of Contents:
 
-- [What's in this repository?](#whats-in-this-repository)
-- [Overview of Deployment](#overview)
-- [Before You Begin](#before-you-begin)
-- [Step 1: Preparing your Azure Environment](#step-1-preparing-your-azure-environment)
-  - [Creating a storage account for required IBM applications](#creating-a-storage-account-for-required-ibm-application-installers)
-- [Step 2: Install Azure Redhat OpenShift](#step-2-install-azure-redhat-openshift)
-- [Step 3: Accessing your Azure RedHat OpenShift Cluster](#step-3-acessing-your-aro-cluster)
-- [Step 4: Post Azure Deployment Steps](#step-4-post-azure-deployment-tasks)
-  - [Private VM Internet Access](#private-vm-outbound-internet-access)
-  - [Creating an OMS Namespace for your application](#create-oms-namespace)
-  - [Install and Configure IBM DB2](#install-and-configure-ibm-db2)
-  - [Install and Configure IBM MQ](#install-and-configure-ibm-mq)
-  - [Install Tools and Helm Charts](#install-tools-and-helm-charts)
-- [Step 5: OMS Prerequisites](#step-5-deploy-oms-prerequisites)
-  - [Installing the Azure Files CSI Driver](#install-azure-files-csi-driver)
-  - [Create an OMS Namespace](#create-oms-namespace)
-  - [Creating required secrets](#create-oms-secret)
-  - [Add the Azure Container Registry Pull Secret](#add-azure-container-registry-credentials-to-namespace-docker-credential-secret)
-  - [Create PVC(s)](#create-required-pvcs)
-  - [Creating RBAC role](#create-rbac-role)
-  - [Setting up Development VM(s)](#set-up-development-vms)
-- [Step 6: Deploying OMS](#step-6-deploying-oms)
-  - [SSL Connections and Keystore Configuration(s)](#ssl-connections-and-keystore-configuration)
-  - [Pushing your containers to your Azure Container Registry](#pushing-your-containers-to-your-azure-container-registry)
-  - [Deploying OMS via Helm Charts](#deploying-oms-via-helm-charts)
-  - [Deploying OMS via the OpenShift Operator](#deploying-oms-via-the-openshift-operator)
-- [Step 7: Post-Deployment Tasks](#step-7-post-deployment-tasks)
-  - [Licensing your DB2 and MQ Instances](#licensing-your-db2-and-mq-instances)
-  - [Migrating your Data](#migrating-your-data)
-  - [Other Best Practices and Considerations](#other-best-practices-and-considerations)
+- [QuickStart Guide: Sterling Order Management on Azure](#quickstart-guide-sterling-order-management-on-azure)
+  - [Table of Contents:](#table-of-contents)
+  - [What's in this repository?](#whats-in-this-repository)
+  - [Overview](#overview)
+  - [Before You Begin](#before-you-begin)
+  - [Step 1: Preparing Your Azure Environment](#step-1-preparing-your-azure-environment)
+    - [Creating a storage account for required IBM application installers](#creating-a-storage-account-for-required-ibm-application-installers)
+  - [Step 2: Install Azure RedHat Openshift](#step-2-install-azure-redhat-openshift)
+  - [Step 3: Accessing your ARO Cluster](#step-3-accessing-your-aro-cluster)
+  - [Step 4: Post Azure Deployment Tasks](#step-4-post-azure-deployment-tasks)
+    - [Private VM Outbound Internet Access](#private-vm-outbound-internet-access)
+    - [Install and Configure IBM DB2](#install-and-configure-ibm-db2)
+    - [Install and Configure IBM MQ:](#install-and-configure-ibm-mq)
+    - [Install Tools and Helm Charts](#install-tools-and-helm-charts)
+  - [Step 5: Deploy OMS Prerequisites](#step-5-deploy-oms-prerequisites)
+    - [Install Azure Files CSI Driver](#install-azure-files-csi-driver)
+    - [Create OMS Namespace](#create-oms-namespace)
+    - [Add Azure Container Registry Credentials to Namespace Docker Credential Secret](#add-azure-container-registry-credentials-to-namespace-docker-credential-secret)
+    - [Create OMS Secret](#create-oms-secret)
+    - [Create Required PVC(s)](#create-required-pvcs)
+    - [Create RBAC Role](#create-rbac-role)
+    - [Set up development VM(s)](#set-up-development-vms)
+  - [Step 6: Deploying OMS](#step-6-deploying-oms)
+    - [Pushing your containers to your Azure Container Registry](#pushing-your-containers-to-your-azure-container-registry)
+    - [SSL Connections and Keystore Configuration](#ssl-connections-and-keystore-configuration)
+    - [Deploying OMS Via Helm Charts](#deploying-oms-via-helm-charts)
+    - [Deploying OMS Via the OpenShift Operator](#deploying-oms-via-the-openshift-operator)
+  - [Step 7: Post Deployment Tasks](#step-7-post-deployment-tasks)
+    - [Licensing your DB2 and MQ Instances](#licensing-your-db2-and-mq-instances)
+    - [Migrating Your Data](#migrating-your-data)
+    - [Other Best Practices and Considerations](#other-best-practices-and-considerations)
+  - [Deploying OMS](#deploying-oms)
+  - [Contributing](#contributing)
+  - [Trademarks](#trademarks)
 
 ## What's in this repository?
 
@@ -262,7 +266,18 @@ oc create -f oms-secret.yaml
 
 ### Create Required PVC(s)
 
-TODO
+Your OMS pods will require a persistent storage layer for logging, and any additional components or customizations for your deployment. While these volumes *can* be created at deployment time via the Helm charts or Operator, IBM reccomeneds you provision these prior to your deployment. As such, you should think about creating one (or more) PVCs as needed.
+
+A sample PVC template is provided as part of this repository, and will use the Azure Files Standard storage class that was created earlier:
+
+```bash
+#Assumes you use the same storage class name from before; change as needed
+export STORAGECLASSNAME="azurefiles-standard"
+export SIZEINGB="10"
+wget -nv https://raw.githubusercontent.com/Azure/sterling/main/config/oms-pvc.yaml -O oms-pvc.yaml
+envsubst < oms-pvc.yaml > oms-pvc.yaml
+oc create -f oms-pvc.yaml
+```
 
 ### Create RBAC Role
 
