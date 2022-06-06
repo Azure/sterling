@@ -1,0 +1,12 @@
+
+kind: PersistentVolumeClaim
+apiVersion: v1
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: $SIZEINGBGi
+  volumeName: oms-qa-pv
+  storageClassName: '$STORAGECLASSNAME'
+  volumeMode: Filesystem
