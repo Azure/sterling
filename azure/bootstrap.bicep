@@ -26,7 +26,7 @@ param installerContainerName string
 param installerSASToken string
 param mqsharename string
 param loadBalancerName string
-param db2lbprivateIP string
+// param db2lbprivateIP string
 param gatewayName string
 param subnetVMName string
 param subnetVMPrefix string
@@ -64,6 +64,7 @@ module containerRegistery 'containerregistry.bicep' = {
   }
 }
 
+/*
 module loadbalancer 'loadbalancer.bicep' = {
   name: 'db2-lb'
   scope: resourceGroup()
@@ -78,6 +79,7 @@ module loadbalancer 'loadbalancer.bicep' = {
     network
   ]
 }
+*/
 
 module premiumStorage 'storage.bicep' = {
   name: 'privateStorage'
@@ -147,10 +149,11 @@ module db2vm1 'db2.bicep' = {
   }
   dependsOn: [
     network
-    loadbalancer
+    //loadbalancer
   ]
 }
 
+/*
 module db2vm2 'db2.bicep' = {
   name: 'db2vm-2'
   scope: resourceGroup()
@@ -177,6 +180,7 @@ module db2vm2 'db2.bicep' = {
     loadbalancer
   ]
 }
+*/
 
 module mqvm1 'mq.bicep' = {
   name: 'mqvm-1'
@@ -202,10 +206,10 @@ module mqvm1 'mq.bicep' = {
   }
   dependsOn: [
     network
-    db2vm1
   ]
 }
 
+/*
 module mqvm3 'mq.bicep' = {
   name: 'mqvm-2'
   scope: resourceGroup()
@@ -233,6 +237,7 @@ module mqvm3 'mq.bicep' = {
     mqvm1
   ]
 }
+*/
 
 module devvm 'devvm.bicep' = {
   name: 'devvm'
