@@ -35,7 +35,7 @@ This repository provides deployument guidance and best practices for running IBM
     - [SSL Connections and Keystore Configuration](#ssl-connections-and-keystore-configuration)
     - [Deploying OMS Via Helm Charts](#deploying-oms-via-helm-charts)
     - [Deploying OMS Via the OpenShift Operator](#deploying-oms-via-the-openshift-operator)
-  - [Step 7: Post Deployment Tasks](#step-7-post-deployment-tasks)
+  - [Step 7: Post-Deployment Tasks](#step-7-post-deployment-tasks)
     - [Licensing your DB2 and MQ Instances](#licensing-your-db2-and-mq-instances)
     - [Migrating Your Data](#migrating-your-data)
     - [Other Best Practices and Considerations](#other-best-practices-and-considerations)
@@ -168,7 +168,12 @@ envsubst < /mnt/install.rsp >/mnt/install.rsp
 sudo /mnt/server_dec/db2setup -r /mnt/install.rsp
 ```
 
-This will complete the DB2 install. Once the installation completes, you should remove the response file. You should repeat this process for each DB2 instance you plan on creating for high availability.
+This will complete the DB2 install. Once the installation completes, you should remove the response file. You should repeat this process for each DB2 instance you plan on creating for high availability. This will require you to install the required Pacemaker components for DB2:
+
+```bash
+```
+
+For more information, please refer to this documentation about building a highly-available DB2 instance in Azure: <todo>
 
 ### Install and Configure IBM MQ:
 
@@ -226,10 +231,9 @@ export deployRegion="eastus"
 export resourceGroupName="myRG"
 export tenantId="tenantId"
 export subscriptionId="subscriptionId"
-export clientId="clientId" #This account will be used by OCP to access azure files to create shares within Azure Storage.
+export clientId="clientId"
 export clientSecret="clientSecret"
 
-#Configure Azure Files Standard
 wget -nv https://raw.githubusercontent.com/Azure/maximo/$branchName/src/storageclasses/azurefiles-standard.yaml -O azurefiles-standard.yaml
 envsubst < azurefiles-standard.yaml > azurefiles-standard.yaml
 oc apply -f azurefiles-standard.yaml
@@ -282,7 +286,7 @@ oc create -f oms-pvc.yaml
 ### Create RBAC Role
 
 ```bash
-export NAMESPACE=""
+export NAMESPACE="OMS"
 wget -nv https://raw.githubusercontent.com/Azure/sterling/main/config/oms-rbac.yaml -O oms-rbac.yaml
 envsubst < oms-rbac.yaml > oms-rbac.yaml
 oc create -f oms-rbac.yaml
@@ -292,18 +296,24 @@ oc create -f oms-rbac.yaml
 
 TODO
 
-
-## Step 6: Deploying OMS
-
-TODO
-
 ### Pushing your containers to your Azure Container Registry
 
 TODO
 
 ### SSL Connections and Keystore Configuration
 
+To use SSL/TLS connections for both your user-facing applications and any required SSL communications, such as to your database, you will need to provide a keystore and truststore in PKCS12 format. These stores should then be placed onto the persistent volumes you created above. You can use OpenSSL to create these stores. To create a new, empty key and trust store, you can execute the following commands:
+
+```bash
+
+```
+
+Once you have your key and trust stores, you should copy them to the relevant locations on any of the persistant volumes that you created above for your deployment. For more information, please see this documentation: <todo>
+
+## Step 6: Deploying OMS
+
 TODO
+
 
 ### Deploying OMS Via Helm Charts
 
@@ -319,17 +329,14 @@ TODO
 
 ### Licensing your DB2 and MQ Instances
 
-TODO
+Post-installation, if you have not already, please obtain your license files for DB2 and MQ and apply the licenses as specified by IBM in their documentation:
+
 
 ### Migrating Your Data
 
 TODO
 
 ### Other Best Practices and Considerations
-
-TODO
-
-## Deploying OMS
 
 TODO
 

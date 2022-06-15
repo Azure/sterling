@@ -12,8 +12,8 @@ runcmd:
  - sudo yum -y install ksh mksh
  - sudo yum install -y java-1.8.0-openjdk
  - sudo /tmp/azcopy/azcopy copy "https://${installerStorageAccountName}.blob.core.windows.net/${installerContainerName}/install.rsp${installerSASToken}" /mnt/install.rsp
- - echo "inst1.PASSWORD = ${adminPassword}" >> /mnt/install.rsp
- - echo "inst1.FENCED_PASSWORD = ${adminPassword}" >> /mnt/install.rsp 
+ - sudo sed -i 's/$DBFENCED_PASSWORD/${adminPassword}/' /mnt/install.rsp
+ - sudo sed -i 's/$DBPASSWORD/${adminPassword}/' /mnt/install.rsp
  - sudo /mnt/server_dec/db2setup -r /mnt/install.rsp
  - sudo /var/ibm/db2/V11.5/bin/db2fmcu -u -p /var/ibm/db2/V11.5/bin/db2fmcd
  - sudo /var/ibm/db2/V11.5/bin/db2fm -i db2inst1 -U
