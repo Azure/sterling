@@ -33,6 +33,17 @@ param subnetVMPrefix string
 param devVMName string
 param registryName string
 
+@description('Do you want to create a DB2 VM (Y/N)?')
+param installdb2vm string = 'Standard_DS1_v2'
+@description('Do you want a DB2 container in your cluster (for development purposes) (Y/N)?')
+param installdb2container string = 'Standard_DS1_v2'
+@description('Do you want to create an MQ VM (Y/N)?')
+param installmqvm string = 'Standard_DS1_v2'
+@description('Do you want an MQ container in your cluster (Y/N)?')
+param installmqcontainer string = 'Standard_DS1_v2'
+
+
+
 module network 'networking.bicep' = {
   name: 'VNet'
   scope: resourceGroup()
@@ -126,7 +137,7 @@ module gateway 'gateway.bicep' = {
   ]
 }
 
-module db2vm1 'db2.bicep' = {
+module db2vm1 'db2.bicep' = if (installdb2vm == 'Y' || installdb2vm == 'y') {
   name: 'db2vm-1'
   scope: resourceGroup()
   params: {
@@ -182,7 +193,7 @@ module db2vm2 'db2.bicep' = {
 }
 */
 
-module mqvm1 'mq.bicep' = {
+module mqvm1 'mq.bicep' = if (installmqvm == 'Y' || installmqvm == 'y') {
   name: 'mqvm-1'
   scope: resourceGroup()
   params: {
@@ -277,6 +288,8 @@ module jumpbox 'jumpbox.bicep' = {
     adminUsername: adminUsername
     adminPassword: adminPassword
     zone: '1'
+    installdb2container: installdb2container
+    installmqcontainer: installmqcontainer
   }
   dependsOn: [
     network
