@@ -1,4 +1,7 @@
 param location string
+param domain string
+param numworkers int
+param OpenShiftPullSecret string
 param networkSecurityGroupRules array
 param jumpboxVirtualMachineName string
 param db2VirtualMachineNamePrefix string
@@ -33,15 +36,15 @@ param subnetVMPrefix string
 param devVMName string
 param registryName string
 
-@description('Do you want to create a DB2 VM (Y/N)?')
-param installdb2vm string = 'Standard_DS1_v2'
-@description('Do you want a DB2 container in your cluster (for development purposes) (Y/N)?')
-param installdb2container string = 'Standard_DS1_v2'
-@description('Do you want to create an MQ VM (Y/N)?')
-param installmqvm string = 'Standard_DS1_v2'
-@description('Do you want an MQ container in your cluster (Y/N)?')
-param installmqcontainer string = 'Standard_DS1_v2'
 
+@description('Do you want to create a DB2 VM (Y/N)?')
+param installdb2vm string
+@description('Do you want a DB2 container in your cluster (for development purposes) (Y/N)?')
+param installdb2container string
+@description('Do you want to create an MQ VM (Y/N)?')
+param installmqvm string
+@description('Do you want an MQ container in your cluster (Y/N)?')
+param installmqcontainer string
 
 
 module network 'networking.bicep' = {
@@ -63,16 +66,36 @@ module network 'networking.bicep' = {
   }
 }
 
+module aro 'aro.bicep' = {
+  name: 'aro'
+  scope:  resourceGroup()
+  params : {
+    aroname: 'aro-oms'
+    location: location
+    openshiftpullsecret: OpenShiftPullSecret
+    domain: domain
+    numWorkers: numworkers
+    subnetControlNodeName: subnetControlNodeName
+    subnetWorkerNodeName: subnetWorkerNodeName
+    virtualNetworkName: vnetName
+  }
+  dependsOn:[
+    network
+  ]
+}
+
 module containerRegistery 'containerregistry.bicep' = {
   name: 'containerregistry'
   scope: resourceGroup()
   params : {
-
     subnetEndpointsName: subnetEndpointsName
     location: location
     registryname: registryName
     vnetName: vnetName
   }
+  dependsOn:[
+    network
+  ]
 }
 
 /*

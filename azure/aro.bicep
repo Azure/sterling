@@ -1,4 +1,4 @@
-param name string
+param aroname string
 param location string
 param openshiftpullsecret string
 param domain string
@@ -7,23 +7,19 @@ param subnetControlNodeName string
 param subnetWorkerNodeName string
 param virtualNetworkName string
 
-
-//var nsgId = resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', networkSecurityGroupName)
-
 var vnetId = resourceId(resourceGroup().name, 'Microsoft.Network/virtualNetworks', virtualNetworkName)
 var controlSubnetId = '${vnetId}/subnets/${subnetControlNodeName}'
 var workerSubnetId = '${vnetId}/subnets/${subnetWorkerNodeName}'
-//var controlSubnetId = resourceId(resourceGroup().name, 'Microsoft.Network/virtualNetworks/subnets', subnetControlNodeName)
-//var workerSubnetId = resourceId(resourceGroup().name, 'Microsoft.Network/virtualNetworks/subnets', subnetWorkerNodeName)
+
 
 resource azureredhadopenshift_resource 'Microsoft.RedHatOpenShift/openShiftClusters@2022-04-01' = {
-  name: name
+  name: aroname
   location: location
   properties: {
     clusterProfile: {
       domain: domain
       pullSecret: openshiftpullsecret
-      resourceGroupId: "[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/aro-', parameters('domain'))]",
+      resourceGroupId: '/subscriptions/${subscription().subscriptionId}/aro-${domain}'
     }
     servicePrincipalProfile: {
       clientId: 'string'
