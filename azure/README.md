@@ -1,6 +1,42 @@
 # Sterling Azure Bootstrap Resources
 
-TODO: Document required resources to stand up environment for pre-install
+In this folder, you can find resources that can help you get up to speed quickly with the required resources for a successful deployment of Sterling OMS on Azure. There are several pre-requisites which are outlined in the main repository readme (link). However, these bicep files can aid you in getting an environment up and running
+
+## Updating cloud init file(s) (Optional)
+
+There are a series of cloud-init files in this repository that are used during different deployment steps to "stage" a virtual machine with different software packages, custom installers, and other steps. If you'd like to modify a particular VM's cloud init script, you can do the following:
+
+1. Modify the relevant cloud-init-<name>.yaml file to include your requirements
+2. From a Linux based host, run:
+
+    ```bash
+    awk -v ORS='\\n' '1' cloud-init.yaml
+    ```
+3. Take the resulting one-line output and replace it in the relevant .bicep file's ```cloudInitData``` line. NOTE: Make sure you eescape the apostrophes in the string with a preceding `\'` .
+
+## Preparing to deploy
+
+You will need a public DNS Zone that can be accessed by the OpenShift installer. During deployment, you will be prompted for the following:
+
+- OpenShift Pull Secret
+- Client Id
+- Client Secret
+- Cluster Name
+- Administrator Password
+- Create DB2 VM? (Y/N)
+- Create DB2 Container? (Y/N)
+- Create MQ VM? (Y/N)
+- Create DB2 Container? (Y/N)
+
+The Domain Name must match the name of the DNS Zone that you will be using for OpenShift. During the deployment this DNS Zone will be updated with records to resolve to the cluster. If it is not accessible by the Client Id, the deployment will fail.
+
+```bash
+az group create --location "East US" --name OMS
+
+az deployment group create --resource-group  OMS --template-file bootstrap.bicep --parameters parameters.json
+```
+
+Alternatively you can deploy straight from this repository:
 
 ## Contributing
 
