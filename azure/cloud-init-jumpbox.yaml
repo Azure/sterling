@@ -4,7 +4,7 @@ runcmd:
  - sudo apt-get update -y 
  - sudo apt-get install -y ca-certificates curl gnupg lsb-release
  - mkdir ~/.azure/
- - echo '{"subscriptionId":"${subscriptionId}","clientId":"${applicationId}","clientSecret":"${applicationSecret}","tenantId":"${tenantId}"}' > ~/.azure/osServicePrincipal.json
+ - echo '{"subscriptionId":"${subscriptionID}","clientId":"${clientID}","clientSecret":"${clientSecret}","tenantId":"${tenantID}"}' > ~/.azure/osServicePrincipal.json
  - sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
  - |
     echo -e "[azure-cli]
@@ -29,6 +29,17 @@ runcmd:
  - export INSTALL_DB2_CONTAINER=${installdb2container}
  - export INSTALL_MQ_CONTAINER=${installmqcontainer}
  - az login --service-principal -u $(cat ~/.azure/osServicePrincipal.json | jq -r .clientId) -p $(cat ~/.azure/osServicePrincipal.json | jq -r .clientSecret) --tenant $(cat ~/.azure/osServicePrincipal.json | jq -r .tenantId) --output none && az account set -s $(cat ~/.azure/osServicePrincipal.json | jq -r .subscriptionId) --output none
- - apiServer=$(az aro show -g $RESOURCEGROUP -n $CLUSTER --query apiserverProfile.url -o tsv)
- - az aro list-credentials --name $CLUSTER --resource-group $RESOURCEGROUP
- - oc login $apiServer -u kubeadmin -p <kubeadmin password>
+ - apiServer=$(az aro show -g ${resourceGroupName} -n $CLUSTER --query apiserverProfile.url -o tsv)
+ - az aro list-credentials --name ${aroname} --resource-group ${resourceGroupName}
+ - #TODO Get Credentials and Log in Here
+ - oc login $apiServer -u kubeadmin -p ""
+ - |
+    if [ "$INSTALL_DB2_CONTAINER" == "Y" ] || [ "$INSTALL_DB2_CONTAINER" == "y" ]
+    then
+      echo "Installing DB2 Container in namespace ${omsnamespace}..."
+    fi
+ - |
+    if [ "$INSTALL_MQ_CONTAINER" == "Y" ] || [ "$INSTALL_MQ_CONTAINER" == "y" ]
+    then
+      echo "Installing MQ Container in namespace ${omsnamespace}..."
+    fi    

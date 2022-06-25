@@ -1,4 +1,9 @@
+param clientID string
+@secure()
+param clientSecret string
 param location string
+param aroClusterName string
+param omsNamespace string
 param domain string
 param numworkers int
 param OpenShiftPullSecret string
@@ -70,7 +75,7 @@ module aro 'aro.bicep' = {
   name: 'aro'
   scope:  resourceGroup()
   params : {
-    aroname: 'aro-oms'
+    aroname: aroClusterName
     location: location
     openshiftpullsecret: OpenShiftPullSecret
     domain: domain
@@ -313,6 +318,10 @@ module jumpbox 'jumpbox.bicep' = {
     zone: '1'
     installdb2container: installdb2container
     installmqcontainer: installmqcontainer
+    aroname: aroClusterName
+    omsNamespace: omsNamespace
+    clientID: clientID
+    clientSecret: clientSecret
   }
   dependsOn: [
     network
