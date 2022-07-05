@@ -1,50 +1,42 @@
 # Sterling Azure Bootstrap Resources
 
+In this folder, you can find resources that can help you get up to speed quickly with the required resources for a successful deployment of Sterling OMS on Azure. There are several pre-requisites which are outlined in the main repository readme (link). However, these bicep files can aid you in getting an environment up and running
 
+## Updating cloud init file(s) (Optional)
 
-## Updating cloud init file (Optional)
+There are a series of cloud-init files in this repository that are used during different deployment steps to "stage" a virtual machine with different software packages, custom installers, and other steps. If you'd like to modify a particular VM's cloud init script, you can do the following:
 
-Modifying the cloud-init file will allow you to add additional customizations to your deployment that are not available in the `parameters.json` file.
+1. Modify the relevant cloud-init-<name>.yaml file to include your requirements
+2. From a Linux based host, run:
 
-After updating the cloud init file, you will need to turn it in a string to load into the `cloudInitData` variable inside of the jumpbox.bicep file. Prepare the string:
-
-```bash
-awk -v ORS='\\n' '1' cloud-init.yaml
-```
-
-After updating the parameter, you will need to escape the apostrophes in the string with a preceding `\'` .
+    ```bash
+    awk -v ORS='\\n' '1' cloud-init.yaml
+    ```
+3. Take the resulting one-line output and replace it in the relevant .bicep file's ```cloudInitData``` line. NOTE: Make sure you eescape the apostrophes in the string with a preceding `\'` .
 
 ## Preparing to deploy
 
 You will need a public DNS Zone that can be accessed by the OpenShift installer. During deployment, you will be prompted for the following:
 
+- OpenShift Pull Secret
 - Client Id
 - Client Secret
-- Password
-- SSH Public Key
-- OpenShift Pull Secret
-- IBM Entitlement Key
-- Resource Group where your public DNS Zone is located
-- Domain Name used by your public DNS Zone
 - Cluster Name
-- Install MAS (y/n)
-- Install OCS (y/n)
-- Install CP4D (y/n)
-- Install VI (y/n)
+- Administrator Password
+- Create DB2 VM? (Y/N)
+- Create DB2 Container? (Y/N)
+- Create MQ VM? (Y/N)
+- Create DB2 Container? (Y/N)
 
 The Domain Name must match the name of the DNS Zone that you will be using for OpenShift. During the deployment this DNS Zone will be updated with records to resolve to the cluster. If it is not accessible by the Client Id, the deployment will fail.
 
 ```bash
-az group create --location "East US" --name OCP-Sidecar
+az group create --location "East US" --name OMS
 
-az deployment group create --resource-group  OCP-Sidecar --template-file bootstrap.bicep --parameters parameters.json
+az deployment group create --resource-group  OMS --template-file bootstrap.bicep --parameters parameters.json
 ```
 
-After the deployment is finished, you can SSH into the JumpBoxVM and look in the directory: `/tmp/OCPInstall/QuickCluster` for install artifacts. For logs, you can look at: `cat /var/log/cloud-init-output.log`
-
 Alternatively you can deploy straight from this repository:
-
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fmaximo%2Fmain%2Fsrc%2Fazure%2Fbootstrap.bicep)
 
 ## Contributing
 

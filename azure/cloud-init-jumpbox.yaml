@@ -1,0 +1,45 @@
+#cloud-config
+
+runcmd:
+ - sudo apt-get update -y 
+ - sudo apt-get install -y ca-certificates curl gnupg lsb-release
+ - mkdir ~/.azure/
+ - echo '{"subscriptionId":"${subscriptionID}","clientId":"${clientID}","clientSecret":"${clientSecret}","tenantId":"${tenantID}"}' > ~/.azure/osServicePrincipal.json
+ - sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
+ - |
+    echo -e "[azure-cli]
+    name=Azure CLI
+    baseurl=https://packages.microsoft.com/yumrepos/azure-cli
+    enabled=1
+    gpgcheck=1
+    gpgkey=https://packages.microsoft.com/keys/microsoft.asc" | sudo tee /etc/yum.repos.d/azure-cli.repo
+ - sudo dnf -y install azure-cli 
+ - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+ - echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+ - sudo apt-get update -y
+ - sudo apt-get -y install docker-ce docker-ce-cli containerd.io
+ - curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+ - chmod 700 get_helm.sh
+ - ./get_helm.sh
+ - sudo usermod -aG docker $USER
+ - mkdir /tmp/OCPInstall
+ - [ wget, -nv, "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz", -O, /tmp/OCPInstall/openshift-client-linux.tar.gz ]
+ - tar xvf /tmp/OCPInstall/openshift-client-linux.tar.gz -C /tmp/OCPInstall
+ - sudo cp /tmp/OCPInstall/oc /usr/bin
+ - export INSTALL_DB2_CONTAINER=${installdb2container}
+ - export INSTALL_MQ_CONTAINER=${installmqcontainer}
+ - az login --service-principal -u $(cat ~/.azure/osServicePrincipal.json | jq -r .clientId) -p $(cat ~/.azure/osServicePrincipal.json | jq -r .clientSecret) --tenant $(cat ~/.azure/osServicePrincipal.json | jq -r .tenantId) --output none && az account set -s $(cat ~/.azure/osServicePrincipal.json | jq -r .subscriptionId) --output none
+ - apiServer=$(az aro show -g ${resourceGroupName} -n $CLUSTER --query apiserverProfile.url -o tsv)
+ - az aro list-credentials --name ${aroname} --resource-group ${resourceGroupName}
+ - #TODO Get Credentials and Log in Here
+ - oc login $apiServer -u kubeadmin -p ""
+ - |
+    if [ "$INSTALL_DB2_CONTAINER" == "Y" ] || [ "$INSTALL_DB2_CONTAINER" == "y" ]
+    then
+      echo "Installing DB2 Container in namespace ${omsnamespace}..."
+    fi
+ - |
+    if [ "$INSTALL_MQ_CONTAINER" == "Y" ] || [ "$INSTALL_MQ_CONTAINER" == "y" ]
+    then
+      echo "Installing MQ Container in namespace ${omsnamespace}..."
+    fi    
