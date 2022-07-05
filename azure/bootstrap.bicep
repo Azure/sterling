@@ -1,4 +1,12 @@
+param clientID string
+@secure()
+param clientSecret string
 param location string
+param aroClusterName string
+param omsNamespace string
+param domain string
+param numworkers int
+param OpenShiftPullSecret string
 param networkSecurityGroupRules array
 param jumpboxVirtualMachineName string
 param db2VirtualMachineNamePrefix string
@@ -33,6 +41,17 @@ param subnetVMPrefix string
 param devVMName string
 param registryName string
 
+
+@description('Do you want to create a DB2 VM (Y/N)?')
+param installdb2vm string
+@description('Do you want a DB2 container in your cluster (for development purposes) (Y/N)?')
+param installdb2container string
+@description('Do you want to create an MQ VM (Y/N)?')
+param installmqvm string
+@description('Do you want an MQ container in your cluster (Y/N)?')
+param installmqcontainer string
+
+
 module network 'networking.bicep' = {
   name: 'VNet'
   scope: resourceGroup()
@@ -52,16 +71,36 @@ module network 'networking.bicep' = {
   }
 }
 
+module aro 'aro.bicep' = {
+  name: 'aro'
+  scope:  resourceGroup()
+  params : {
+    aroname: aroClusterName
+    location: location
+    openshiftpullsecret: OpenShiftPullSecret
+    domain: domain
+    numWorkers: numworkers
+    subnetControlNodeName: subnetControlNodeName
+    subnetWorkerNodeName: subnetWorkerNodeName
+    virtualNetworkName: vnetName
+  }
+  dependsOn:[
+    network
+  ]
+}
+
 module containerRegistery 'containerregistry.bicep' = {
   name: 'containerregistry'
   scope: resourceGroup()
   params : {
-
     subnetEndpointsName: subnetEndpointsName
     location: location
     registryname: registryName
     vnetName: vnetName
   }
+  dependsOn:[
+    network
+  ]
 }
 
 /*
@@ -126,7 +165,7 @@ module gateway 'gateway.bicep' = {
   ]
 }
 
-module db2vm1 'db2.bicep' = {
+module db2vm1 'db2.bicep' = if (installdb2vm == 'Y' || installdb2vm == 'y') {
   name: 'db2vm-1'
   scope: resourceGroup()
   params: {
@@ -182,7 +221,7 @@ module db2vm2 'db2.bicep' = {
 }
 */
 
-module mqvm1 'mq.bicep' = {
+module mqvm1 'mq.bicep' = if (installmqvm == 'Y' || installmqvm == 'y') {
   name: 'mqvm-1'
   scope: resourceGroup()
   params: {
@@ -277,6 +316,12 @@ module jumpbox 'jumpbox.bicep' = {
     adminUsername: adminUsername
     adminPassword: adminPassword
     zone: '1'
+    installdb2container: installdb2container
+    installmqcontainer: installmqcontainer
+    aroname: aroClusterName
+    omsNamespace: omsNamespace
+    clientID: clientID
+    clientSecret: clientSecret
   }
   dependsOn: [
     network
