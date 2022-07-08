@@ -1,31 +1,22 @@
 #cloud-config
 
 runcmd:
+ - export ADMIN_USERNAME=${adminUsername}
+ - export DB2_ADMIN_PASSWORD=${adminPassword}
+ - export DB2_FENCED_PASSWORD=${adminPassword}
+ - export INSTALLER_STORAGEACCOUNT_NAME=${installerStorageAccountName}
+ - export INSTALLER_STORAGECONTAINER_NAME=${installerContainerName}
+ - export INSTALLER_SAS_TOKEN=${installerSASToken}
+ - export DB2_INSTALLER_ARCHIVE_FILENAME=
+ - sudo yum -y install libstdc++.i686 libXmu.i686 libacl.i686 ncurses-libs.i686 ncurses-compat-libs.i686 motif.i686 xterm libmount.i686 libgcc.i686 libnsl.i686 libXdmcp.i686 libxcrypt.i686 libXdmcp libnsl psmisc elfutils-libelf-devel make
+ - sudo yum -y install ksh mksh
+ - sudo yum install -y java-1.8.0-openjdk
+ - sudo dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+ - sudo dnf install -y python3-dnf-plugin-versionlock
  - sudo wget https://aka.ms/downloadazcopy-v10-linux -O /tmp/azcopy.tar.gz
  - sudo tar -xvf /tmp/azcopy.tar.gz -C /tmp
  - sudo mv /tmp/azcopy_linux* /tmp/azcopy
  - sudo sed -i 's/enforcing/disabled/g' /etc/selinux/config /etc/selinux/config
- - sudo /tmp/azcopy/azcopy copy "https://${installerStorageAccountName}.blob.core.windows.net/${installerContainerName}/v11.5.7_linuxx64_server_dec.tar.gz${installerSASToken}" /tmp/db2.tar.gz
- - sudo tar -xf /tmp/db2.tar.gz -C /mnt
- - sudo rm /tmp/db2.tar.gz
- - sudo yum -y install libstdc++.i686 libXmu.i686 libacl.i686 ncurses-libs.i686 ncurses-compat-libs.i686 motif.i686 xterm libmount.i686 libgcc.i686 libnsl.i686 libXdmcp.i686 libxcrypt.i686 libXdmcp libnsl psmisc elfutils-libelf-devel make
- - sudo yum -y install ksh mksh
- - sudo yum install -y java-1.8.0-openjdk
- - sudo /tmp/azcopy/azcopy copy "https://${installerStorageAccountName}.blob.core.windows.net/${installerContainerName}/install.rsp${installerSASToken}" /mnt/install.rsp
- - sudo sed -i 's/$DBFENCED_PASSWORD/${adminPassword}/' /mnt/install.rsp
- - sudo sed -i 's/$DBPASSWORD/${adminPassword}/' /mnt/install.rsp
- - sudo /mnt/server_dec/db2setup -r /mnt/install.rsp
- - sudo /var/ibm/db2/V11.5/bin/db2fmcu -u -p /var/ibm/db2/V11.5/bin/db2fmcd
- - sudo /var/ibm/db2/V11.5/bin/db2fm -i db2inst1 -U
- - sudo /var/ibm/db2/V11.5/bin/db2fm -i db2inst1 -u
- - sudo /var/ibm/db2/V11.5/bin/db2fm -i db2inst1 -f on
- - /home/db2inst1/sqllib/db2profile
- - sudo dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
- - sudo dnf install -y python3-dnf-plugin-versionlock
- - cd /mnt/server_dec/db2/linuxamd64/pcmk 
- - sudo ./db2installPCMK -i
- - cd /var/ibm/db2/V11.5/install/pcmk
- - sudo sudo ./db2cppcmk -i
  - sudo parted /dev/sdc --script mklabel gpt mkpart xfspart xfs 0% 100%
  - sudo mkfs.xfs /dev/sdc1
  - sudo partprobe /dev/sdc1 
@@ -46,6 +37,6 @@ runcmd:
  - sudo firewall-cmd --permanent --zone=public --add-port=5405/udp
  - sudo firewall-cmd --permanent --zone=public --add-port=62500/tcp
  - sudo chown -R db2inst1:db2iadm1 /mnt/db2data/
-#TODO: Any post-configuration scripts/database creation scripts
-# - [ wget, -nv, "https://${repoURL}/${repoBranch}/src/installers/${installScript}", -O, /tmp/script.sh ]
-# - sudo shutdown -r now
+ - [ wget, -nv, "https://raw.githubusercontent.com/Azure/sterling/${branchName}/config/installers/install-db2-from-storageaccount.sh", -O, /tmp/install-db2-from-storageaccount.sh ]
+ - chmod +x /tmp/install-db2-from-storageaccount.sh
+ - sudo -E /tmp/install-db2-from-storageaccount.sh

@@ -30,5 +30,5 @@ inst1.FENCED_HOME_DIRECTORY       = /home/db2fenc1
 *  Installed Languages
 *-----------------------------------------------
 LANG       = EN
-inst1.PASSWORD = $DBPASSWORD
-inst1.FENCED_PASSWORD = $DBFENCED_PASSWORD
+inst1.PASSWORD = $DB2_ADMIN_PASSWORD
+inst1.FENCED_PASSWORD = $DB2_FENCED_PASSWORD
