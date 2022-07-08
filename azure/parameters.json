@@ -79,6 +79,12 @@
         "subnetVMPrefix": {
             "value": "10.0.5.0/26"
         },
+        "subnetDataName": {
+            "value": "data"
+        },
+        "subnetDataPrefix": {
+            "value": "10.0.6.0/26"
+        },
         "storageNamePrefix": {
             "value": "sterlingfiles"
         },
@@ -108,6 +114,24 @@
         },
         "omsImageName":{
             "value": "icr.io/cpopen/ibm-oms-pro-case-catalog:v1.0"
+        },
+        "DBgeoRedundantBackup": {
+            "value": "Disabled"
+        },
+        "DBbackupRetentionDays" : {
+            "value": 7
+        },
+        "dbStorageSizeGB": {
+            "value": 2048
+        },
+        "postgreSQLVersion": {
+            "value": "13"
+        },
+        "postgreSQLVMClass": {
+            "value": "Standard_E2ds_v4"
+        },
+        "postgreSQLEdition": {
+            "value": "MemoryOptimized"
         }
 
     }

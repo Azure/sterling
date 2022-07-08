@@ -1,3 +1,4 @@
+param branchName string
 param clientID string
 @secure()
 param clientSecret string
@@ -38,17 +39,49 @@ param loadBalancerName string
 param gatewayName string
 param subnetVMName string
 param subnetVMPrefix string
+param subnetDataName string
+param subnetDataPrefix string
+
+param DBgeoRedundantBackup string
+param DBbackupRetentionDays int
+param dbStorageSizeGB int
+param postgreSQLVersion string
+param postgreSQLVMClass string
+param postgreSQLEdition string
+
 param devVMName string
 param registryName string
 
 
+@description('Which version of OMS do you want to configure? 1=Professional, 2=Enterprise')
+@allowed([
+  '1'
+  '2'
+])
+param whichOMS string
 @description('Do you want to create a DB2 VM (Y/N)?')
+@allowed([
+  'Y'
+  'N'
+])
 param installdb2vm string
 @description('Do you want a DB2 container in your cluster (for development purposes) (Y/N)?')
+@allowed([
+  'Y'
+  'N'
+])
 param installdb2container string
 @description('Do you want to create an MQ VM (Y/N)?')
+@allowed([
+  'Y'
+  'N'
+])
 param installmqvm string
 @description('Do you want an MQ container in your cluster (Y/N)?')
+@allowed([
+  'Y'
+  'N'
+])
 param installmqcontainer string
 
 
@@ -66,6 +99,8 @@ module network 'networking.bicep' = {
     subnetEndpointsName: subnetEndpointsName
     subnetVMName: subnetVMName
     subnetVMPrefix: subnetVMPrefix
+    subnetDataPrefix: subnetDataPrefix
+    subnetDataName: subnetDataName
     location: location
     NATGatewayName: gatewayName
   }
@@ -87,6 +122,23 @@ module aro 'aro.bicep' = {
   dependsOn:[
     network
   ]
+}
+module postgreSQL 'postgresFlexible.bicep' = {
+  name: 'postgreSQL'
+  scope: resourceGroup()
+  params : {
+    location: location
+    geoRedundantBackup: DBgeoRedundantBackup
+    backupRetentionDays: DBbackupRetentionDays
+    dbStorageSizeGB: dbStorageSizeGB
+    postgreSQLVersion: postgreSQLVersion
+    postgreSQLVMClass: postgreSQLVMClass
+    postgreSQLEdition: postgreSQLEdition
+    adminUserName: adminUsername
+    adminPassword: adminPassword
+    subnetDataName: subnetDataName
+    virtualNetworkName: vnetName
+  }
 }
 
 module containerRegistery 'containerregistry.bicep' = {
@@ -169,6 +221,7 @@ module db2vm1 'db2.bicep' = if (installdb2vm == 'Y' || installdb2vm == 'y') {
   name: 'db2vm-1'
   scope: resourceGroup()
   params: {
+    branchName: branchName
     location: location
     networkInterfaceName: '${db2VirtualMachineNamePrefix}-1-nic'
     networkSecurityGroupName: '${db2VirtualMachineNamePrefix}-1-nsg'
@@ -304,6 +357,7 @@ module jumpbox 'jumpbox.bicep' = {
   name: 'jumpbox'
   scope: resourceGroup()
   params: {
+    branchName: branchName
     location: location
     networkInterfaceName: '${jumpboxVirtualMachineName}-nic'
     networkSecurityGroupName: '${jumpboxVirtualMachineName}-nsg'
@@ -318,8 +372,9 @@ module jumpbox 'jumpbox.bicep' = {
     zone: '1'
     installdb2container: installdb2container
     installmqcontainer: installmqcontainer
-    aroname: aroClusterName
+    aroName: aroClusterName
     omsNamespace: omsNamespace
+    whichOMS: whichOMS
     clientID: clientID
     clientSecret: clientSecret
   }
