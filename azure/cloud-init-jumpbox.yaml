@@ -3,7 +3,6 @@
 runcmd:
  - export OMS_NAMESPACE=${omsNamespace}
  - export ARO_CLUSTER_NAME=${aroName}
- - export OMS_IMAGE_NAME=${omsImageName}
  - export INSTALL_DB2_CONTAINER=${installdb2container}
  - export INSTALL_MQ_CONTAINER=${installmqcontainer}
  - export WHICH_OMS=${whichOMS}
