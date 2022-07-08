@@ -28,6 +28,8 @@ param location string
 param NATGatewayName string
 param subnetVMName string
 param subnetVMPrefix string
+param subnetDataPrefix string
+param subnetDataName string
 
 resource vnet 'Microsoft.Network/virtualNetworks@2021-03-01' = {
   name: vnetName
@@ -60,6 +62,20 @@ resource vnet 'Microsoft.Network/virtualNetworks@2021-03-01' = {
           }
         }
       }
+      {
+        name: subnetDataName
+        properties: {
+          addressPrefix: subnetDataPrefix
+          delegations: [
+            {
+              name: 'Microsoft.DBforPostgreSQL.flexibleServers'
+              properties: {
+                serviceName: 'Microsoft.DBforPostgreSQL/flexibleServers'
+              }
+            }
+          ]
+        }
+      }      
       {
         name: subnetEndpointsName
         properties: {
