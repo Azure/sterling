@@ -26,13 +26,13 @@
             ]
         },
         "jumpboxVirtualMachineName": {
-            "value": "JumpBoxVM"
+            "value": "omsvmjumpbox"
         },
         "db2VirtualMachineNamePrefix": {
-            "value": "db2VM"
+            "value": "omsvmdb2"
         },
         "mqVirtualMachineName": {
-            "value": "mqVM"
+            "value": "omsvmmq"
         },
         "osDiskType": {
             "value": "Premium_LRS"
@@ -44,7 +44,7 @@
             "value": "azureuser"
         },
         "vnetName": {
-            "value": "vnet1"
+            "value": "omsvnet"
         },
         "vnetAddressPrefix": {
             "value": "10.0.0.0/16"
@@ -86,33 +86,33 @@
             "value": "10.0.6.0/26"
         },
         "storageNamePrefix": {
-            "value": "sterlingfiles"
+            "value": "omsfiles"
         },
         "bastionHostName": {
-            "value": "sterlingBastionHost"
+            "value": "omsbastionhost"
         },
         "mqsharename":{
             "value": "mqha"
         },
         "loadBalancerName":{
-            "value": "db2-lb"
+            "value": "omsilbdb2"
         },
         "gatewayName":{
-            "value": "workerGateway"
+            "value": "omsvmgateway"
         },
         "db2lbprivateIP":{
             "value": "10.0.4.100"
         },
         "devVMName":{
-            "value": "devVM"
+            "value": "omsvmdev"
         },
         "registryName":{
-            "value": "omsacr"
+            "value": "omsacr01"
         },
         "omsNamespace":{
             "value": "oms"
         },
-        "omsImageName":{
+        "whichOMS":{
             "value": "icr.io/cpopen/ibm-oms-pro-case-catalog:v1.0"
         },
         "DBgeoRedundantBackup": {
