@@ -19,6 +19,17 @@ resource postgresprivatednszone 'Microsoft.Network/privateDnsZones@2020-06-01' =
   properties: {}
 }
 
+resource registry_private_zone_link 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
+  name: '${postgresprivatednszone.name}/${virtualNetworkName}-link'
+  location: 'global'
+  properties: {
+    registrationEnabled: false
+    virtualNetwork: {
+      id: vnetId
+    }
+  }
+}
+
 resource postgressql 'Microsoft.DBforPostgreSQL/flexibleServers@2021-06-01' = {
   name: 'string'
   location: location

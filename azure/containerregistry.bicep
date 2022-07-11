@@ -20,7 +20,7 @@ resource registry_resource 'Microsoft.ContainerRegistry/registries@2021-09-01' =
 }
 
 resource registry_private_zone 'Microsoft.Network/privateDnsZones@2020-06-01' = {
-  name: 'privatelink.${environment().suffixes.acrLoginServer}' //azurecr.io'
+  name: 'privatelink${environment().suffixes.acrLoginServer}' //azurecr.io'
   location: 'global' 
   properties: {}
 }
@@ -38,7 +38,7 @@ resource registry_private_zone_link 'Microsoft.Network/privateDnsZones/virtualNe
 }
 
 resource registry_private_endpoint 'Microsoft.Network/privateEndpoints@2021-03-01' = {
-  name: 'premiumstorage'
+  name: 'oms-pe-acr'
   location: location
   properties: {
     subnet: {
@@ -52,7 +52,7 @@ resource registry_private_endpoint 'Microsoft.Network/privateEndpoints@2021-03-0
             'registry'
           ]
         }
-        name: 'RegistryEndpoint'
+        name: 'oms-pe-acr'
       }
     ]
   }

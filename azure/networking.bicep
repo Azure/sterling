@@ -57,9 +57,9 @@ resource vnet 'Microsoft.Network/virtualNetworks@2021-03-01' = {
         name: subnetVMName
         properties: {
           addressPrefix: subnetVMPrefix
-          natGateway: {
-            id: resourceId('Microsoft.Network/natGateways@2021-05-01',NATGatewayName)
-          }
+          //natGateway: {
+          //  id: resourceId('Microsoft.Network/natGateways@2021-05-01',NATGatewayName)
+          //}
         }
       }
       {

@@ -174,9 +174,6 @@ resource subnet 'Microsoft.Network/virtualNetworks/subnets@2020-05-01' = {
 resource bastionHost 'Microsoft.Network/bastionHosts@2020-05-01' = {
   name: bastionHostName
   location: location
-  dependsOn: [
-    publicIp
-  ]
   properties: {
     ipConfigurations: [
       {
