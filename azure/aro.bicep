@@ -19,7 +19,8 @@ resource azureredhadopenshift_resource 'Microsoft.RedHatOpenShift/openShiftClust
     clusterProfile: {
       domain: domain
       pullSecret: openshiftpullsecret
-      resourceGroupId: '/subscriptions/${subscription().subscriptionId}/aro-${domain}'
+      resourceGroupId: '/subscriptions/${subscription().subscriptionId}/resourceGroups/${aroname}-${domain}'
+      fipsValidatedModules: 'Disabled'
     }
     servicePrincipalProfile: {
       clientId: 'string'
