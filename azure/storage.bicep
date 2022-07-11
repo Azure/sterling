@@ -89,7 +89,7 @@ resource files_private_zone_link 'Microsoft.Network/privateDnsZones/virtualNetwo
 // Premium endpoint 
 
 resource premium_private_endpoint 'Microsoft.Network/privateEndpoints@2021-03-01' = {
-  name: 'premiumstorage'
+  name: 'oms-pe-premiumstorage'
   location: location
   properties: {
     subnet: {
@@ -103,7 +103,7 @@ resource premium_private_endpoint 'Microsoft.Network/privateEndpoints@2021-03-01
             'file'
           ]
         }
-        name: 'PremiumFilesEndpoint'
+        name: 'oms-pe-premiumstorage'
       }
     ]
   }

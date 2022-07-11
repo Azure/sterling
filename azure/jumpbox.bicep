@@ -106,7 +106,7 @@ resource virtualMachineName_resource 'Microsoft.Compute/virtualMachines@2021-03-
       computerName: virtualMachineName
       adminUsername: adminUsername
       adminPassword: adminPassword
-      customData: base64(cloudInitData)
+      //customData: base64(cloudInitData)
       linuxConfiguration: {
         disablePasswordAuthentication: false
       }

@@ -139,6 +139,9 @@ module postgreSQL 'postgresFlexible.bicep' = {
     subnetDataName: subnetDataName
     virtualNetworkName: vnetName
   }
+  dependsOn:[
+    network
+  ]
 }
 
 module containerRegistery 'containerregistry.bicep' = {
