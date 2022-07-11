@@ -21,25 +21,25 @@ This repository provides deployument guidance and best practices for running IBM
     - [Private VM Outbound Internet Access](#private-vm-outbound-internet-access)
     - [Install and Configure IBM DB2 (if applicable)](#install-and-configure-ibm-db2-if-applicable)
     - [Install and Configure IBM MQ (if applicable)](#install-and-configure-ibm-mq-if-applicable)
-    - [Install IBM Operator Catalog and the Sterling Operator](#install-ibm-operator-catalog-and-the-sterling-operator)
-    - [Install Tools and Helm Charts](#install-tools-and-helm-charts)
-  - [Step 5: Deploy OMS Prerequisites](#step-5-deploy-oms-prerequisites)
+    - [Install Tools](#install-tools)
+  - [Step 5: Logging into your OpenShift Cluster with the OpenShift Command Line Tool](#step-5-logging-into-your-openshift-cluster-with-the-openshift-command-line-tool)
+  - [Step 6: Deploy OMS Prerequisites & Artifacts](#step-6-deploy-oms-prerequisites--artifacts)
     - [Install Azure Files CSI Driver](#install-azure-files-csi-driver)
     - [Create OMS Namespace](#create-oms-namespace)
     - [Add Azure Container Registry Credentials to Namespace Docker Credential Secret](#add-azure-container-registry-credentials-to-namespace-docker-credential-secret)
+    - [Install IBM Operator Catalog and the Sterling Operator](#install-ibm-operator-catalog-and-the-sterling-operator)
     - [Create OMS Secret](#create-oms-secret)
     - [Create Required PVC(s)](#create-required-pvcs)
     - [Create RBAC Role](#create-rbac-role)
-    - [Set up development VM(s)](#set-up-development-vms)
     - [Pushing your containers to your Azure Container Registry](#pushing-your-containers-to-your-azure-container-registry)
+    - [Update Container Pull Secret(s) for your Azure Container Registry](#update-container-pull-secrets-for-your-azure-container-registry)
     - [SSL Connections and Keystore Configuration](#ssl-connections-and-keystore-configuration)
-  - [Step 6: Deploying OMS](#step-6-deploying-oms)
+  - [Step 7: Deploying OMS](#step-7-deploying-oms)
     - [Deploying OMS Via Helm Charts](#deploying-oms-via-helm-charts)
     - [Deploying OMS Via the OpenShift Operator](#deploying-oms-via-the-openshift-operator)
-  - [Step 7: Post Deployment Tasks](#step-7-post-deployment-tasks)
+  - [Step 8: Post Deployment Tasks](#step-8-post-deployment-tasks)
     - [Licensing your DB2 and MQ Instances](#licensing-your-db2-and-mq-instances)
     - [Migrating Your Data](#migrating-your-data)
-    - [Other Best Practices and Considerations](#other-best-practices-and-considerations)
   - [Contributing](#contributing)
   - [Trademarks](#trademarks)
 
@@ -170,7 +170,7 @@ If you did not deploy your Azure VMs with a public IP address, and you need to d
 
 After downloading and extracting the required setup files for DB2, install your IBM DB2 instance and make sure you add any required firewall openings on the Virtual Machines. In the config subfolder is a sample DB2 response file you can use to automate the installation.
 
-To use this response file, first you need to add your desired password to the file (this sample file does not contain one). For example, assuming you extracted the DB2 setup files to the /mnt path on your virtual machine, you can do this by running the following commands (replacing ```<your password>``` with your desired admin and fenced user password):
+To use this response file, first you need to add your desired password to the file (this sample file does not contain one). For example, assuming you extracted the DB2 setup files to the /mnt path on your virtual machine, you can do this by running the following commands (and supplying your DBPASSWORD and DBFENCED_PASSWORD as environment variables for substitution):
 
 ```bash
  wget -nv https://raw.githubusercontent.com/Azure/sterling/main/config/db2/install.rsp -O /mnt/install.rsp
@@ -183,9 +183,15 @@ sudo /mnt/server_dec/db2setup -r /mnt/install.rsp
 This will complete the DB2 install. Once the installation completes, you should remove the response file. You should repeat this process for each DB2 instance you plan on creating for high availability. This will require you to install the required Pacemaker components for DB2:
 
 ```bash
+#Your DB2 Installer media should have come with local Pacemkaer installer files. These files and setup are IBM's own approved installation
+#More information, including how to complete this setup, can be found here: https://www.ibm.com/docs/en/db2/11.5?topic=feature-integrated-solution-using-pacemaker
+cd /<install location>/db2/linuxamd64/pcmk
+sudo ./db2installPCMK -i
+cd /var/ibm/db2/V11.5/install/pcmk
+sudo sudo ./db2cppcmk -i
 ```
 
-For more information, please refer to this documentation about building a highly-available DB2 instance in Azure: <todo>
+For more information, please refer to this documentation about building a highly-available DB2 instance in Azure: https://docs.microsoft.com/en-us/azure/virtual-machines/workloads/sap/high-availability-guide-rhel-ibm-db2-luw
 
 ### Install and Configure IBM MQ (if applicable)
 
@@ -209,17 +215,33 @@ Finally, to make sure this mount is persisten through reboots, add the mount inf
 sudo echo "<your storage account name>prm.file.core.windows.net:/<your storage account name>/mq /MQHA nfs rw,hard,noatime,nolock,vers=4,tcp,_netdev 0 0" >> /etc/fstab
 ```
 
-### Install IBM Operator Catalog and the Sterling Operator
-
-TODO
-
-### Install Tools and Helm Charts
+### Install Tools
 
 To enable administration and deployment of Sterling OMS, you should make sure your jump box virtual machine has the follwing tools installed:
 
 First, download and set up the ```oc``` command line too. You can download the OpenShift clients from Red Hat at their mirror. This will provide the oc CLI and also includes kubectl.
 
 💡 TIP: Copy the oc and kubectl client to your /usr/bin directory to access the client from any directory. This will be required for some installing scripts.
+
+## Step 5: Logging into your OpenShift Cluster with the OpenShift Command Line Tool
+
+To use the command line tools, you'll need to log in to your cluster. You will need two pieces of information:
+
+* Cluster API Server URL
+  * To obtain the cluster API URL, you'll first need to log in with the Azure CLI:
+    * ```az login```
+    * Next, you'll need to set your active subscription to wherever your deployed your cluster: ```az account set --subscription "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"```
+    * Finally, if you run the following command, you should get your API server (without the https://, which is not required for the login): ```az aro show -g <resource group name> -n <aro cluster name> --query apiserverProfile.url -o tsv | sed -e 's#^https://##; s#/##'```
+* Default username and password
+  * To get the default credentials for your cluster, run the following command: ```az aro list-credentials -g <resource group name> -n <aro cluster name>```
+
+Once you have the API URL and default credentials, you can log in via ```oc```:
+
+```bash
+oc login <api server url> -u kubeadmin -p <password from az aro list-credentials>
+```
+
+If you receive any errors with those commands, verify that you successfully logged in with the Azure CLI, and that you are in the right subscription. Verify your resource group name and your ARO cluster name.
 
 Next, install [Helm](https://helm.sh/):
 
@@ -229,10 +251,8 @@ chmod 700 get_helm.sh
 ./get_helm.sh
 ```
 
-Then, install the latest Helm charts for Sterling OMS. For information how to download the approproate chart, see this documentation from IBM: https://www.ibm.com/docs/en/order-management-sw/10.0?topic=container-downloading-helm-charts 
 
-
-## Step 5: Deploy OMS Prerequisites
+## Step 6: Deploy OMS Prerequisites & Artifacts
 
 ### Install Azure Files CSI Driver
 
@@ -260,12 +280,31 @@ oc apply -f azurefiles-standard.yaml
 You will need to create the namespace used for your OMS deployment:
 
 ```bash
-oc create namespace <your namespace name>
+export OMS_NAMESPACE="OMS"
+oc create namespace $OMS_NAMESPACE
 ```
 
 ### Add Azure Container Registry Credentials to Namespace Docker Credential Secret
 
 TODO
+
+### Install IBM Operator Catalog and the Sterling Operator
+
+IBM publishses two discrete operators for Sterling Order Management: Professional and Enterprise. You will need to provide the version when installing the Software Operator for OpenShift.
+
+* For IBM Sterling Order Management Professional Edition, you will use "" as the image name ```icr.io/cpopen/ibm-oms-pro-case-catalog:v1.0```
+* For IBM Sterling Order Management Enterprise Edition, you will use "" as the image name ```icr.io/cpopen/ibm-oms-ent-case-catalog:v1.0```
+
+A sample YAML script and bash script are provided in this repository that you can use, provided you set your image name as an environment variable, as such:
+
+```bash
+#Professional edition
+export OMS_VERSION="icr.io/cpopen/ibm-oms-pro-case-catalog:v1.0"
+export branchName="main"
+oc apply -f https://raw.githubusercontent.com/Azure/sterling/$branchName/config/operators/install-oms-operator.yaml
+```
+
+More information on the OMS Operator can be found here: https://www.ibm.com/docs/en/order-management-sw/10.0?topic=container-installing-order-management-software-operator
 
 ### Create OMS Secret
 
@@ -293,7 +332,7 @@ A sample PVC template is provided as part of this repository, and will use the A
 ```bash
 #Assumes you use the same storage class name from before; change as needed
 export STORAGECLASSNAME="azurefiles-standard"
-export SIZEINGB="10"
+export SIZEINGB="20"
 wget -nv https://raw.githubusercontent.com/Azure/sterling/main/config/oms-pvc.yaml -O oms-pvc.yaml
 envsubst < oms-pvc.yaml > oms-pvc.yaml
 oc create -f oms-pvc.yaml
@@ -308,11 +347,11 @@ envsubst < oms-rbac.yaml > oms-rbac.yaml
 oc create -f oms-rbac.yaml
 ```
 
-### Set up development VM(s)
+### Pushing your containers to your Azure Container Registry
 
 TODO
 
-### Pushing your containers to your Azure Container Registry
+### Update Container Pull Secret(s) for your Azure Container Registry
 
 TODO
 
@@ -326,33 +365,29 @@ To use SSL/TLS connections for both your user-facing applications and any requir
 
 Once you have your key and trust stores, you should copy them to the relevant locations on any of the persistant volumes that you created above for your deployment. For more information, please see this documentation: <todo>
 
-## Step 6: Deploying OMS
+## Step 7: Deploying OMS
 
 TODO
 
 
 ### Deploying OMS Via Helm Charts
 
-TODO
+If you want to use Helm to install and configure OMS on your cluster, you can download the IBM Helm charts at this step. For information how to download the approproate chart, see this documentation from IBM: https://www.ibm.com/docs/en/order-management-sw/10.0?topic=container-downloading-helm-charts 
 
 ### Deploying OMS Via the OpenShift Operator
 
 TODO
 
-## Step 7: Post Deployment Tasks
+## Step 8: Post Deployment Tasks
 
 TODO
 
 ### Licensing your DB2 and MQ Instances
 
-Post-installation, if you have not already, please obtain your license files for DB2 and MQ and apply the licenses as specified by IBM in their documentation:
+Post-installation, if you have not already (and you're using IBM DB2 and/or IBM MQ), please obtain your license files for DB2 and MQ and apply the licenses as specified by IBM in their documentation:
 
 
 ### Migrating Your Data
-
-TODO
-
-### Other Best Practices and Considerations
 
 TODO
 
