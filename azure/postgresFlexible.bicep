@@ -9,6 +9,7 @@ param adminUserName string
 param adminPassword string
 param subnetDataName string
 param virtualNetworkName string
+param postgreSQLName string
 
 var vnetId = resourceId(resourceGroup().name, 'Microsoft.Network/virtualNetworks', virtualNetworkName)
 var subnetReference = '${vnetId}/subnets/${subnetDataName}'
@@ -31,7 +32,7 @@ resource registry_private_zone_link 'Microsoft.Network/privateDnsZones/virtualNe
 }
 
 resource postgressql 'Microsoft.DBforPostgreSQL/flexibleServers@2021-06-01' = {
-  name: 'string'
+  name: postgreSQLName
   location: location
   sku: {
     name: postgreSQLVMClass
