@@ -25,7 +25,7 @@ param subnetEndpointsName string
 @description('Location for all resources.')
 param location string
 
-param NATGatewayName string
+param gatewayName string
 param subnetVMName string
 param subnetVMPrefix string
 param subnetDataPrefix string
@@ -53,15 +53,15 @@ resource vnet 'Microsoft.Network/virtualNetworks@2021-03-01' = {
           addressPrefix: subnetWorkerNodePrefix
         }
       }
-      {
-        name: subnetVMName
-        properties: {
-          addressPrefix: subnetVMPrefix
-          //natGateway: {
-          //  id: resourceId('Microsoft.Network/natGateways@2021-05-01',NATGatewayName)
-          //}
-        }
-      }
+      //{
+      //  name: subnetVMName
+      //  properties: {
+      //    addressPrefix: subnetVMPrefix
+      //    //natGateway: {
+      //    //  id: resourceId('Microsoft.Network/natGateways@2021-05-01',NATGatewayName)
+      //    //}
+      //  }
+      //}
       {
         name: subnetDataName
         properties: {
@@ -86,4 +86,47 @@ resource vnet 'Microsoft.Network/virtualNetworks@2021-03-01' = {
       }
     ]
   }
+}
+
+resource gateway_public_ip_resource 'Microsoft.Network/publicIPAddresses@2020-08-01' = {
+  name: '${gatewayName}-pip'
+  location: location
+  properties: {
+    publicIPAllocationMethod: 'Static'
+  }
+  sku: {
+    name: 'Standard'
+  }  
+}
+
+resource gateway_resource 'Microsoft.Network/natGateways@2019-09-01' = {
+  name: gatewayName
+  location: location
+  sku: {
+    name: 'Standard'
+  }
+  properties: {
+    publicIpAddresses: [
+      {
+        id: resourceId('Microsoft.Network/publicIpAddresses/', '${gatewayName}-pip')
+      }
+    ]
+  }
+  dependsOn: [
+    gateway_public_ip_resource
+  ]
+}
+
+resource gateway_subnet_update 'Microsoft.Network/virtualNetworks/subnets@2020-11-01' = {
+  name: subnetVMName
+  properties: {
+    addressPrefix: subnetVMPrefix
+    natGateway: {
+      id: resourceId('Microsoft.Network/natGateways/', gatewayName)
+    }
+  }
+  parent: vnet
+  dependsOn: [
+    gateway_resource
+  ]
 }

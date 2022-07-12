@@ -21,9 +21,9 @@ tar xvf /tmp/OCPInstall/openshift-client-linux.tar.gz -C /tmp/OCPInstall
 sudo cp /tmp/OCPInstall/oc /usr/bin
 
 #Helm install
-curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
-chmod 700 get_helm.sh
-./get_helm.sh
+curl -fsSL -o /tmp/get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+chmod 700 /tmp/get_helm.sh
+/tmp/get_helm.sh
 
 #OC Login
 apiServer=$(az aro show -g $(cat ~/.azure/osServicePrincipal.json | jq -r .resourceGroup) -n $ARO_CLUSTER_NAME --query apiserverProfile.url -o tsv | sed -e 's#^https://##; s#/##' )
@@ -41,13 +41,14 @@ wget -nv https://raw.githubusercontent.com/Azure/sterling/$branchName/config/ope
 oc apply -f /tmp/ibm-integration-operatorgroup.yaml
 
 #Install OMS Opeartor
-if [ "$WHICH_OMS" == "1" ] 
-then
-  export OMS_VERSION="icr.io/cpopen/ibm-oms-pro-case-catalog:v1.0"
-elif [ "$WHICH_OMS" == "2" ]
-then
-  export OMS_VERSION="icr.io/cpopen/ibm-oms-ent-case-catalog:v1.0"
-fi
+export OMS_VERSION=$WHICH_OMS
+#if [ "$WHICH_OMS" == "1" ] 
+#then
+#  export OMS_VERSION="icr.io/cpopen/ibm-oms-pro-case-catalog:v1.0"
+#elif [ "$WHICH_OMS" == "2" ]
+#then
+#  export OMS_VERSION="icr.io/cpopen/ibm-oms-ent-case-catalog:v1.0"
+#fi
 wget -nv https://raw.githubusercontent.com/Azure/sterling/$branchName/config/operators/install-oms-operator.yaml -O /tmp/install-oms-operator.yaml
 envsubst < /tmp/install-oms-operator.yaml > /tmp/install-oms-operator.yaml
 oc apply -f /tmp/install-oms-operator.yaml

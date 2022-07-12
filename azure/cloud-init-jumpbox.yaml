@@ -6,6 +6,7 @@ runcmd:
  - export INSTALL_DB2_CONTAINER=${installdb2container}
  - export INSTALL_MQ_CONTAINER=${installmqcontainer}
  - export WHICH_OMS=${whichOMS}
+ - export BRANCH_NAME=${branchName}
  - sudo apt-get update -y 
  - sudo apt-get install -y ca-certificates curl gnupg lsb-release
  - mkdir ~/.azure/
