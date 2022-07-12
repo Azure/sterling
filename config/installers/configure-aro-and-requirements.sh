@@ -31,13 +31,13 @@ adminpassword=az aro list-credentials --name $ARO_CLUSTER_NAME --resource-group 
 oc login $apiServer -u kubeadmin -p $adminpassword
 
 #Install & Configure Azure Files CSI Drivers and Storage Classes
-wget -nv https://raw.githubusercontent.com/Azure/sterling/$branchName/config/azure-file-storage/configure-azurefiles-driver.sh -O /tmp/configure-azurefiles-driver.sh
+wget -nv https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/azure-file-storage/configure-azurefiles-driver.sh -O /tmp/configure-azurefiles-driver.sh
 chmod u+x /tmp/configure-azurefiles-driver.sh
 /tmp/configure-azurefiles-driver.sh
 
 #Configure IBM Operator Catalog
 oc create namespace openshift-marketplace
-wget -nv https://raw.githubusercontent.com/Azure/sterling/$branchName/config/operators/ibm-integration-operatorgroup.yaml -O /tmp/ibm-integration-operatorgroup.yaml
+wget -nv https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/operators/ibm-integration-operatorgroup.yaml -O /tmp/ibm-integration-operatorgroup.yaml
 oc apply -f /tmp/ibm-integration-operatorgroup.yaml
 
 #Install OMS Opeartor
@@ -49,7 +49,7 @@ export OMS_VERSION=$WHICH_OMS
 #then
 #  export OMS_VERSION="icr.io/cpopen/ibm-oms-ent-case-catalog:v1.0"
 #fi
-wget -nv https://raw.githubusercontent.com/Azure/sterling/$branchName/config/operators/install-oms-operator.yaml -O /tmp/install-oms-operator.yaml
+wget -nv https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/operators/install-oms-operator.yaml -O /tmp/install-oms-operator.yaml
 envsubst < /tmp/install-oms-operator.yaml > /tmp/install-oms-operator.yaml
 oc apply -f /tmp/install-oms-operator.yaml
 
