@@ -121,6 +121,9 @@
         "DBbackupRetentionDays" : {
             "value": 7
         },
+        "postgreSQLName" : {
+            "value": "omspostgresql"
+        },
         "dbStorageSizeGB": {
             "value": 2048
         },

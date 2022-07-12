@@ -4,7 +4,7 @@ sudo tar -xf /tmp/db2.tar.gz -C /mnt
 sudo rm /tmp/db2.tar.gz
 
 #Get the template installer response file (nongui install)
-wget -nv https://raw.githubusercontent.com/Azure/sterling/$branchName/config/db2/install.rsp -O /mnt/install.rsp
+wget -nv https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/db2/install.rsp -O /mnt/install.rsp
 envsubst < /mnt/install.rsp > /mnt/install.rsp
 sudo /mnt/server_dec/db2setup -r /mnt/install.rsp
 

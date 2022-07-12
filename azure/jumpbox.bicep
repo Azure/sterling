@@ -27,7 +27,7 @@ var subnetRef = '${vnetId}/subnets/${subnetName}'
 var subscriptionID = subscription().subscriptionId
 var resourceGroupName = resourceGroup().name
 var tenantID = tenant().tenantId
-var cloudInitData = '#cloud-config\n\nruncmd:\n - export OMS_NAMESPACE=${omsNamespace}\n - export ARO_CLUSTER_NAME=${aroName}\n - export INSTALL_DB2_CONTAINER=${installdb2container}\n - export INSTALL_MQ_CONTAINER=${installmqcontainer}\n - export WHICH_OMS=${whichOMS}\n - sudo apt-get update -y \n - sudo apt-get install -y ca-certificates curl gnupg lsb-release\n - mkdir ~/.azure/\n - echo \'{"subscriptionId":"${subscriptionID}","clientId":"${clientID}","clientSecret":"${clientSecret}","tenantId":"${tenantID}","resourceGroup":"${resourceGroupName}"}\' > ~/.azure/osServicePrincipal.json\n - [ wget, -nv, "https://raw.githubusercontent.com/Azure/sterling/${branchName}/config/installers/config-aro-and-requirements.sh", -O, /tmp/config-aro-and-requirements.sh ]\n - chmod +x /tmp/config-aro-and-requirements.sh\n - sudo -E /tmp/config-aro-and-requirements.sh\n'
+var cloudInitData = '#cloud-config\n\nruncmd:\n - export OMS_NAMESPACE=${omsNamespace}\n - export ARO_CLUSTER_NAME=${aroName}\n - export INSTALL_DB2_CONTAINER=${installdb2container}\n - export INSTALL_MQ_CONTAINER=${installmqcontainer}\n - export WHICH_OMS=${whichOMS}\n - export BRANCH_NAME=${branchName}\n - sudo apt-get update -y \n - sudo apt-get install -y ca-certificates curl gnupg lsb-release\n - mkdir ~/.azure/\n - echo \'{"subscriptionId":"${subscriptionID}","clientId":"${clientID}","clientSecret":"${clientSecret}","tenantId":"${tenantID}","resourceGroup":"${resourceGroupName}"}\' > ~/.azure/osServicePrincipal.json\n - [ wget, -nv, "https://raw.githubusercontent.com/Azure/sterling/${branchName}/config/installers/config-aro-and-requirements.sh", -O, /tmp/config-aro-and-requirements.sh ]\n - chmod +x /tmp/config-aro-and-requirements.sh\n'
 
 
 resource networkInterfaceName_resource 'Microsoft.Network/networkInterfaces@2018-10-01' = {
@@ -106,7 +106,7 @@ resource virtualMachineName_resource 'Microsoft.Compute/virtualMachines@2021-03-
       computerName: virtualMachineName
       adminUsername: adminUsername
       adminPassword: adminPassword
-      //customData: base64(cloudInitData)
+      customData: base64(cloudInitData)
       linuxConfiguration: {
         disablePasswordAuthentication: false
       }
