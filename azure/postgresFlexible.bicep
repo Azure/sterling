@@ -57,4 +57,7 @@ resource postgressql 'Microsoft.DBforPostgreSQL/flexibleServers@2021-06-01' = {
     }
     version: postgreSQLVersion
   }
+  dependsOn: [
+    registry_private_zone_link
+  ]
 }

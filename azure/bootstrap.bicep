@@ -1,5 +1,6 @@
 param branchName string
 param clientID string
+param objectID string
 @secure()
 param clientSecret string
 param location string
@@ -102,7 +103,7 @@ module network 'networking.bicep' = {
     subnetDataPrefix: subnetDataPrefix
     subnetDataName: subnetDataName
     location: location
-    NATGatewayName: gatewayName
+    gatewayName: gatewayName
   }
 }
 
@@ -118,6 +119,9 @@ module aro 'aro.bicep' = {
     subnetControlNodeName: subnetControlNodeName
     subnetWorkerNodeName: subnetWorkerNodeName
     virtualNetworkName: vnetName
+    clientID: clientID
+    objectID: objectID
+    clientSecret: clientSecret
   }
   dependsOn:[
     network
@@ -202,20 +206,6 @@ module bastionHost 'bastion.bicep' = {
    location: location
   }
   dependsOn:[
-    network
-  ]
-}
-
-module gateway 'gateway.bicep' = {
-  name: gatewayName
-  scope: resourceGroup()
-  params: {
-    gatewayName: gatewayName
-    location: location
-    virtualNetworkName: vnetName
-    subnetName: subnetVMName
-  }
-  dependsOn: [
     network
   ]
 }
