@@ -6,11 +6,11 @@ driver_version="1.19.0"
 
 #Create the azure.json file and upload as secret
 wget -nv https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/azure-file-storage/azure.json -O /tmp/azure.json
-envsubst < /tmp/azure.json > /tmp/azure.json
-export AZURE_CLOUD_SECRET=`cat /tmp/azure.json | base64 | awk '{printf $0}'; echo`
+envsubst < /tmp/azure.json > /tmp/azure-updated.json
+export AZURE_CLOUD_SECRET=`cat /tmp/azure-updated.json | base64 | awk '{printf $0}'; echo`
 wget -nv https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/azure-file-storage/azure-cloud-provider.yaml -O /tmp/azure-cloud-provider.yaml
-envsubst < /tmp/azure-cloud-provider.yaml > /tmp/azure-cloud-provider.yaml
-oc apply -f /tmp/azure-cloud-provider.yaml
+envsubst < /tmp/azure-cloud-provider.yaml > /tmp/azure-cloud-provider-updated.yaml
+oc apply -f /tmp/azure-cloud-provider-updated.yaml
 
 #sudo -E oc create secret generic azure-cloud-provider --from-literal=cloud-config=$(cat /tmp/azure.json | awk '{printf $0}'; echo) -n kube-system
 
@@ -26,13 +26,13 @@ curl -skSL https://raw.githubusercontent.com/kubernetes-sigs/azurefile-csi-drive
 
  #Configure Azure Files Standard
  wget -nv https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/azure-file-storage/azurefiles-standard.yaml -O /tmp/azurefiles-standard.yaml
- envsubst < /tmp/azurefiles-standard.yaml > /tmp/azurefiles-standard.yaml
- sudo -E oc apply -f /tmp/azurefiles-standard.yaml
+ envsubst < /tmp/azurefiles-standard.yaml > /tmp/azurefiles-standard-updated.yaml
+ sudo -E oc apply -f /tmp/azurefiles-standard-updated.yaml
 
 #Deploy premium Storage Class
  wget -nv https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/azure-file-storage/azurefiles-premium.yaml -O /tmp/azurefiles-premium.yaml
- envsubst < /tmp/azurefiles-premium.yaml > /tmp/azurefiles-premium.yaml
- sudo -E oc apply -f /tmp/azurefiles-premium.yaml
+ envsubst < /tmp/azurefiles-premium.yaml > /tmp/azurefiles-premium-updated.yaml
+ sudo -E oc apply -f /tmp/azurefiles-premium-updated.yaml
 
 #Deploy volume binder
 sudo -E /tmp/OCPInstall/oc apply -f https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/azure-file-storage/persistent-volume-binder.yaml
