@@ -20,7 +20,7 @@ sudo -E oc adm policy add-scc-to-user privileged system:serviceaccount:kube-syst
 #Install CSI Driver
 sudo -E oc create configmap azure-cred-file --from-literal=path="/etc/kubernetes/cloud.conf" -n kube-system
 
-driver_version=$azureFilesCSIVersion
+#driver_version=$azureFilesCSIVersion
 echo "Driver version " $driver_version
 curl -skSL https://raw.githubusercontent.com/kubernetes-sigs/azurefile-csi-driver/$driver_version/deploy/install-driver.sh | bash -s $driver_version --
 
