@@ -14,6 +14,17 @@ sudo dnf -y install azure-cli
 #Azure CLI Login
 az login --service-principal -u $(cat ~/.azure/osServicePrincipal.json | jq -r .clientId) -p $(cat ~/.azure/osServicePrincipal.json | jq -r .clientSecret) --tenant $(cat ~/.azure/osServicePrincipal.json | jq -r .tenantId) --output none && az account set -s $(cat ~/.azure/osServicePrincipal.json | jq -r .subscriptionId) --output none
 
+#Install kubectl
+cat <<EOF | sudo tee /etc/yum.repos.d/kubernetes.repo
+[kubernetes]
+name=Kubernetes
+baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-\$basearch
+enabled=1
+gpgcheck=1
+gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+EOF
+sudo dnf install -y kubectl
+
 #Openshift CLI Install
 mkdir /tmp/OCPInstall
 wget -nv "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz" -O /tmp/OCPInstall/openshift-client-linux.tar.gz
@@ -26,8 +37,8 @@ chmod 700 /tmp/get_helm.sh
 /tmp/get_helm.sh
 
 #OC Login
-apiServer=$(az aro show -g $(cat ~/.azure/osServicePrincipal.json | jq -r .resourceGroup) -n $ARO_CLUSTER_NAME --query apiserverProfile.url -o tsv | sed -e 's#^https://##; s#/##' )
-adminpassword=az aro list-credentials --name $ARO_CLUSTER_NAME --resource-group $(cat ~/.azure/osServicePrincipal.json | jq -r .resourceGroup) -query kubeadminPassword -o tsv
+apiServer=$(az aro show -g $(cat ~/.azure/osServicePrincipal.json | jq -r .resourceGroup) -n $ARO_CLUSTER --query apiserverProfile.url -o tsv | sed -e 's#^https://##; s#/##' )
+adminpassword=az aro list-credentials --name $ARO_CLUSTER --resource-group $(cat ~/.azure/osServicePrincipal.json | jq -r .resourceGroup) -query kubeadminPassword -o tsv
 oc login $apiServer -u kubeadmin -p $adminpassword
 
 #Install & Configure Azure Files CSI Drivers and Storage Classes
