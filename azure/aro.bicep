@@ -83,7 +83,7 @@ resource azureredhadopenshift_resource 'Microsoft.RedHatOpenShift/openShiftClust
       }
     ]
     apiserverProfile: {
-      visibility: 'visibility'
+      visibility: visibility
     }
   }
 }
