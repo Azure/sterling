@@ -135,7 +135,9 @@
         },
         "postgreSQLEdition": {
             "value": "MemoryOptimized"
+        },
+        "aroVisibility" : {
+            "value" : "Public"
         }
-
     }
 }
