@@ -1,16 +1,20 @@
 #cloud-config
 
 runcmd:
+ - echo "Setting environment variables..."
  - export OMS_NAMESPACE=${omsNamespace}
  - export ARO_CLUSTER_NAME=${aroName}
  - export INSTALL_DB2_CONTAINER=${installdb2container}
  - export INSTALL_MQ_CONTAINER=${installmqcontainer}
  - export WHICH_OMS=${whichOMS}
  - export BRANCH_NAME=${branchName}
- - sudo apt-get update -y 
- - sudo apt-get install -y ca-certificates curl gnupg lsb-release
  - mkdir ~/.azure/
  - echo '{"subscriptionId":"${subscriptionID}","clientId":"${clientID}","clientSecret":"${clientSecret}","tenantId":"${tenantID}","resourceGroup":"${resourceGroupName}"}' > ~/.azure/osServicePrincipal.json
- - [ wget, -nv, "https://raw.githubusercontent.com/Azure/sterling/${branchName}/config/installers/config-aro-and-requirements.sh", -O, /tmp/config-aro-and-requirements.sh ]
- - chmod +x /tmp/config-aro-and-requirements.sh
- - sudo -E /tmp/config-aro-and-requirements.sh
+ - echo "Running system update..."
+ - sudo dnf update -y
+ - echo "System update completed!"
+ - echo "Getting latest configuration script..."
+ - [ wget, -nv, "https://raw.githubusercontent.com/Azure/sterling/${branchName}/config/installers/configure-aro-and-requirements.sh", -O, /tmp/configure-aro-and-requirements.sh ]
+ - chmod +x /tmp/configure-aro-and-requirements.sh
+ - echo "Running configuration script..."
+ - sudo -E /tmp/configure-aro-and-requirements.sh
