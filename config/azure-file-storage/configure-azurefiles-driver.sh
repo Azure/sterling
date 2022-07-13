@@ -2,7 +2,7 @@ tenantId=$(cat ~/.azure/osServicePrincipal.json | jq -r .tenantId)
 subscriptionId=$(cat ~/.azure/osServicePrincipal.json | jq -r .subscriptionId)
 clientId=$(cat ~/.azure/osServicePrincipal.json | jq -r .clientId)
 clientSecret=$(cat ~/.azure/osServicePrincipal.json | jq -r .clientSecret)
-driver_version="1.19.0"
+driver_version="v1.19.0"
 
 #Create the azure.json file and upload as secret
 wget -nv https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/azure-file-storage/azure.json -O /tmp/azure.json
@@ -22,7 +22,7 @@ sudo -E oc create configmap azure-cred-file --from-literal=path="/etc/kubernetes
 
 #driver_version=$azureFilesCSIVersion
 echo "Driver version " $driver_version
-curl -skSL https://raw.githubusercontent.com/kubernetes-sigs/azurefile-csi-driver/master/deploy/install-driver.sh | bash -s $driver_version --
+curl -skSL https://raw.githubusercontent.com/kubernetes-sigs/azurefile-csi-driver/$driver_version/deploy/install-driver.sh | bash -s $driver_version --
 
  #Configure Azure Files Standard
  wget -nv https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/azure-file-storage/azurefiles-standard.yaml -O /tmp/azurefiles-standard.yaml
