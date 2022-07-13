@@ -5,6 +5,7 @@ param objectID string
 param clientSecret string
 param location string
 param aroClusterName string
+param aroVisibility string
 param omsNamespace string
 param domain string
 param numworkers int
@@ -46,6 +47,7 @@ param subnetDataPrefix string
 param DBgeoRedundantBackup string
 param DBbackupRetentionDays int
 param dbStorageSizeGB int
+param postgreSQLName string
 param postgreSQLVersion string
 param postgreSQLVMClass string
 param postgreSQLEdition string
@@ -112,6 +114,7 @@ module aro 'aro.bicep' = {
   scope:  resourceGroup()
   params : {
     aroname: aroClusterName
+    visibility: aroVisibility
     location: location
     openshiftpullsecret: OpenShiftPullSecret
     domain: domain
@@ -135,6 +138,7 @@ module postgreSQL 'postgresFlexible.bicep' = {
     geoRedundantBackup: DBgeoRedundantBackup
     backupRetentionDays: DBbackupRetentionDays
     dbStorageSizeGB: dbStorageSizeGB
+    postgreSQLName: postgreSQLName
     postgreSQLVersion: postgreSQLVersion
     postgreSQLVMClass: postgreSQLVMClass
     postgreSQLEdition: postgreSQLEdition

@@ -9,6 +9,7 @@ param virtualNetworkName string
 param clientID string
 param objectID string
 param clientSecret string
+param visibility string
 var vnetId = resourceId(resourceGroup().name, 'Microsoft.Network/virtualNetworks', virtualNetworkName)
 var controlSubnetId = '${vnetId}/subnets/${subnetControlNodeName}'
 var workerSubnetId = '${vnetId}/subnets/${subnetWorkerNodeName}'
@@ -57,7 +58,7 @@ resource azureredhadopenshift_resource 'Microsoft.RedHatOpenShift/openShiftClust
     ingressProfiles: [
       {
         name: 'default'
-        visibility: 'Public'
+        visibility: visibility
       }
     ]
 
@@ -82,7 +83,7 @@ resource azureredhadopenshift_resource 'Microsoft.RedHatOpenShift/openShiftClust
       }
     ]
     apiserverProfile: {
-      visibility: 'Public'
+      visibility: 'visibility'
     }
   }
 }
