@@ -22,7 +22,7 @@ sudo -E oc create configmap azure-cred-file --from-literal=path="/etc/kubernetes
 
 #driver_version=$azureFilesCSIVersion
 echo "Driver version " $driver_version
-curl -skSL https://raw.githubusercontent.com/kubernetes-sigs/azurefile-csi-driver/deploy/install-driver.sh | bash -s $driver_version --
+curl -skSL https://raw.githubusercontent.com/kubernetes-sigs/azurefile-csi-driver/master/deploy/install-driver.sh | bash -s $driver_version --
 
  #Configure Azure Files Standard
  wget -nv https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/azure-file-storage/azurefiles-standard.yaml -O /tmp/azurefiles-standard.yaml
