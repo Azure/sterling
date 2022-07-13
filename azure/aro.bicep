@@ -57,7 +57,7 @@ resource azureredhadopenshift_resource 'Microsoft.RedHatOpenShift/openShiftClust
     ingressProfiles: [
       {
         name: 'default'
-        visibility: 'Private'
+        visibility: 'Public'
       }
     ]
 
@@ -82,7 +82,7 @@ resource azureredhadopenshift_resource 'Microsoft.RedHatOpenShift/openShiftClust
       }
     ]
     apiserverProfile: {
-      visibility: 'Private'
+      visibility: 'Public'
     }
   }
 }
