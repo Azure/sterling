@@ -3,6 +3,8 @@ export subscriptionId=$(cat ~/.azure/osServicePrincipal.json | jq -r .subscripti
 export clientId=$(cat ~/.azure/osServicePrincipal.json | jq -r .clientId)
 export clientSecret=$(cat ~/.azure/osServicePrincipal.json | jq -r .clientSecret)
 export driver_version="v1.18.0"
+export RESOURCE_GROUP_NAME=$(az aro show -g $(cat ~/.azure/osServicePrincipal.json | jq -r .resourceGroup)
+
 
 #Create the azure.json file and upload as secret
 wget -nv https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/azure-file-storage/azure.json -O /tmp/azure.json
