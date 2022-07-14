@@ -15,5 +15,5 @@ mountOptions:
   - actimeo=30
 parameters:
   skuName: Standard_ZRS
-  location: $deployRegion
-  resourceGroup: $resourceGroupName
+  location: $LOCATION
+  resourceGroup: $RESOURCE_GROUP_NAME
