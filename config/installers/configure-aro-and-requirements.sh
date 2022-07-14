@@ -47,6 +47,9 @@ apiServer=$(az aro show -g $(cat ~/.azure/osServicePrincipal.json | jq -r .resou
 adminpassword=$(az aro list-credentials --name $ARO_CLUSTER --resource-group $(cat ~/.azure/osServicePrincipal.json | jq -r .resourceGroup) --query kubeadminPassword -o tsv)
 oc login $apiServer -u kubeadmin -p $adminpassword
 
+#Create Required Namespace
+oc create namespace $OMS_NAMESPACE
+
 #Install & Configure Azure Files CSI Drivers and Storage Classes
 echo "==== START AZURE FILES CONFIGURATION ===="
 wget -nv https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/azure-file-storage/configure-azurefiles-driver.sh -O /tmp/configure-azurefiles-driver.sh
