@@ -1,6 +1,7 @@
 #Required Software Pacakges
 sudo dnf -y install jq
 
+echo "==== AZURE CLI INSTALL ===="
 #Azure CLI Install
 sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
 echo -e "[azure-cli]
@@ -12,9 +13,11 @@ gpgkey=https://packages.microsoft.com/keys/microsoft.asc" | sudo tee /etc/yum.re
 sudo dnf -y install azure-cli 
 
 #Azure CLI Login
+echo "==== AZURE CLI LOGIN ===="
 az login --service-principal -u $(cat ~/.azure/osServicePrincipal.json | jq -r .clientId) -p $(cat ~/.azure/osServicePrincipal.json | jq -r .clientSecret) --tenant $(cat ~/.azure/osServicePrincipal.json | jq -r .tenantId) --output none && az account set -s $(cat ~/.azure/osServicePrincipal.json | jq -r .subscriptionId) --output none
 
 #Install kubectl
+echo "==== KUBECTL INSTALL ===="
 cat <<EOF | sudo tee /etc/yum.repos.d/kubernetes.repo
 [kubernetes]
 name=Kubernetes
@@ -26,27 +29,32 @@ EOF
 sudo dnf install -y kubectl
 
 #Openshift CLI Install
+echo "==== OC INSTALL ===="
 mkdir /tmp/OCPInstall
 wget -nv "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz" -O /tmp/OCPInstall/openshift-client-linux.tar.gz
 tar xvf /tmp/OCPInstall/openshift-client-linux.tar.gz -C /tmp/OCPInstall
 sudo cp /tmp/OCPInstall/oc /usr/bin
 
 #Helm install
+echo "==== HELM INSTALL ===="
 curl -fsSL -o /tmp/get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
 chmod 700 /tmp/get_helm.sh
 /tmp/get_helm.sh
 
 #OC Login
+echo "==== ATTEMPTING CLUSTER CLI LOGIN ===="
 apiServer=$(az aro show -g $(cat ~/.azure/osServicePrincipal.json | jq -r .resourceGroup) -n $ARO_CLUSTER --query apiserverProfile.url -o tsv | sed -e 's#^https://##; s#/##' )
 adminpassword=az aro list-credentials --name $ARO_CLUSTER --resource-group $(cat ~/.azure/osServicePrincipal.json | jq -r .resourceGroup) -query kubeadminPassword -o tsv
 oc login $apiServer -u kubeadmin -p $adminpassword
 
 #Install & Configure Azure Files CSI Drivers and Storage Classes
+echo "==== START AZURE FILES CONFIGURATION ===="
 wget -nv https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/azure-file-storage/configure-azurefiles-driver.sh -O /tmp/configure-azurefiles-driver.sh
 chmod u+x /tmp/configure-azurefiles-driver.sh
 /tmp/configure-azurefiles-driver.sh
 
 #Configure IBM Operator Catalog
+echo "==== OPERATOR INSTALL ===="
 oc create namespace openshift-marketplace
 wget -nv https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/operators/ibm-integration-operatorgroup.yaml -O /tmp/ibm-integration-operatorgroup.yaml
 oc apply -f /tmp/ibm-integration-operatorgroup.yaml
