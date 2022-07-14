@@ -44,7 +44,7 @@ chmod 700 /tmp/get_helm.sh
 #OC Login
 echo "==== ATTEMPTING CLUSTER CLI LOGIN ===="
 apiServer=$(az aro show -g $(cat ~/.azure/osServicePrincipal.json | jq -r .resourceGroup) -n $ARO_CLUSTER --query apiserverProfile.url -o tsv | sed -e 's#^https://##; s#/##' )
-adminpassword=az aro list-credentials --name $ARO_CLUSTER --resource-group $(cat ~/.azure/osServicePrincipal.json | jq -r .resourceGroup) -query kubeadminPassword -o tsv
+adminpassword=$(az aro list-credentials --name $ARO_CLUSTER --resource-group $(cat ~/.azure/osServicePrincipal.json | jq -r .resourceGroup) --query kubeadminPassword -o tsv)
 oc login $apiServer -u kubeadmin -p $adminpassword
 
 #Install & Configure Azure Files CSI Drivers and Storage Classes
