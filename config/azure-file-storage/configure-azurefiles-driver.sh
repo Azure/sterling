@@ -2,7 +2,7 @@ export tenantId=$(cat ~/.azure/osServicePrincipal.json | jq -r .tenantId)
 export subscriptionId=$(cat ~/.azure/osServicePrincipal.json | jq -r .subscriptionId)
 export clientId=$(cat ~/.azure/osServicePrincipal.json | jq -r .clientId)
 export clientSecret=$(cat ~/.azure/osServicePrincipal.json | jq -r .clientSecret)
-export driver_version="v1.19.0"
+export driver_version="v1.18.0"
 
 #Create the azure.json file and upload as secret
 wget -nv https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/azure-file-storage/azure.json -O /tmp/azure.json
