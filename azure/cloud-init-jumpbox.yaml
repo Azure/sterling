@@ -8,6 +8,7 @@ runcmd:
  - export INSTALL_MQ_CONTAINER=${installmqcontainer}
  - export WHICH_OMS=${whichOMS}
  - export BRANCH_NAME=${branchName}
+ - export LOCATION=${location}
  - mkdir ~/.azure/
  - echo '{"subscriptionId":"${subscriptionID}","clientId":"${clientID}","clientSecret":"${clientSecret}","tenantId":"${tenantID}","resourceGroup":"${resourceGroupName}"}' > ~/.azure/osServicePrincipal.json
  - echo "Running system update..."

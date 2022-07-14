@@ -6,8 +6,8 @@ provisioner: file.csi.azure.com
 parameters:
   protocol: nfs
   networkEndpointType: privateEndpoint
-  location: $deployRegion
-  resourceGroup: $resourceGroupName
+  location: $LOCATION
+  resourceGroup: $RESOURCE_GROUP_NAME
   skuName: Premium_LRS
 reclaimPolicy: Retain
 volumeBindingMode: Immediate
