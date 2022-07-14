@@ -36,10 +36,10 @@ tar xvf /tmp/OCPInstall/openshift-client-linux.tar.gz -C /tmp/OCPInstall
 sudo cp /tmp/OCPInstall/oc /usr/bin
 
 #Helm install
-echo "==== HELM INSTALL ===="
-curl -fsSL -o /tmp/get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
-chmod 700 /tmp/get_helm.sh
-/tmp/get_helm.sh
+#echo "==== HELM INSTALL ===="
+#curl -fsSL -o /tmp/get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+#chmod 700 /tmp/get_helm.sh
+#/tmp/get_helm.sh
 
 #OC Login
 echo "==== ATTEMPTING CLUSTER CLI LOGIN ===="
@@ -57,7 +57,8 @@ chmod u+x /tmp/configure-azurefiles-driver.sh
 echo "==== OPERATOR INSTALL ===="
 oc create namespace openshift-marketplace
 wget -nv https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/operators/ibm-integration-operatorgroup.yaml -O /tmp/ibm-integration-operatorgroup.yaml
-oc apply -f /tmp/ibm-integration-operatorgroup.yaml
+envsubst < /tmp/ibm-integration-operatorgroup.yaml > /tmp/ibm-integration-operatorgroup-updated.yaml
+oc apply -f /tmp/ibm-integration-operatorgroup-updated.yaml
 
 #Install OMS Opeartor
 export OMS_VERSION=$WHICH_OMS
@@ -69,8 +70,8 @@ export OMS_VERSION=$WHICH_OMS
 #  export OMS_VERSION="icr.io/cpopen/ibm-oms-ent-case-catalog:v1.0"
 #fi
 wget -nv https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/operators/install-oms-operator.yaml -O /tmp/install-oms-operator.yaml
-envsubst < /tmp/install-oms-operator.yaml > /tmp/install-oms-operator.yaml
-oc apply -f /tmp/install-oms-operator.yaml
+envsubst < /tmp/install-oms-operator.yaml > /tmp/install-oms-operator-updated.yaml
+oc apply -f /tmp/install-oms-operator-updated.yaml
 
 #Optional Install Portion
 if [ "$INSTALL_DB2_CONTAINER" == "Y" ] || [ "$INSTALL_DB2_CONTAINER" == "y" ]
