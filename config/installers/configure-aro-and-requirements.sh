@@ -90,7 +90,7 @@ fi
 if [ "$INSTALL_MQ_CONTAINER" == "Y" ] || [ "$INSTALL_MQ_CONTAINER" == "y" ]
 then
   echo "Installing ActiveMQ Container in namespace $OMS_NAMESPACE..."
-  wget https://raw.githubusercontent.com/Azure/sterling/anfurgiu/init/config/docker/activemq/activemq.yaml -O tmp/activemq.yaml
+  wget https://raw.githubusercontent.com/Azure/sterling/anfurgiu/init/config/docker/activemq/activemq.yaml -O /tmp/activemq.yaml
   envsubst < /tmp/activemq.yaml > /tmp/activemq-updated.yaml
 
   oc apply -f /tmp/activemq-updated.yaml
