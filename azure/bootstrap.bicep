@@ -31,10 +31,10 @@ param storageNamePrefix string
 param subnetBastionPrefix string
 param subnetBastionName string
 param bastionHostName string
-param installerStorageAccountName string
-param installerContainerName string
-@secure()
-param installerSASToken string
+//param installerStorageAccountName string
+//param installerContainerName string
+//@secure()
+//param installerSASToken string
 param mqsharename string
 param loadBalancerName string
 // param db2lbprivateIP string
