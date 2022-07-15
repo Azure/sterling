@@ -77,14 +77,21 @@ then
   oc adm policy add-scc-to-user privileged system:serviceaccount:$OMS_NAMESPACE:db2svcacct
   oc adm policy add-scc-to-user anyuid -z db2svcacct -n $OMS_NAMESPACE
 
-  wget https://raw.githubusercontent.com/Azure/sterling/anfurgiu/init/config/docker/db2-pvc.yaml -O /tmp/db2-pvc.yaml
-  wget https://raw.githubusercontent.com/Azure/sterling/anfurgiu/init/config/docker/db2.yaml -O /tmp/db2.yaml
+  wget https://raw.githubusercontent.com/Azure/sterling/anfurgiu/init/config/docker/db2/db2-pvc.yaml -O /tmp/db2-pvc.yaml
+  wget https://raw.githubusercontent.com/Azure/sterling/anfurgiu/init/config/docker/db2/db2.yaml -O /tmp/db2.yaml
   envsubst < /tmp/db2-pvc.yaml > /tmp/db2-pvc-updated.yaml
   envsubst < /tmp/db2.yaml > /tmp/db2-updated.yaml
   
+  oc apply -f /tmp/db2-pvc-updated.yaml
+  oc apply -f /tmp/db2-updated.yaml
+
   oc set sa deployment db2 -n $OMS_NAMESPACE db2svcacct
 fi
 if [ "$INSTALL_MQ_CONTAINER" == "Y" ] || [ "$INSTALL_MQ_CONTAINER" == "y" ]
 then
-  echo "Installing MQ Container in namespace $OMS_NAMESPACE..."
+  echo "Installing ActiveMQ Container in namespace $OMS_NAMESPACE..."
+  wget https://raw.githubusercontent.com/Azure/sterling/anfurgiu/init/config/docker/activemq/activemq.yaml -O tmp/activemq.yaml
+  envsubst < /tmp/activemq.yaml > /tmp/activemq-updated.yaml
+
+  oc apply -f /tmp/activemq-updated.yaml
 fi    
