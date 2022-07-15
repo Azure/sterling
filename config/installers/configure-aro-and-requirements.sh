@@ -65,13 +65,6 @@ oc apply -f /tmp/ibm-integration-operatorgroup-updated.yaml
 
 #Install OMS Opeartor
 export OMS_VERSION=$WHICH_OMS
-#if [ "$WHICH_OMS" == "1" ] 
-#then
-#  export OMS_VERSION="icr.io/cpopen/ibm-oms-pro-case-catalog:v1.0"
-#elif [ "$WHICH_OMS" == "2" ]
-#then
-#  export OMS_VERSION="icr.io/cpopen/ibm-oms-ent-case-catalog:v1.0"
-#fi
 wget -nv https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/operators/install-oms-operator.yaml -O /tmp/install-oms-operator.yaml
 envsubst < /tmp/install-oms-operator.yaml > /tmp/install-oms-operator-updated.yaml
 oc apply -f /tmp/install-oms-operator-updated.yaml
@@ -79,9 +72,19 @@ oc apply -f /tmp/install-oms-operator-updated.yaml
 #Optional Install Portion
 if [ "$INSTALL_DB2_CONTAINER" == "Y" ] || [ "$INSTALL_DB2_CONTAINER" == "y" ]
 then
-  echo "Installing DB2 Container in namespace ${omsNamespace}..."
+  echo "Installing DB2 Container in namespace $OMS_NAMESPACE..."
+  oc create serviceaccount mysvcacct -n $OMS_NAMESPACE
+  oc adm policy add-scc-to-user privileged system:serviceaccount:$OMS_NAMESPACE:db2svcacct
+  oc adm policy add-scc-to-user anyuid -z db2svcacct -n $OMS_NAMESPACE
+
+  wget https://raw.githubusercontent.com/Azure/sterling/anfurgiu/init/config/docker/db2-pvc.yaml -O /tmp/db2-pvc.yaml
+  wget https://raw.githubusercontent.com/Azure/sterling/anfurgiu/init/config/docker/db2.yaml -O /tmp/db2.yaml
+  envsubst < /tmp/db2-pvc.yaml > /tmp/db2-pvc-updated.yaml
+  envsubst < /tmp/db2.yaml > /tmp/db2-updated.yaml
+  
+  oc set sa deployment db2 -n $OMS_NAMESPACE db2svcacct
 fi
 if [ "$INSTALL_MQ_CONTAINER" == "Y" ] || [ "$INSTALL_MQ_CONTAINER" == "y" ]
 then
-  echo "Installing MQ Container in namespace ${omsNamespace}..."
+  echo "Installing MQ Container in namespace $OMS_NAMESPACE..."
 fi    
