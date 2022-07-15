@@ -54,32 +54,29 @@ param postgreSQLEdition string
 
 param devVMName string
 param registryName string
-
-
-@description('Which version of OMS do you want to configure? 1=Professional, 2=Enterprise')
-@allowed([
-  '1'
-  '2'
-])
 param whichOMS string
-@description('Do you want to create a DB2 VM (Y/N)?')
-@allowed([
-  'Y'
-  'N'
-])
-param installdb2vm string
+
+//@description('Do you want to create a DB2 VM (Y/N)?')
+//@allowed([
+//  'Y'
+//  'N'
+//])
+//param installdb2vm string
+
 @description('Do you want a DB2 container in your cluster (for development purposes) (Y/N)?')
 @allowed([
   'Y'
   'N'
 ])
 param installdb2container string
-@description('Do you want to create an MQ VM (Y/N)?')
-@allowed([
-  'Y'
-  'N'
-])
-param installmqvm string
+
+//@description('Do you want to create an MQ VM (Y/N)?')
+//@allowed([
+//  'Y'
+//  'N'
+//])
+//param installmqvm string
+
 @description('Do you want an MQ container in your cluster (Y/N)?')
 @allowed([
   'Y'
@@ -166,23 +163,6 @@ module containerRegistery 'containerregistry.bicep' = {
   ]
 }
 
-/*
-module loadbalancer 'loadbalancer.bicep' = {
-  name: 'db2-lb'
-  scope: resourceGroup()
-  params :{
-    loadbalancerName: loadBalancerName
-    location: location
-    virtualNetworkName: vnetName
-    subnetName: subnetVMName
-    db2lbprivateIP: db2lbprivateIP
-  }
-  dependsOn: [
-    network
-  ]
-}
-*/
-
 module premiumStorage 'storage.bicep' = {
   name: 'privateStorage'
   scope: resourceGroup()
@@ -214,6 +194,23 @@ module bastionHost 'bastion.bicep' = {
   ]
 }
 
+/*
+module loadbalancer 'loadbalancer.bicep' = if (installdb2vm == 'Y' || installdb2vm == 'y')
+  name: 'db2-lb'
+  scope: resourceGroup()
+  params :{
+    loadbalancerName: loadBalancerName
+    location: location
+    virtualNetworkName: vnetName
+    subnetName: subnetVMName
+    db2lbprivateIP: db2lbprivateIP
+  }
+  dependsOn: [
+    network
+  ]
+}
+
+
 module db2vm1 'db2.bicep' = if (installdb2vm == 'Y' || installdb2vm == 'y') {
   name: 'db2vm-1'
   scope: resourceGroup()
@@ -241,6 +238,7 @@ module db2vm1 'db2.bicep' = if (installdb2vm == 'Y' || installdb2vm == 'y') {
     //loadbalancer
   ]
 }
+*/
 
 /*
 module db2vm2 'db2.bicep' = {
@@ -271,6 +269,7 @@ module db2vm2 'db2.bicep' = {
 }
 */
 
+/*
 module mqvm1 'mq.bicep' = if (installmqvm == 'Y' || installmqvm == 'y') {
   name: 'mqvm-1'
   scope: resourceGroup()
@@ -298,7 +297,6 @@ module mqvm1 'mq.bicep' = if (installmqvm == 'Y' || installmqvm == 'y') {
   ]
 }
 
-/*
 module mqvm3 'mq.bicep' = {
   name: 'mqvm-2'
   scope: resourceGroup()
@@ -377,6 +375,7 @@ module jumpbox 'jumpbox.bicep' = {
   }
   dependsOn: [
     network
+    aro
   ]
 }
 
