@@ -9,6 +9,7 @@ runcmd:
  - export WHICH_OMS=${whichOMS}
  - export BRANCH_NAME=${branchName}
  - export LOCATION=${location}
+ - export ADMIN_PASSWORD=${adminPassword}
  - mkdir ~/.azure/
  - echo '{"subscriptionId":"${subscriptionID}","clientId":"${clientID}","clientSecret":"${clientSecret}","tenantId":"${tenantID}","resourceGroup":"${resourceGroupName}"}' > ~/.azure/osServicePrincipal.json
  - echo "Running system update..."
