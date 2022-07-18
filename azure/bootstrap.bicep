@@ -14,6 +14,10 @@ param networkSecurityGroupRules array
 param jumpboxVirtualMachineName string
 param db2VirtualMachineNamePrefix string
 param mqVirtualMachineName string
+
+param mqInstallerArchiveName string
+param db2InstallerArchiveName string
+
 param osDiskType string
 param virtualMachineSize string
 param adminUsername string
@@ -31,10 +35,10 @@ param storageNamePrefix string
 param subnetBastionPrefix string
 param subnetBastionName string
 param bastionHostName string
-//param installerStorageAccountName string
-//param installerContainerName string
-//@secure()
-//param installerSASToken string
+param installerStorageAccountName string
+param installerContainerName string
+@secure()
+param installerSASToken string
 param mqsharename string
 param loadBalancerName string
 // param db2lbprivateIP string
@@ -52,37 +56,37 @@ param postgreSQLVersion string
 param postgreSQLVMClass string
 param postgreSQLEdition string
 
-param devVMName string
+//param devVMName string
 param registryName string
 param whichOMS string
 
-//@description('Do you want to create a DB2 VM (Y/N)?')
-//@allowed([
-//  'Y'
-//  'N'
-//])
-//param installdb2vm string
-
-@description('Do you want a DB2 container in your cluster (for development purposes) (Y/N)?')
+@description('Do you want to create a DB2 VM (Y/N)?')
 @allowed([
   'Y'
   'N'
 ])
-param installdb2container string
+param installdb2vm string
 
-//@description('Do you want to create an MQ VM (Y/N)?')
+//@description('Do you want a DB2 container in your cluster (for development purposes) (Y/N)?')
 //@allowed([
 //  'Y'
 //  'N'
 //])
-//param installmqvm string
+//param installdb2container string
 
-@description('Do you want an MQ container in your cluster (Y/N)?')
+@description('Do you want to create an MQ VM (Y/N)?')
 @allowed([
   'Y'
   'N'
 ])
-param installmqcontainer string
+param installmqvm string
+
+//@description('Do you want an MQ container in your cluster (Y/N)?')
+//@allowed([
+//  'Y'
+//  'N'
+//])
+//param installmqcontainer string
 
 
 module network 'networking.bicep' = {
@@ -209,7 +213,7 @@ module loadbalancer 'loadbalancer.bicep' = if (installdb2vm == 'Y' || installdb2
     network
   ]
 }
-
+*/
 
 module db2vm1 'db2.bicep' = if (installdb2vm == 'Y' || installdb2vm == 'y') {
   name: 'db2vm-1'
@@ -231,6 +235,7 @@ module db2vm1 'db2.bicep' = if (installdb2vm == 'Y' || installdb2vm == 'y') {
     installerStorageAccountName: installerStorageAccountName
     installerContainerName: installerContainerName
     installerSASToken: installerSASToken
+    db2InstallerArchiveName: db2InstallerArchiveName
     loadBalancerName: loadBalancerName
   }
   dependsOn: [
@@ -238,7 +243,7 @@ module db2vm1 'db2.bicep' = if (installdb2vm == 'Y' || installdb2vm == 'y') {
     //loadbalancer
   ]
 }
-*/
+
 
 /*
 module db2vm2 'db2.bicep' = {
@@ -269,7 +274,7 @@ module db2vm2 'db2.bicep' = {
 }
 */
 
-/*
+
 module mqvm1 'mq.bicep' = if (installmqvm == 'Y' || installmqvm == 'y') {
   name: 'mqvm-1'
   scope: resourceGroup()
@@ -291,12 +296,15 @@ module mqvm1 'mq.bicep' = if (installmqvm == 'Y' || installmqvm == 'y') {
     installerSASToken: installerSASToken
     storageNamePrefix: storageNamePrefix
     mqsharename: mqsharename    
+    mqInstallerArchiveName: mqInstallerArchiveName
+    branchName: branchName
   }
   dependsOn: [
     network
   ]
 }
 
+/*
 module mqvm3 'mq.bicep' = {
   name: 'mqvm-2'
   scope: resourceGroup()
@@ -324,7 +332,7 @@ module mqvm3 'mq.bicep' = {
     mqvm1
   ]
 }
-*/
+
 
 module devvm 'devvm.bicep' = {
   name: 'devvm'
@@ -347,6 +355,7 @@ module devvm 'devvm.bicep' = {
     network
   ]
 }
+*/
 
 module jumpbox 'jumpbox.bicep' = {
   name: 'jumpbox'
@@ -365,8 +374,6 @@ module jumpbox 'jumpbox.bicep' = {
     adminUsername: adminUsername
     adminPassword: adminPassword
     zone: '1'
-    installdb2container: installdb2container
-    installmqcontainer: installmqcontainer
     aroName: aroClusterName
     omsNamespace: omsNamespace
     whichOMS: whichOMS
