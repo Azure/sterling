@@ -16,6 +16,26 @@ There are a series of cloud-init files in this repository that are used during d
 
 ## Preparing to deploy
 
+### Preparing your installers
+
+If you plan to use IBM MQ and/or IBM DB2, you will need to stage your installer images on a storage account. The easiest way to do this is to create a new storage account, create an empty blob container, then upload your installer images to this new container and generate a SAS token:
+
+```bash
+az storage account create --name omsinstallers --resource-group <your resource group name> --sku Standard_LRS
+az storage container create --name installers --account-name omsinstallers  --resource-group <your resource group name>
+```
+
+Once you have your storage account, upload your MQ and/or DB2 images to this storage account. Note their file names, as you will need them during the install process. Finally, generate a SAS token for the storage account, and note the full value as the installer will need it:
+
+```bash
+end=`date -u -d "1 day" '+%Y-%m-%dT%H:%MZ'`
+az storage container generate-sas --account-name ominstaller --name installers --permissions lr --auth-mode login --as-user --expiry $end
+```
+
+Note the full SAS token (string)
+
+### Deploying from this repository
+
 You will need a public DNS Zone that can be accessed by the OpenShift installer. During deployment, you will be prompted for the following:
 
 - OpenShift Pull Secret
@@ -23,18 +43,21 @@ You will need a public DNS Zone that can be accessed by the OpenShift installer.
 - Client Secret
 - Cluster Name
 - Administrator Password
+- InstallerStorageAccountName
+- InstallerContainerName 
+- InstallerSASToken string
 - Create DB2 VM? (Y/N)
-- Create DB2 Container? (Y/N)
 - Create MQ VM? (Y/N)
-- Create DB2 Container? (Y/N)
 
 The Domain Name must match the name of the DNS Zone that you will be using for OpenShift. During the deployment this DNS Zone will be updated with records to resolve to the cluster. If it is not accessible by the Client Id, the deployment will fail.
 
 ```bash
-az group create --location "East US" --name OMS
+az group create --location "East US" --name <your resource group name>
 
-az deployment group create --resource-group  OMS --template-file bootstrap.bicep --parameters parameters.json
+az deployment group create --resource-group <your resource group name> --template-file bootstrap.bicep --parameters parameters.json
 ```
+
+**Note**: If you choose to install MQ and/or DB2 VMs, **you MUST provide values for the InstallerStorageAccountName, InstallerContainerName, and InstallerSASToken values**; if you plan on running these services elsewhere (such as PostgreSQL or Oracle), then you can provide empty values. Please see the section "Preparing your installers" for more information.
 
 Alternatively you can deploy straight from this repository:
 

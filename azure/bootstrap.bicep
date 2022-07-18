@@ -41,7 +41,7 @@ param installerContainerName string
 param installerSASToken string
 param mqsharename string
 param loadBalancerName string
-// param db2lbprivateIP string
+ param db2lbprivateIP string
 param gatewayName string
 param subnetVMName string
 param subnetVMPrefix string
@@ -56,7 +56,7 @@ param postgreSQLVersion string
 param postgreSQLVMClass string
 param postgreSQLEdition string
 
-//param devVMName string
+param devVMName string
 param registryName string
 param whichOMS string
 
