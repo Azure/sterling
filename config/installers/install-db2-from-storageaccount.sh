@@ -1,5 +1,5 @@
 #Download DB2 Installer. Environment variables set in cloudinit of VM
-sudo /tmp/azcopy/azcopy copy "https://$INSTALLER_STORAGEACCOUNT_NAME.blob.core.windows.net/$INSTALLER_STORAGECONTAINER_NAME/v11.5.7_linuxx64_server_dec.tar.gz$INSTALLER_SAS_TOKEN" /tmp/db2.tar.gz
+sudo /tmp/azcopy/azcopy copy "https://$INSTALLER_STORAGEACCOUNT_NAME.blob.core.windows.net/$INSTALLER_STORAGECONTAINER_NAME/$DB2_INSTALLER_ARCHIVE_FILENAME$INSTALLER_SAS_TOKEN" /tmp/db2.tar.gz
 sudo tar -xf /tmp/db2.tar.gz -C /mnt
 sudo rm /tmp/db2.tar.gz
 
