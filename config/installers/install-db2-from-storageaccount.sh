@@ -8,6 +8,9 @@ wget -nv https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/db
 envsubst < /mnt/install.rsp > /mnt/install.rsp
 sudo /mnt/server_dec/db2setup -r /mnt/install.rsp
 
+# Change ownership of the db2 directory
+sudo chown -R db2inst1:db2iadm1 /db2data/
+
 #Configure Db2 Fault Manager (for VM restarts)
 sudo /var/ibm/db2/V11.5/bin/db2fmcu -u -p /var/ibm/db2/V11.5/bin/db2fmcd
 sudo /var/ibm/db2/V11.5/bin/db2fm -i db2inst1 -U
