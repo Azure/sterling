@@ -1,11 +1,16 @@
 #cloud-config
 
 runcmd:
+ - export INSTALLER_STORAGEACCOUNT_NAME=${installerStorageAccountName}
+ - export INSTALLER_STORAGECONTAINER_NAME=${installerContainerName}
+ - export INSTALLER_SAS_TOKEN=${installerSASToken}
+ - export MQ_INSTALLER_ARCHIVE_FILENAME=${mqInstallerArchiveName}
  - sudo yum update
  - sudo yum install -y nfs-utils
  - sudo yum install -y java-1.8.0-openjdk
  - sudo mkdir /MQHA
  - sudo mount -t nfs ${storageNamePrefix}prm.file.core.windows.net:/${storageNamePrefix}prm/${mqsharename} /MQHA -o vers=4,minorversion=1,sec=sys
+ - sudo echo "${storageNamePrefix}prm.file.core.windows.net:/${storageNamePrefix}prm/${mqsharename} /MQHA nfs rw,hard,noatime,nolock,vers=4,tcp,_netdev 0 0" >> /etc/fstab 
  - sudo mkdir -p /MQHA/logs
  - sudo mkdir -p /MQHA/qmgrs
  - sudo groupadd mqclient
@@ -13,20 +18,6 @@ runcmd:
  - sudo wget https://aka.ms/downloadazcopy-v10-linux -O /tmp/azcopy.tar.gz
  - sudo tar -xvf /tmp/azcopy.tar.gz -C /tmp
  - sudo mv /tmp/azcopy_linux* /tmp/azcopy
-  - sudo /tmp/azcopy/azcopy copy  "https://${installerStorageAccountName}.blob.core.windows.net/${installerContainerName}/mqadv_dev925_linux_x86-64.tar.gz${installerSASToken}" /tmp/mq.tar.gz
- - sudo tar -xf /tmp/mq.tar.gz -C /mnt
- - sudo rm /tmp/mq.tar.gz
- - cd /mnt/MQServer
- - ./mqlicense.sh -accept
- - sudo rpm -ivh MQSeriesGSKit-* MQSeriesRuntime-*.rpm MQSeriesServer-*.rpm
- - sudo rpm -Uvh MQSeriesJava-*.rpm
- - sudo sed -i 's+home/user/JNDI-Directory+MQHA/jndi+g' /opt/mqm/java/bin/JMSAdmin.config
- - sudo usermod -G azureuser mqm
- - sudo firewall-cmd --permanent --zone=public --add-port=6566/tcp
- - sudo chown -R mqm:mqm /MQHA
- - sudo chmod -R ug+rwx /MQHA
- - sudo echo "${storageNamePrefix}prm.file.core.windows.net:/${storageNamePrefix}prm/${mqsharename} /MQHA nfs rw,hard,noatime,nolock,vers=4,tcp,_netdev 0 0" >> /etc/fstab
-# TBD: Any MQ Configuration post-install?
-# - [ wget, -nv, "https://${repoURL}/${repoBranch}/src/installers/${installScript}", -O, /tmp/script.sh ]
-# - chmod +x /tmp/script.sh
-# - sudo -E /tmp/script.sh
+ - [ wget, -nv, "https://raw.githubusercontent.com/Azure/sterling/${branchName}/config/installers/install-mq-from-storageaccount.sh", -O, /tmp/install-mq-from-storageaccount.sh ]
+ - chmod +x /tmp/install-mq-from-storageaccount.sh
+ - sudo -E /tmp/install-mq-from-storageaccount.sh
