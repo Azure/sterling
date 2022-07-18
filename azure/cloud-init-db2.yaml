@@ -21,14 +21,9 @@ runcmd:
  - sudo mkfs.xfs /dev/sdc1
  - sudo partprobe /dev/sdc1 
  - sudo mkdir /db2data
- - sudo mount /dev/sdc1 /mnt/db2data
+ - sudo mount /dev/sdc1 /db2data
  - FSTAB="$(blkid | grep sdc1 | awk '$0=$2' | sed 's/"//g')   /db2data   xfs   defaults,nofail   1   2"
  - sudo su -c "echo $FSTAB >> /etc/fstab"
- - sudo rm /mnt/install.rsp
- - sudo su db2inst1 -c "ssh-keygen -q -t rsa -N '' -f ~/.ssh/id_rsa"
- - sudo su - -c "ssh-keygen -q -t rsa -N '' -f ~/.ssh/id_rsa"
- - sudo chown -R ${adminUsername}:${adminUsername} /home/${adminUsername}/
- - exit
  - sudo firewall-cmd --permanent --zone=public --add-port=25000/tcp
  - sudo firewall-cmd --permanent --zone=public --add-port=25010/tcp
  - sudo firewall-cmd --permanent --zone=public --add-port=3121/tcp
@@ -36,7 +31,6 @@ runcmd:
  - sudo firewall-cmd --permanent --zone=public --add-port=5404/udp
  - sudo firewall-cmd --permanent --zone=public --add-port=5405/udp
  - sudo firewall-cmd --permanent --zone=public --add-port=62500/tcp
- - sudo chown -R db2inst1:db2iadm1 /mnt/db2data/
  - [ wget, -nv, "https://raw.githubusercontent.com/Azure/sterling/${branchName}/config/installers/install-db2-from-storageaccount.sh", -O, /tmp/install-db2-from-storageaccount.sh ]
  - chmod +x /tmp/install-db2-from-storageaccount.sh
  - sudo -E /tmp/install-db2-from-storageaccount.sh
