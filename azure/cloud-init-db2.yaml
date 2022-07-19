@@ -6,9 +6,9 @@ runcmd:
  - export DB2_FENCED_PASSWORD=${adminPassword}
  - export INSTALLER_STORAGEACCOUNT_NAME=${installerStorageAccountName}
  - export INSTALLER_STORAGECONTAINER_NAME=${installerContainerName}
- - export INSTALLER_SAS_TOKEN=${installerSASToken}
+ - export INSTALLER_SAS_TOKEN="${installerSASToken}"
  - export DB2_INSTALLER_ARCHIVE_FILENAME=${db2InstallerArchiveName}
- - sudo yum -y install libstdc++.i686 libXmu.i686 libacl.i686 ncurses-libs.i686 ncurses-compat-libs.i686 motif.i686 xterm libmount.i686 libgcc.i686 libnsl.i686 libXdmcp.i686 libxcrypt.i686 libXdmcp libnsl psmisc elfutils-libelf-devel make
+ - sudo yum -y install libstdc++.i686 libXmu.i686 libacl.i686 ncurses-libs.i686 ncurses-compat-libs.i686 motif.i686 xterm libmount.i686 libgcc.i686 libnsl.i686 libXdmcp.i686 libxcrypt.i686 libXdmcp libnsl psmisc elfutils-libelf-devel make pam-devel
  - sudo yum -y install ksh mksh
  - sudo yum install -y java-1.8.0-openjdk
  - sudo dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
