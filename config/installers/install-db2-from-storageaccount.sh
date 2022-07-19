@@ -11,15 +11,12 @@ sudo /mnt/server_dec/db2setup -r /mnt/install_configured.rsp
 # Change ownership of the db2 directory
 sudo chown -R db2inst1:db2iadm1 /db2data/
 
-# Create an empty database
-
-# Start DB2
-
 #Configure autostart
-su db2inst1 - 
+sudo -i -u db2inst1 bash << EOF
+whoami
 cd ~/sqllib/bin
 ./db2iauto -on db2inst1
-exit
+EOF
 
 #Configure Db2 Fault Manager (for VM restarts)
 /var/ibm/db2/bin/db2fmcu -u -p /var/ibm/db2/bin/db2fmcd
