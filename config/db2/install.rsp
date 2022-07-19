@@ -1,7 +1,7 @@
 *  Product Installation
 LIC_AGREEMENT       = ACCEPT
 PROD       = DB2_SERVER_EDITION
-FILE       = /var/ibm/db2/V11.5
+FILE       = /var/ibm/db2
 INSTALL_TYPE       = TYPICAL
 *-----------------------------------------------
 *  Das properties
