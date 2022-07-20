@@ -11,4 +11,6 @@ sudo sed -i 's+home/user/JNDI-Directory+MQHA/jndi+g' /opt/mqm/java/bin/JMSAdmin.
 sudo usermod -G azureuser mqm
 sudo chown -R mqm:mqm /MQHA
 sudo chmod -R ug+rwx /MQHA
-sudo firewall-cmd --permanent --zone=public --add-port=6566/tcp
+firewall-offline-cmd --zone=public --add-port=6566/tcp
+systemctl enable firewalld
+systemctl start firewalld
