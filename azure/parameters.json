@@ -40,6 +40,12 @@
         "virtualMachineSize": {
             "value": "Standard_B2ms"
         },
+        "db2VirtualMachineSize": {
+            "value": "Standard_E16a_v4"
+        },
+        "mqVirtualMachineSize": {
+            "value": "Standard_B2ms"
+        },
         "adminUsername": {
             "value": "azureuser"
         },

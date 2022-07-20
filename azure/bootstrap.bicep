@@ -20,6 +20,8 @@ param db2InstallerArchiveName string
 
 param osDiskType string
 param virtualMachineSize string
+param db2VirtualMachineSize string
+param mqVirtualMachineSize string
 param adminUsername string
 @secure()
 param adminPassword string
@@ -41,7 +43,7 @@ param installerContainerName string
 param installerSASToken string
 param mqsharename string
 param loadBalancerName string
- param db2lbprivateIP string
+param db2lbprivateIP string
 param gatewayName string
 param subnetVMName string
 param subnetVMPrefix string
@@ -237,7 +239,7 @@ module db2vm1 'db2.bicep' = if (installdb2vm == 'Y' || installdb2vm == 'y') {
     virtualNetworkName: vnetName
     virtualMachineName: '${db2VirtualMachineNamePrefix}-1'
     osDiskType: osDiskType
-    virtualMachineSize: virtualMachineSize
+    virtualMachineSize: db2VirtualMachineSize
     adminUsername: adminUsername
     adminPassword: adminPassword
     zone: '1'
@@ -298,7 +300,7 @@ module mqvm1 'mq.bicep' = if (installmqvm == 'Y' || installmqvm == 'y') {
     virtualNetworkName: vnetName
     virtualMachineName: '${mqVirtualMachineName}-1'
     osDiskType: osDiskType
-    virtualMachineSize: virtualMachineSize
+    virtualMachineSize: mqVirtualMachineSize
     adminUsername: adminUsername
     adminPassword: adminPassword
     zone: '1'
