@@ -48,12 +48,12 @@ sudo ./db2cppcmk -i
 sudo rm /mnt/*.rsp
 
 #Update Firewall Rules
-firewall-offline-cmd --permanent --zone=public --add-port=25000/tcp
-firewall-offline-cmd --permanent --zone=public --add-port=25010/tcp
-firewall-offline-cmd --permanent --zone=public --add-port=3121/tcp
-firewall-offline-cmd --permanent --zone=public --add-port=5403/tcp
-firewall-offline-cmd --permanent --zone=public --add-port=5404/udp
-firewall-offline-cmd --permanent --zone=public --add-port=5405/udp
-firewall-offline-cmd --permanent --zone=public --add-port=62500/tcp
+firewall-offline-cmd --zone=public --add-port=25000/tcp
+firewall-offline-cmd --zone=public --add-port=25010/tcp
+firewall-offline-cmd --zone=public --add-port=3121/tcp
+firewall-offline-cmd --zone=public --add-port=5403/tcp
+firewall-offline-cmd --zone=public --add-port=5404/udp
+firewall-offline-cmd --zone=public --add-port=5405/udp
+firewall-offline-cmd --zone=public --add-port=62500/tcp
 systemctl enable firewalld
 systemctl start firewalld
