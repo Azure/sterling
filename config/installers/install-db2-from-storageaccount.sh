@@ -46,8 +46,8 @@ sudo rm /mnt/*.rsp
 #Update Firewall Rules
 firewall-cmd --permanent --zone=public --add-port=25000/tcp
 firewall-cmd --permanent --zone=public --add-port=25010/tcp
-firewall-cmd --permanent --zone=public --add-port=3121/tcp
-firewall-cmd --permanent --zone=public --add-port=5403/tcp
-firewall-cmd --permanent --zone=public --add-port=5404/udp
-firewall-cmd --permanent --zone=public --add-port=5405/udp
-firewall-cmd --permanent --zone=public --add-port=62500/tcp
+#firewall-cmd --permanent --zone=public --add-port=3121/tcp
+#firewall-cmd --permanent --zone=public --add-port=5403/tcp
+#firewall-cmd --permanent --zone=public --add-port=5404/udp
+#firewall-cmd --permanent --zone=public --add-port=5405/udp
+#firewall-cmd --permanent --zone=public --add-port=62500/tcp
