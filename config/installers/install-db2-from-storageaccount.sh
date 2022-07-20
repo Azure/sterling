@@ -23,8 +23,8 @@ echo $DB2_SCHEMA_NAME > /home/db2inst1/schemaname.txt
 sudo -i -u db2inst1 bash << EOF
 cd ~/sqllib
 ./db2profile
-DATABASENAME=$(cat ~/dbname.txt)
-SCHEMANAME=$(cat ~/schemaname.txt)
+DATABASENAME=$(cat /home/db2inst1/dbname.txt)
+SCHEMANAME=$(cat /home/db2inst1/schemaname.txt)
 echo $DATABASENAME
 db2 create database $DATABASENAME on /db2data
 db2 connect to $DATABASENAME
@@ -48,10 +48,12 @@ sudo ./db2cppcmk -i
 sudo rm /mnt/*.rsp
 
 #Update Firewall Rules
-firewall-cmd --permanent --zone=public --add-port=25000/tcp
-firewall-cmd --permanent --zone=public --add-port=25010/tcp
-#firewall-cmd --permanent --zone=public --add-port=3121/tcp
-#firewall-cmd --permanent --zone=public --add-port=5403/tcp
-#firewall-cmd --permanent --zone=public --add-port=5404/udp
-#firewall-cmd --permanent --zone=public --add-port=5405/udp
-#firewall-cmd --permanent --zone=public --add-port=62500/tcp
+firewall-offline-cmd --permanent --zone=public --add-port=25000/tcp
+firewall-offline-cmd --permanent --zone=public --add-port=25010/tcp
+firewall-offline-cmd --permanent --zone=public --add-port=3121/tcp
+firewall-offline-cmd --permanent --zone=public --add-port=5403/tcp
+firewall-offline-cmd --permanent --zone=public --add-port=5404/udp
+firewall-offline-cmd --permanent --zone=public --add-port=5405/udp
+firewall-offline-cmd --permanent --zone=public --add-port=62500/tcp
+systemctl enable firewalld
+systemctl start firewalld
