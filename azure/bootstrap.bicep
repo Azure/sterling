@@ -60,6 +60,7 @@ param devVMName string
 param registryName string
 param whichOMS string
 param db2DatabaseName string
+param db2SchemaName string
 
 @description('Do you want to create a DB2 VM (Y/N)?')
 @allowed([
@@ -89,7 +90,14 @@ param installmqvm string
 //])
 //param installmqcontainer string
 
-/*
+
+@description('Do you want to create an instance of Azure PostgresSQL Flexible Server? (Y/N)?')
+@allowed([
+  'Y'
+  'N'
+])
+param installPostgres string
+
 module network 'networking.bicep' = {
   name: 'VNet'
   scope: resourceGroup()
@@ -132,7 +140,7 @@ module aro 'aro.bicep' = {
     network
   ]
 }
-module postgreSQL 'postgresFlexible.bicep' = {
+module postgreSQL 'postgresFlexible.bicep' = if (installPostgres == 'Y' || installPostgres == 'y') {
   name: 'postgreSQL'
   scope: resourceGroup()
   params : {
@@ -239,9 +247,10 @@ module db2vm1 'db2.bicep' = if (installdb2vm == 'Y' || installdb2vm == 'y') {
     db2InstallerArchiveName: db2InstallerArchiveName
     loadBalancerName: loadBalancerName
     db2DatabaseName: db2DatabaseName
+    db2SchemaName: db2SchemaName
   }
   dependsOn: [
-    //network
+    network
     //loadbalancer
   ]
 }
@@ -274,7 +283,7 @@ module db2vm2 'db2.bicep' = {
     loadbalancer
   ]
 }
-
+*/
 
 
 module mqvm1 'mq.bicep' = if (installmqvm == 'Y' || installmqvm == 'y') {
@@ -357,7 +366,7 @@ module devvm 'devvm.bicep' = {
     network
   ]
 }
-
+*/
 
 module jumpbox 'jumpbox.bicep' = {
   name: 'jumpbox'
@@ -387,7 +396,6 @@ module jumpbox 'jumpbox.bicep' = {
     aro
   ]
 }
-*/
 
 //output adminUsername string = adminUsername
 //output adminPassword string = adminPassword
