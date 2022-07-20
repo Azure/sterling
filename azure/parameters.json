@@ -41,7 +41,7 @@
             "value": "Standard_B2ms"
         },
         "db2VirtualMachineSize": {
-            "value": "Standard_E16a_v4"
+            "value": "Standard_E8s_v4"
         },
         "mqVirtualMachineSize": {
             "value": "Standard_B2ms"
