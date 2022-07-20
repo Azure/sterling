@@ -144,6 +144,9 @@
         },
         "db2InstallerArchiveName" : {
             "value": "v11.5.7_linuxx64_server_dec.tar.gz"
+        },
+        "db2DatabaseName": {
+            "value" : "omsDB2"
         }
     }
 }
