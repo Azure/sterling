@@ -1,12 +1,12 @@
 #Download DB2 Installer. Environment variables set in cloudinit of VM
 sudo /tmp/azcopy/azcopy copy "https://$INSTALLER_STORAGEACCOUNT_NAME.blob.core.windows.net/$INSTALLER_STORAGECONTAINER_NAME/$DB2_INSTALLER_ARCHIVE_FILENAME?$INSTALLER_SAS_TOKEN" /tmp/db2.tar.gz
-sudo tar -xf /tmp/db2.tar.gz -C /mnt
+sudo tar -xf /tmp/db2.tar.gz -C /db2data
 sudo rm /tmp/db2.tar.gz
 
 #Get the template installer response file (nongui install)
-wget -nv https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/db2/install.rsp -O /mnt/install.rsp
-envsubst < /mnt/install.rsp > /mnt/install_configured.rsp
-sudo /mnt/server_dec/db2setup -r /mnt/install_configured.rsp
+wget -nv https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/db2/install.rsp -O /tmp/install.rsp
+envsubst < /tmp/install.rsp > /tmp/install_configured.rsp
+sudo /db2data/server_dec/db2setup -r /tmp/install_configured.rsp
 
 # Change ownership of the db2 directory
 sudo chown -R db2inst1:db2iadm1 /db2data/
@@ -45,7 +45,7 @@ cd /var/ibm/db2/install/pcmk
 sudo ./db2cppcmk -i
 
 #Cleanup binaries and response file
-sudo rm /mnt/*.rsp
+sudo rm /tmp/*.rsp
 
 #Update Firewall Rules
 firewall-offline-cmd --zone=public --add-port=25000/tcp
