@@ -13,9 +13,18 @@ sudo chown -R db2inst1:db2iadm1 /db2data/
 
 #Configure autostart
 sudo -i -u db2inst1 bash << EOF
-whoami
 cd ~/sqllib/bin
 ./db2iauto -on db2inst1
+EOF
+
+#Create new database
+echo $DB2_DATABASE_NAME > /home/db2inst1/dbname.txt
+sudo -i -u db2inst1 bash << EOF
+cd ~/sqllib
+./db2profile
+DATABASENAME=$(cat ~/dbname.txt)
+echo $DATABASENAME
+db2 create database $DATABASENAME on /db2data
 EOF
 
 #Configure Db2 Fault Manager (for VM restarts)
