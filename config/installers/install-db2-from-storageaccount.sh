@@ -19,12 +19,16 @@ EOF
 
 #Create new database
 echo $DB2_DATABASE_NAME > /home/db2inst1/dbname.txt
+echo $DB2_SCHEMA_NAME > /home/db2inst1/schemaname.txt
 sudo -i -u db2inst1 bash << EOF
 cd ~/sqllib
 ./db2profile
 DATABASENAME=$(cat ~/dbname.txt)
+SCHEMANAME=$(cat ~/schemaname.txt)
 echo $DATABASENAME
 db2 create database $DATABASENAME on /db2data
+db2 connect to $DATABASENAME
+db2 create schema $SCHEMANAME
 EOF
 
 #Configure Db2 Fault Manager (for VM restarts)

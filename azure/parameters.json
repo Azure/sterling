@@ -140,13 +140,16 @@
             "value" : "Public"
         },
         "mqInstallerArchiveName" : {
-            "value": "mqadv_dev930_ubuntu_x86-64.tar.gz"
+            "value": "IBM_MQ_9.2.0_LINUX_X86-64_TRIAL.tar.gz"
         },
         "db2InstallerArchiveName" : {
             "value": "v11.5.7_linuxx64_server_dec.tar.gz"
         },
         "db2DatabaseName": {
             "value" : "omsDB2"
+        },
+        "db2SchemaName": {
+            "value": "oms"
         }
     }
 }
