@@ -2,7 +2,7 @@
 runcmd:
  - export INSTALLER_STORAGEACCOUNT_NAME=${installerStorageAccountName}
  - export INSTALLER_STORAGECONTAINER_NAME=${installerContainerName}
- - export INSTALLER_SAS_TOKEN=${installerSASToken}
+ - export INSTALLER_SAS_TOKEN="${installerSASToken}""
  - export MQ_INSTALLER_ARCHIVE_FILENAME=${mqInstallerArchiveName}
  - sudo yum update
  - sudo yum install -y nfs-utils
