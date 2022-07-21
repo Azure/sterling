@@ -8,9 +8,14 @@ cd /mnt/MQServer
 sudo rpm -ivh MQSeriesGSKit-* MQSeriesRuntime-*.rpm MQSeriesServer-*.rpm
 sudo rpm -Uvh MQSeriesJava-*.rpm
 sudo sed -i 's+home/user/JNDI-Directory+MQHA/jndi+g' /opt/mqm/java/bin/JMSAdmin.config
+
+#Adjust user settings for mqm
 sudo usermod -G azureuser mqm
 sudo chown -R mqm:mqm /MQHA
 sudo chmod -R ug+rwx /MQHA
+echo "mqm       soft  nofile     10240" >> /etc/security/limits.conf 
+echo "mqm       hard  nofile     10240" >> /etc/security/limits.conf 
+
 firewall-offline-cmd --zone=public --add-port=6566/tcp
 systemctl enable firewalld
 systemctl start firewalld
