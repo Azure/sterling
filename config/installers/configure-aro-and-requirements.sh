@@ -65,6 +65,20 @@ oc apply -f /tmp/ibm-integration-operatorgroup-updated.yaml
 
 #Install OMS Opeartor
 export OMS_VERSION=$WHICH_OMS
+
+if [ "$WHICH_OMS" == *"-pro-"* ]
+then
+  export OPERATOR_NAME="ibm-oms-pro"
+  export OPERATOR_CSV="ibm-oms-pro.v1.0.0"
+else
+  export OPERATOR_NAME="ibm-oms-ent"
+  export OPERATOR_CSV="ibm-oms-ent.v1.0.0"
+fi
+
+echo "Installing OMS Operator..."
+echo "Name: $OPERATOR_NAME"
+echo "Operator CSV: $OPERATOR_CSV"
+
 wget -nv https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/operators/install-oms-operator.yaml -O /tmp/install-oms-operator.yaml
 envsubst < /tmp/install-oms-operator.yaml > /tmp/install-oms-operator-updated.yaml
 oc apply -f /tmp/install-oms-operator-updated.yaml
