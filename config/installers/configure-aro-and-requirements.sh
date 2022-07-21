@@ -35,12 +35,6 @@ wget -nv "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/opens
 tar xvf /tmp/OCPInstall/openshift-client-linux.tar.gz -C /tmp/OCPInstall
 sudo cp /tmp/OCPInstall/oc /usr/bin
 
-#Helm install
-#echo "==== HELM INSTALL ===="
-#curl -fsSL -o /tmp/get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
-#chmod 700 /tmp/get_helm.sh
-#/tmp/get_helm.sh
-
 #OC Login
 echo "==== ATTEMPTING CLUSTER CLI LOGIN ===="
 apiServer=$(az aro show -g $(cat ~/.azure/osServicePrincipal.json | jq -r .resourceGroup) -n $ARO_CLUSTER --query apiserverProfile.url -o tsv | sed -e 's#^https://##; s#/##' )
@@ -79,6 +73,18 @@ echo "Installing OMS Operator..."
 echo "Name: $OPERATOR_NAME"
 echo "Operator CSV: $OPERATOR_CSV"
 
+#Create OMS OpenShift Artifacts (PVC, RBAC, and Secret)
+wget -nv https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/oms/oms-pvc.yaml -O /tmp/oms-pvc.yaml
+wget -nv https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/oms/oms-rbac.yaml -O /tmp/oms-rbac.yaml
+wget -nv https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/oms/oms-secret.yaml -O /tmp/oms-secret.yaml
+envsubst < /tmp/oms-pvc.yaml > /tmp/oms-pvc-updated.yaml
+envsubst < /tmp/oms-rbac.yaml > /tmp/oms-rbac-updated.yaml
+envsubst < /tmp/oms-secret.yaml > /tmp/oms-secret-updated.yaml
+oc apply -f /tmp/oms-pvc-updated.yaml
+oc apply -f /tmp/oms-rbac-updated.yaml
+oc apply -f /tmp/oms-secret-updated.yaml
+
+#Install Operator
 wget -nv https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/operators/install-oms-operator.yaml -O /tmp/install-oms-operator.yaml
 envsubst < /tmp/install-oms-operator.yaml > /tmp/install-oms-operator-updated.yaml
 oc apply -f /tmp/install-oms-operator-updated.yaml

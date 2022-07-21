@@ -1,12 +1,15 @@
 
 kind: PersistentVolumeClaim
 apiVersion: v1
+metadata:
+  name: oms-pv
+  namespace: '$OMS_NAMESPACE'
 spec:
   accessModes:
     - ReadWriteMany
   resources:
     requests:
-      storage: $SIZEINGBGi
-  volumeName: oms-qa-pv
-  storageClassName: '$STORAGECLASSNAME'
+      storage: 20Gi
+  volumeName: oms-pv
+  storageClassName: 'azurefiles-standard'
   volumeMode: Filesystem
