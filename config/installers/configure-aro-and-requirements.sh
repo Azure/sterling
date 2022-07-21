@@ -115,3 +115,6 @@ then
 
   oc apply -f /tmp/activemq-updated.yaml
 fi    
+
+#Clean up
+rm /tmp/*updated*
