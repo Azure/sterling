@@ -20,12 +20,12 @@ runcmd:
  - sudo tar -xvf /tmp/azcopy.tar.gz -C /tmp
  - sudo mv /tmp/azcopy_linux* /tmp/azcopy
  - sudo sed -i 's/enforcing/disabled/g' /etc/selinux/config /etc/selinux/config
- - sudo parted /dev/sdc --script mklabel gpt mkpart xfspart xfs 0% 100%
- - sudo mkfs.xfs /dev/sdc1
- - sudo partprobe /dev/sdc1 
+ - sudo parted /dev/sdb --script mklabel gpt mkpart xfspart xfs 0% 100%
+ - sudo mkfs.xfs /dev/sdb1
+ - sudo partprobe /dev/sdb1 
  - sudo mkdir /db2data
- - sudo mount /dev/sdc1 /db2data
- - FSTAB="$(blkid | grep sdc1 | awk '$0=$2' | sed 's/"//g')   /db2data   xfs   defaults,nofail   1   2"
+ - sudo mount /dev/sdb1 /db2data
+ - FSTAB="$(blkid | grep sdb1 | awk '$0=$2' | sed 's/"//g')   /db2data   xfs   defaults,nofail   1   2"
  - sudo su -c "echo $FSTAB >> /etc/fstab"
  - [ wget, -nv, "https://raw.githubusercontent.com/Azure/sterling/${branchName}/config/installers/install-db2-from-storageaccount.sh", -O, /tmp/install-db2-from-storageaccount.sh ]
  - chmod +x /tmp/install-db2-from-storageaccount.sh
