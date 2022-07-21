@@ -16,6 +16,7 @@ sudo chmod -R ug+rwx /MQHA
 echo "mqm       soft  nofile     10240" >> /etc/security/limits.conf 
 echo "mqm       hard  nofile     10240" >> /etc/security/limits.conf 
 
+#Set firewall port
 firewall-offline-cmd --zone=public --add-port=6566/tcp
 systemctl enable firewalld
 systemctl start firewalld
