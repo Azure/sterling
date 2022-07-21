@@ -35,13 +35,14 @@ EOF
 /home/db2inst1/sqllib/db2profile
 
 #Install Db2 Pacemaker
-cd /mnt/server_dec/db2/linuxamd64/pcmk
+cd /db2data/server_dec/db2/linuxamd64/pcmk
 sudo ./db2installPCMK -i
 cd /var/ibm/db2/install/pcmk
 sudo ./db2cppcmk -i
 
 #Cleanup binaries and response file
 sudo rm /tmp/*.rsp
+sudo rm -R /db2data/server_dec
 
 #Update Firewall Rules
 firewall-offline-cmd --zone=public --add-port=25000/tcp
