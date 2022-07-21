@@ -1,8 +1,8 @@
 kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: oms-role-$NAMESPACE
-  namespace: $NAMESPACE
+  name: oms-role
+  namespace: '$OMS_NAMESPACE'
 rules:
   - apiGroups: ['']
     resources: ['secrets']
@@ -12,13 +12,13 @@ rules:
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: oms-rolebinding-$NAMESPACE
-  namespace: $NAMESPACE
+  name: oms-rolebinding
+  namespace: '$OMS_NAMESPACE'
 subjects:
   - kind: ServiceAccount
     name: default
-    namespace: $NAMESPACE
+    namespace: '$OMS_NAMESPACE'
 roleRef:
   kind: Role
-  name: oms-role-$NAMESPACE
+  name: oms-role
   apiGroup: rbac.authorization.k8s.io
