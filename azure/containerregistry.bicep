@@ -16,6 +16,7 @@ resource registry_resource 'Microsoft.ContainerRegistry/registries@2021-09-01' =
   properties: {
     publicNetworkAccess: 'Disabled'
     zoneRedundancy: 'Disabled'
+    adminUserEnabled: true
   }
 }
 

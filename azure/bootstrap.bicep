@@ -63,6 +63,7 @@ param registryName string
 param whichOMS string
 param db2DatabaseName string
 param db2SchemaName string
+param ibmEntitlementKey string
 
 @description('Do you want to create a DB2 VM (Y/N)?')
 @allowed([
@@ -392,10 +393,13 @@ module jumpbox 'jumpbox.bicep' = {
     whichOMS: whichOMS
     clientID: clientID
     clientSecret: clientSecret
+    ibmEntitlementKey: ibmEntitlementKey
+    acrName: registryName
   }
   dependsOn: [
     network
     aro
+    containerRegistery
   ]
 }
 
