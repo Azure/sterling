@@ -89,7 +89,7 @@ export ACR_LOGIN_SERVER=$(az acr show -n $ACR_NAME -g $(cat ~/.azure/osServicePr
 export ACR_PASSWORD=$(az acr credential show -n $ACR_NAME -g $(cat ~/.azure/osServicePrincipal.json | jq -r .resourceGroup) | jq -r '.passwords[0].value')
 wget -nv https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/oms/oms-pullsecret.json -O /tmp/oms-pullsecret.json
 envsubst < /tmp/oms-pullsecret.json > /tmp/oms-pullsecret-updated.json
-oc create secret generic $ACR_NAME --from-file=.dockercfg=/tmp/oms-pullsecret-updated.json --type=kubernetes.io/dockercfg
+oc create secret generic $ACR_NAME-dockercfg --from-file=.dockercfg=/tmp/oms-pullsecret-updated.json --type=kubernetes.io/dockercfg
 
 #MQ Bindings?
 #oc create configmap oms-bindings --from-file=.bindings -n $OMS_NAMESPACE
