@@ -8,6 +8,8 @@ runcmd:
  - export BRANCH_NAME=${branchName}
  - export LOCATION=${location}
  - export ADMIN_PASSWORD=${adminPassword}
+ - export IBM_ENTITLEMENT_KEY=${ibmEntitlementKey}
+ - export ACR_NAME=${acrName}
  - mkdir ~/.azure/
  - echo '{"subscriptionId":"${subscriptionID}","clientId":"${clientID}","clientSecret":"${clientSecret}","tenantId":"${tenantID}","resourceGroup":"${resourceGroupName}"}' > ~/.azure/osServicePrincipal.json
  - echo "Running system update..."

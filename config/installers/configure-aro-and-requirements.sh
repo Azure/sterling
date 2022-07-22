@@ -84,6 +84,20 @@ oc apply -f /tmp/oms-pvc-updated.yaml
 oc apply -f /tmp/oms-rbac-updated.yaml
 oc apply -f /tmp/oms-secret-updated.yaml
 
+#Get Azure Container Registry Credentials
+export ACR_LOGIN_SERVER=$(az acr show -n $ACR_NAME -g $(cat ~/.azure/osServicePrincipal.json | jq -r .resourceGroup) | jq -r .loginServer)
+export ACR_PASSWORD=$(az acr credential show -n $ACR_NAME -g $(cat ~/.azure/osServicePrincipal.json | jq -r .resourceGroup) | jq -r '.passwords[0].value')
+wget -nv https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/oms/oms-pullsecret.json -O /tmp/oms-pullsecret.json
+envsubst < /tmp/oms-pullsecret.json > /tmp/oms-pullsecret-updated.json
+oc create secret generic $ACR_NAME --from-file=.dockercfg=/tmp/oms-pullsecret-updated.json --type=kubernetes.io/dockercfg
+
+#MQ Bindings?
+#oc create configmap oms-bindings --from-file=.bindings -n $OMS_NAMESPACE
+
+#IBM Entitlement Key Secret
+#export IBM_ENTITLEMENT_KEY=
+#oc create secret docker-registry ibm-entitlement-key --docker-server=cp.icr.io --docker-username=cp --docker-password=$IBM_ENTITLEMENT_KEY -n $OMS_NAMESPACE
+
 #Install Operator
 wget -nv https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/operators/install-oms-operator.yaml -O /tmp/install-oms-operator.yaml
 envsubst < /tmp/install-oms-operator.yaml > /tmp/install-oms-operator-updated.yaml

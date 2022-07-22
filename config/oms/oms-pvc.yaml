@@ -10,6 +10,5 @@ spec:
   resources:
     requests:
       storage: 20Gi
-  volumeName: oms-pv
   storageClassName: 'azurefiles-standard'
   volumeMode: Filesystem
