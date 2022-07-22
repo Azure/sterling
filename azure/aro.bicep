@@ -78,7 +78,7 @@ resource azureredhadopenshift_resource 'Microsoft.RedHatOpenShift/openShiftClust
         diskSizeGB: 128
         name: 'worker'
         subnetId: workerSubnetId
-        vmSize: 'Standard_D4s_v3'
+        vmSize: 'Standard_D8s_v3'
         encryptionAtHost: 'Disabled'
       }
     ]
