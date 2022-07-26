@@ -6,15 +6,33 @@ In this folder, you can find resources that can help you get up to speed quickly
 
 There are a series of cloud-init files in this repository that are used during different deployment steps to "stage" a virtual machine with different software packages, custom installers, and other steps. If you'd like to modify a particular VM's cloud init script, you can do the following:
 
-1. Modify the relevant cloud-init-<name>.yaml file to include your requirements
+1. Modify the relevant cloud-init-*.yaml file to include your requirements
 2. From a Linux based host, run:
-
     ```bash
-    awk -v ORS='\\n' '1' cloud-init.yaml
+    awk -v ORS='\\n' '1' cloud-init-<vm name>.yaml
     ```
 3. Take the resulting one-line output and replace it in the relevant .bicep file's ```cloudInitData``` line. NOTE: Make sure you eescape the apostrophes in the string with a preceding `\'` .
 
 ## Preparing to deploy
+
+### Service Principal
+
+You will need to [create an Azure Application Registration (SPN)](https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal) and grant it `Contributor` permissions on the subscription you plan to deploy into. If granting permissions at the subscription level is not possible, you can also configure the permissions on this resource group instead. have issue with state when attempting to use a single resource group.
+
+After creating the SPN and assigning its access, you will need to create a [secret](https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal#option-2-create-a-new-application-secret) that will be used during the OCP install process.
+
+More details on [creating a service principal for Azure Redhat Openshift can be found here](https://docs.microsoft.com/en-us/azure/openshift/howto-create-service-principal?pivots=aro-azurecli)
+
+Once you have created your service principal and secret, you will need both the client ID (application ID) of your service principal *and* your associated application object ID as well. To get these values, you can run the following two commands:
+
+```bash
+#Getting the application registration ID
+az ad app list --display-name ocp-test --query "[].appId" -o tsv
+#Getting the associated enterprise application ID
+az ad app show --id <value from previous command>
+```
+
+Those values, along with your generated secret, will be used in this deployment. Both the application registarion ID and enterprise application are needed for the ARO install and associated role permissions required.
 
 ### Preparing your installers
 
@@ -31,7 +49,6 @@ Once you have your storage account, upload your MQ and/or DB2 images to this sto
 end=`date -u -d "1 day" '+%Y-%m-%dT%H:%MZ'`
 az storage container generate-sas --account-name ominstaller --name installers --permissions lr --auth-mode login --as-user --expiry $end
 ```
-
 Note the full SAS token (string)
 
 ### Deploying from this repository
@@ -39,9 +56,11 @@ Note the full SAS token (string)
 You will need a public DNS Zone that can be accessed by the OpenShift installer. During deployment, you will be prompted for the following:
 
 - OpenShift Pull Secret
-- Client Id
-- Client Secret
-- Cluster Name
+- Application Registration Client Id
+- Enterprise Application Object Id
+- Application Registration Client Secret
+- ARO Cluster Name
+- ARO Domain Name
 - Administrator Password
 - InstallerStorageAccountName
 - InstallerContainerName 
@@ -49,7 +68,9 @@ You will need a public DNS Zone that can be accessed by the OpenShift installer.
 - Create DB2 VM? (Y/N)
 - Create MQ VM? (Y/N)
 
-The Domain Name must match the name of the DNS Zone that you will be using for OpenShift. During the deployment this DNS Zone will be updated with records to resolve to the cluster. If it is not accessible by the Client Id, the deployment will fail.
+**Note**: If you choose to install MQ and/or DB2 VMs, **you MUST provide values for the InstallerStorageAccountName, InstallerContainerName, and InstallerSASToken values**; if you plan on running these services elsewhere (such as PostgreSQL or Oracle), then you can provide empty values. Please see the section "Preparing your installers" for more information.
+
+To deploy this environment, clone this repository and change to the ```./azure``` folder and run the following Azure CLI command:
 
 ```bash
 az group create --location "East US" --name <your resource group name>
@@ -57,11 +78,23 @@ az group create --location "East US" --name <your resource group name>
 az deployment group create --resource-group <your resource group name> --template-file bootstrap.bicep --parameters parameters.json
 ```
 
-**Note**: If you choose to install MQ and/or DB2 VMs, **you MUST provide values for the InstallerStorageAccountName, InstallerContainerName, and InstallerSASToken values**; if you plan on running these services elsewhere (such as PostgreSQL or Oracle), then you can provide empty values. Please see the section "Preparing your installers" for more information.
-
 Alternatively you can deploy straight from this repository:
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fsterling%2Fmain%2Fazure%2Fbootstrap.bicep)
+
+## Post-Deployment
+
+Once this deployment completes, you should have a functional environment that will support deploying Sterling Order Management. However, this deployment is only a starting point. Please make sure you:
+
+* **Change any appropriate administrator passwords**: This installer uses the "admin password" paramter to set the administrator passwords for the following services:
+ * VM Admin Accounts
+ * PostgreSQL Databases
+ * DB2 Instance Accounts
+ Once the install completes, you should go through and change this passwords as required.
+* **Enable HA/DR where appropriate**: This installer is desgined to be a starting point for your environment, and if you plan to use this deployment as a template for non-development environments, you should make sure you:
+ * Ensure availability of your database tier: If using DB2, consider configuring HA for your DB2 VMS. More information from IBM can be found here: https://www.ibm.com/support/pages/setting-two-node-db2-hadr-pacemaker-cluster-virtual-ip-microsoft-azure (Note: this deployment does install required Pacemaker components; you'll just need to add nodes and your additional Azure infrastructures)
+ * For IBM MQ, consider adding more nodes and sharing the Premium Files storage among your nodes
+
 
 ## Contributing
 

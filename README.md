@@ -35,7 +35,6 @@ This repository provides deployument guidance and best practices for running IBM
     - [Update Container Pull Secret(s) for your Azure Container Registry](#update-container-pull-secrets-for-your-azure-container-registry)
     - [SSL Connections and Keystore Configuration](#ssl-connections-and-keystore-configuration)
   - [Step 7: Deploying OMS](#step-7-deploying-oms)
-    - [Deploying OMS Via Helm Charts](#deploying-oms-via-helm-charts)
     - [Deploying OMS Via the OpenShift Operator](#deploying-oms-via-the-openshift-operator)
   - [Step 8: Post Deployment Tasks](#step-8-post-deployment-tasks)
     - [Licensing your DB2 and MQ Instances](#licensing-your-db2-and-mq-instances)
@@ -120,6 +119,14 @@ At a minimum, your Azure environment should contain a resource group that contai
 *Note:* Aside from the control and worker subnets, your CIDR ranges are completely up to you and should be sized appropriatley for any additional growth you forsee.
 
 For a more detailed accounting of the suggsted Azure resources, check out this guide and for sample deployment scripts to help you get started, check out the ./azure folder in this repository for some .bicep files you can just to quick start your environment. In addition, for a more detailed explanation of the Azure resources, please review this guide.
+
+### Creating an Azure Application Registration
+
+You will need to [create an Azure Application Registration (SPN)](https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal) and grant it `Contributor` permissions on the subscription you plan to deploy into. If granting permissions at the subscription level is not possible, you can also configure the permissions on this resource group instead. have issue with state when attempting to use a single resource group.
+
+After creating the SPN and assigning its access, you will need to create a [secret](https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal#option-2-create-a-new-application-secret) that will be used during the OCP install process.
+
+More details on [creating a service principal for Azure Redhat Openshift can be found here](https://docs.microsoft.com/en-us/azure/openshift/howto-create-service-principal?pivots=aro-azurecli)
 
 ### Creating a storage account for required IBM application installers
 
@@ -243,22 +250,24 @@ oc login <api server url> -u kubeadmin -p <password from az aro list-credentials
 
 If you receive any errors with those commands, verify that you successfully logged in with the Azure CLI, and that you are in the right subscription. Verify your resource group name and your ARO cluster name.
 
-Next, install [Helm](https://helm.sh/):
+## Step 6: Deploy OMS Prerequisites & Artifacts
+
+### Create OMS Namespace
+
+You will need to create the namespace used for your OMS deployment:
 
 ```bash
-curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
-chmod 700 get_helm.sh
-./get_helm.sh
+export OMS_NAMESPACE="OMS"
+oc create namespace $OMS_NAMESPACE
 ```
 
-
-## Step 6: Deploy OMS Prerequisites & Artifacts
+Note: The rest of this guide assumes the namespace in use is 'OMS', but you can adjust accordingly
 
 ### Install Azure Files CSI Driver
 
 Sterling OMS requires some persistent volumes for configuration (certifcates, secrets, etc), customizations (search indexes, etc), and logging. Therefore, it's required that you configure your Azure RedHat OpenShift cluster with the following storage configuration.
 
-Note: You will need to create a Azure Application Registration (service principal) that ARO will use to interact with the storage account, if you have not already. This service principal will need, at a minimum, ```Contributor``` access to your resource group. Once you have created this service principal, you can then create a secret that your cluster will use to interact with provisioning storage accounts and file shares within the resource group.
+Note: You will need to [create a Azure Application Registration (service principal) that ARO will use](#creating-an-azure-application-registration) to interact with the storage account, if you have not already. This service principal will need, at a minimum, ```Contributor``` access to your resource group. Once you have created this service principal, you can then create a secret that your cluster will use to interact with provisioning storage accounts and file shares within the resource group.
 
 This repository has scripts that can help you set up these drivers:
 
@@ -270,23 +279,26 @@ export subscriptionId="subscriptionId"
 export clientId="clientId"
 export clientSecret="clientSecret"
 
-wget -nv https://raw.githubusercontent.com/Azure/maximo/$branchName/src/storageclasses/azurefiles-standard.yaml -O azurefiles-standard.yaml
-envsubst < azurefiles-standard.yaml > azurefiles-standard.yaml
-oc apply -f azurefiles-standard.yaml
+wget -nv https://raw.githubusercontent.com/Azure/sterling/main/config/azure-file-storage/configure-azurefiles-driver.sh -O /tmp/configure-azurefiles-driver.sh
+chmod u+x /tmp/configure-azurefiles-driver.sh
+/tmp/configure-azurefiles-driver.sh
 ```
 
-### Create OMS Namespace
-
-You will need to create the namespace used for your OMS deployment:
-
-```bash
-export OMS_NAMESPACE="OMS"
-oc create namespace $OMS_NAMESPACE
-```
+For more detailed information on deploying Azure Files Storage Drivers to OpenShift, you can find more documentation here: 
 
 ### Add Azure Container Registry Credentials to Namespace Docker Credential Secret
 
-TODO
+To take advantage of your secure Azure Container Registry, you will need to provide a Docker pull secret for the repository. The most straightforward way to accomplish this is with your registry's access keys. You can use the Azure CLI to get your credentials, and then deploy the secret.
+
+```bash
+export ACR_NAME=<your azure container registry name>
+export RESOURCE_GROUP_NAME=<your resource group name>
+export ACR_LOGIN_SERVER=$(az acr show -n $ACR_NAME -g $RESOURCE_GROUP_NAME | jq -r .loginServer)
+export ACR_PASSWORD=$(az acr credential show -n $ACR_NAME -g $RESOURCE_GROUP_NAME | jq -r '.passwords[0].value')
+wget -nv https://raw.githubusercontent.com/Azure/sterling/main/config/oms/oms-pullsecret.json -O /tmp/oms-pullsecret.json
+envsubst < /tmp/oms-pullsecret.json > /tmp/oms-pullsecret-updated.json
+oc create secret generic $ACR_NAME-dockercfg --from-file=.dockercfg=/tmp/oms-pullsecret-updated.json --type=kubernetes.io/dockercfg
+```
 
 ### Install IBM Operator Catalog and the Sterling Operator
 
@@ -298,10 +310,10 @@ IBM publishses two discrete operators for Sterling Order Management: Professiona
 A sample YAML script and bash script are provided in this repository that you can use, provided you set your image name as an environment variable, as such:
 
 ```bash
-#Professional edition
+#Professional edition; change for Enterprise Edition
 export OMS_VERSION="icr.io/cpopen/ibm-oms-pro-case-catalog:v1.0"
 export branchName="main"
-oc apply -f https://raw.githubusercontent.com/Azure/sterling/$branchName/config/operators/install-oms-operator.yaml
+oc apply -f https://raw.githubusercontent.com/Azure/sterling/main/config/operators/install-oms-operator.yaml
 ```
 
 More information on the OMS Operator can be found here: https://www.ibm.com/docs/en/order-management-sw/10.0?topic=container-installing-order-management-software-operator
@@ -334,62 +346,81 @@ A sample PVC template is provided as part of this repository, and will use the A
 export STORAGECLASSNAME="azurefiles-standard"
 export SIZEINGB="20"
 wget -nv https://raw.githubusercontent.com/Azure/sterling/main/config/oms-pvc.yaml -O oms-pvc.yaml
-envsubst < oms-pvc.yaml > oms-pvc.yaml
-oc create -f oms-pvc.yaml
+envsubst < oms-pvc.yaml > oms-pvc-updated.yaml
+oc create -f oms-pvc-updated.yaml
 ```
 
+Once this PVC is created, this share will be used by your deployment of your OMEnvironment, and you can stage files to this share via the Azure CLI or Azure Storage Explorer (for example, your keystore and truststores, see below)
+
 ### Create RBAC Role
+
+There is a specialized RBAC role required for Sterling OMS. To deploy it, you can run the folowing commands:
 
 ```bash
 export NAMESPACE="OMS"
 wget -nv https://raw.githubusercontent.com/Azure/sterling/main/config/oms-rbac.yaml -O oms-rbac.yaml
-envsubst < oms-rbac.yaml > oms-rbac.yaml
-oc create -f oms-rbac.yaml
+envsubst < oms-rbac.yaml > oms-rbac-updated.yaml
+oc create -f oms-rbac-updated.yaml
 ```
 
 ### Pushing your containers to your Azure Container Registry
 
 TODO
 
-### Update Container Pull Secret(s) for your Azure Container Registry
+### SSL Connections and Keystore/Truststore Configuration
 
-TODO
+To use SSL/TLS connections for both your user-facing applications and any required SSL communications, such as to your database, you will need to provide a keystore and truststore in PKCS12 format. These stores should then be placed onto the persistent volumes you created above. You can use OpenSSL to create these stores. 
 
-### SSL Connections and Keystore Configuration
+While planning your SSL/TLS certificates and keys is a topic outside the scope of this document, you will need your keys to properly generate a PKCS12 format keystore.
 
-To use SSL/TLS connections for both your user-facing applications and any required SSL communications, such as to your database, you will need to provide a keystore and truststore in PKCS12 format. These stores should then be placed onto the persistent volumes you created above. You can use OpenSSL to create these stores. To create a new, empty key and trust store, you can execute the following commands:
+To create a new, empty key and trust store, you can execute the following commands (note: this demo is for a self-signed certificate; in your production enviroment this is not advised).
 
 ```bash
-
+#You will need access to your key that signed your certificate
+#To create a self-signed certificate and key file, you can use the following command:
+openssl req -newkey rsa:4096 -x509 -days 3650 -nodes -out selfsigned.crt -keyout self.key
+#Once you have your key and certificate, combine the private and public key into one file
+cat self.key selfsigned.crt > selfkeycert.txt
+#You will be prompted for a keystore password; you should use the same value you used to create your OMS secret (KEYSTOREPW)
+openssl pkcs12 -export -in selfkeycert.txt -out mykeystore.pkcs12 -name myKeystore -noiter -nomaciter
+#Finally, create your truststore by importing your certificate(s) into a new file
+keytool -import -file selfsigned.crt -alias selfsigned -keystore myTrustStore
 ```
 
-Once you have your key and trust stores, you should copy them to the relevant locations on any of the persistant volumes that you created above for your deployment. For more information, please see this documentation: <todo>
+Once you have your key and trust stores, you should copy them to the relevant locations on any of the persistant volumes that you created above for your deployment. For more information, please see this documentation: https://www.ibm.com/docs/en/control-center/5.4.2?topic=connections-configuring-keystore-truststore-files
 
 ## Step 7: Deploying OMS
 
-TODO
+Once you have your Azure environment built, you are now prepared to deploy your OMEnvironment using the IBM Sterling Order Management Operator. You'll first install the oprator from the IBM Catalog, then use the operator to deploy your OMEnvironment.
 
+### Installing the OMS Openshift Operator
 
-### Deploying OMS Via Helm Charts
+As part of the enviroment preperation, the OMS Opeator should show up under the OperatorHub inside of Openshift. You can either manually install the operator from the GUI, or you can use the provided scripts to install the opeartor. Note: If using the scripts, be mindful of the version you're deploying. You need to set your OMS version, operator version name, and operator current CSV:
 
-If you want to use Helm to install and configure OMS on your cluster, you can download the IBM Helm charts at this step. For information how to download the approproate chart, see this documentation from IBM: https://www.ibm.com/docs/en/order-management-sw/10.0?topic=container-downloading-helm-charts 
+```bash
+#Note: This example is for the PROFESSIONAL version of the OMS Operator
+export OMS_VERSION="icr.io/cpopen/ibm-oms-pro-case-catalog:v1.0"
+export OMS_NAMESPACE="OMS"
+export OPERATOR_NAME="ibm-oms-pro"
+export OPERATOR_CSV="ibm-oms-pro.v1.0.0"
+wget -nv https://raw.githubusercontent.com/Azure/sterling/main/config/operators/install-oms-operator.yaml -O /tmp/install-oms-operator.yaml
+envsubst < /tmp/install-oms-operator.yaml > /tmp/install-oms-operator-updated.yaml
+oc apply -f /tmp/install-oms-operator-updated.yaml
+```
+
+For more information about installing the opeartor from the command line, please see this link: https://www.ibm.com/docs/en/order-management-sw/10.0?topic=operator-installing-updating-order-management-software-online
 
 ### Deploying OMS Via the OpenShift Operator
 
-TODO
+Once the operator is deployed, you can now deploy your OMEnvironment provided you have met all the pre-requisites. For more information about the installation process and avaialble options (as well as sample configuration files) please visit: https://www.ibm.com/docs/en/order-management-sw/10.0?topic=operator-installing-order-management-software-by-using
 
 ## Step 8: Post Deployment Tasks
 
-TODO
+Once your environment is set up and configured, please consider the following steps to complete your installation.
 
 ### Licensing your DB2 and MQ Instances
 
 Post-installation, if you have not already (and you're using IBM DB2 and/or IBM MQ), please obtain your license files for DB2 and MQ and apply the licenses as specified by IBM in their documentation:
-
-
-### Migrating Your Data
-
-TODO
 
 ## Contributing
 
