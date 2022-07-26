@@ -14,28 +14,27 @@ This repository provides deployument guidance and best practices for running IBM
   - [Overview](#overview)
   - [Before You Begin](#before-you-begin)
   - [Step 1: Preparing Your Azure Environment](#step-1-preparing-your-azure-environment)
+    - [Creating an Azure Application Registration](#creating-an-azure-application-registration)
     - [Creating a storage account for required IBM application installers](#creating-a-storage-account-for-required-ibm-application-installers)
   - [Step 2: Install Azure RedHat Openshift](#step-2-install-azure-redhat-openshift)
   - [Step 3: Accessing your ARO Cluster](#step-3-accessing-your-aro-cluster)
-  - [Step 4: Post Azure Deployment Tasks](#step-4-post-azure-deployment-tasks)
+  - [Step 4: Post ARO Deployment Tasks](#step-4-post-azure-redhat-openshift-deployment-tasks)
     - [Private VM Outbound Internet Access](#private-vm-outbound-internet-access)
     - [Install and Configure IBM DB2 (if applicable)](#install-and-configure-ibm-db2-if-applicable)
     - [Install and Configure IBM MQ (if applicable)](#install-and-configure-ibm-mq-if-applicable)
     - [Install Tools](#install-tools)
   - [Step 5: Logging into your OpenShift Cluster with the OpenShift Command Line Tool](#step-5-logging-into-your-openshift-cluster-with-the-openshift-command-line-tool)
   - [Step 6: Deploy OMS Prerequisites & Artifacts](#step-6-deploy-oms-prerequisites--artifacts)
-    - [Install Azure Files CSI Driver](#install-azure-files-csi-driver)
     - [Create OMS Namespace](#create-oms-namespace)
+    - [Install Azure Files CSI Driver](#install-azure-files-csi-driver)
     - [Add Azure Container Registry Credentials to Namespace Docker Credential Secret](#add-azure-container-registry-credentials-to-namespace-docker-credential-secret)
     - [Install IBM Operator Catalog and the Sterling Operator](#install-ibm-operator-catalog-and-the-sterling-operator)
     - [Create OMS Secret](#create-oms-secret)
     - [Create Required PVC(s)](#create-required-pvcs)
     - [Create RBAC Role](#create-rbac-role)
-    - [Pushing your containers to your Azure Container Registry](#pushing-your-containers-to-your-azure-container-registry)
     - [Update Container Pull Secret(s) for your Azure Container Registry](#update-container-pull-secrets-for-your-azure-container-registry)
-    - [SSL Connections and Keystore Configuration](#ssl-connections-and-keystore-configuration)
+    - [SSL Connections and Keystore Configuration](#ssl-connections-and-keystoretruststore-configuration)
   - [Step 7: Deploying OMS](#step-7-deploying-oms)
-    - [Deploying OMS Via the OpenShift Operator](#deploying-oms-via-the-openshift-operator)
   - [Step 8: Post Deployment Tasks](#step-8-post-deployment-tasks)
     - [Licensing your DB2 and MQ Instances](#licensing-your-db2-and-mq-instances)
     - [Migrating Your Data](#migrating-your-data)
@@ -47,11 +46,12 @@ This repository provides deployument guidance and best practices for running IBM
 This repisotory serves two purposes: first, it is designed to give you an idea of what sort of architecture you can consider deploying into your Azure subscription to support 
 running your Sterling Order Management workload(s) as well as best practice considerations for scale, performance, and security.
 
-Secondly, there are a series of sample deployment templates and configuration scripts designed to get you up and running with an environment ready for you to deploy your existing Sterling OMS
-resources into. These resources are broken out into the following directories within this respository:
+Secondly, there are a series of sample deployment templates and configuration scripts designed to get you up and running with an environment ready for you to deploy your existing Sterling OMS resources into. These resources are broken out into the following directories within this respository:
 
 - ./azure - Contains a series of .bicep files that can be used to boostrap a reference deployment of all the required Azure resources for your deployment
-- ./config - Contains files used by the installer examples or Azure automation scripts to configure services
+- ./config - Contains files used by the installer examples or Azure automation scripts to configure services or other requirements of the platform
+
+If you are interested in a boostrap environment to deploy Sterling OMS into, please see this README that explains more: [Sterling Azure Bootstrap Resources](./azure/README.md)
 
 ## Overview
 
@@ -67,6 +67,7 @@ To get started, you'll need to accomplish the following tasks:
 4. Configure Azure RedHat OpenShift, including:
    1. Required storage drivers
    2. Azure Container Registry Docker Secrets
+   3. Create a secret for your IBM Entitlement Key / Pull Secret
 5. Set your required OpenShift artifacts, such as your target namespace and any required secrets and persistent volumes
 6. Configure the IBM OpenShift operator catalog, and install the Sterling OMS Operator on your cluster
 7. Push your OMS containers to your Azure Container Registry
@@ -153,7 +154,7 @@ Once all of the networking requirements are met, you should install Azure RedHat
 You can create a new cluster through the Azure Portal, or from the Azure CLI:
 
 ```bash
-az aro create --resource-group $RESOURCEGROUP --name $CLUSTER --vnet aro-vnet --master-subnet master-subnet --worker-subnet worker-subnet
+az aro create --resource-group $RESOURCEGROUP --name $CLUSTER --vnet aro-vnet --master-subnet master-subnet --worker-subnet worker-subnet --client-id <your application client ID> --client-secret <your generated secret>
 ```
 
 ## Step 3: Accessing your ARO Cluster
@@ -165,13 +166,13 @@ az aro show --name <your clustername> --resource-group <your resource group name
 az aro list-credentials --name <your clustername> --resource-group <your resource group name>
 ```
 
-## Step 4: Post Azure Deployment Tasks
+## Step 4: Post Azure Redhat Openshift Deployment Tasks
 
 Once you have all your resources deployed, you will need to complete the following steps:
 
 ### Private VM Outbound Internet Access
 
-If you did not deploy your Azure VMs with a public IP address, and you need to download and install applications like IBM MQ and IBM DB2 from a publicly available source, you may need to add a NAT Gateway to provide outbound connectivity to the internet. Please see this link for more information.
+If you did not deploy your Azure VMs with a public IP address, and you need to download and install applications like IBM MQ and IBM DB2 from a publicly available source, you may need to add a NAT Gateway to provide outbound connectivity to the internet. Please see this link for more information: https://docs.microsoft.com/en-us/azure/virtual-network/nat-gateway/nat-gateway-resource
 
 ### Install and Configure IBM DB2 (if applicable)
 
@@ -226,7 +227,14 @@ sudo echo "<your storage account name>prm.file.core.windows.net:/<your storage a
 
 To enable administration and deployment of Sterling OMS, you should make sure your jump box virtual machine has the follwing tools installed:
 
-First, download and set up the ```oc``` command line too. You can download the OpenShift clients from Red Hat at their mirror. This will provide the oc CLI and also includes kubectl.
+First, download and set up the ```oc``` command line too. You can download the OpenShift clients from Red Hat at their mirror. This will provide the oc CLI and also includes kubectl
+
+```bash
+mkdir /tmp/OCPInstall
+wget -nv "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz" -O /tmp/OCPInstall/openshift-client-linux.tar.gz
+tar xvf /tmp/OCPInstall/openshift-client-linux.tar.gz -C /tmp/OCPInstall
+sudo cp /tmp/OCPInstall/oc /usr/bin
+```
 
 💡 TIP: Copy the oc and kubectl client to your /usr/bin directory to access the client from any directory. This will be required for some installing scripts.
 
@@ -302,21 +310,20 @@ oc create secret generic $ACR_NAME-dockercfg --from-file=.dockercfg=/tmp/oms-pul
 
 ### Install IBM Operator Catalog and the Sterling Operator
 
-IBM publishses two discrete operators for Sterling Order Management: Professional and Enterprise. You will need to provide the version when installing the Software Operator for OpenShift.
-
-* For IBM Sterling Order Management Professional Edition, you will use "" as the image name ```icr.io/cpopen/ibm-oms-pro-case-catalog:v1.0```
-* For IBM Sterling Order Management Enterprise Edition, you will use "" as the image name ```icr.io/cpopen/ibm-oms-ent-case-catalog:v1.0```
-
-A sample YAML script and bash script are provided in this repository that you can use, provided you set your image name as an environment variable, as such:
+As part of the enviroment preperation, the OMS Opeator should show up under the OperatorHub inside of Openshift. You can either manually install the operator from the GUI, or you can use the provided scripts to install the opeartor. Note: If using the scripts, be mindful of the version you're deploying. You need to set your OMS version, operator version name, and operator current CSV:
 
 ```bash
-#Professional edition; change for Enterprise Edition
+#Note: This example is for the PROFESSIONAL version of the OMS Operator
 export OMS_VERSION="icr.io/cpopen/ibm-oms-pro-case-catalog:v1.0"
-export branchName="main"
-oc apply -f https://raw.githubusercontent.com/Azure/sterling/main/config/operators/install-oms-operator.yaml
+export OMS_NAMESPACE="OMS"
+export OPERATOR_NAME="ibm-oms-pro"
+export OPERATOR_CSV="ibm-oms-pro.v1.0.0"
+wget -nv https://raw.githubusercontent.com/Azure/sterling/main/config/operators/install-oms-operator.yaml -O /tmp/install-oms-operator.yaml
+envsubst < /tmp/install-oms-operator.yaml > /tmp/install-oms-operator-updated.yaml
+oc apply -f /tmp/install-oms-operator-updated.yaml
 ```
 
-More information on the OMS Operator can be found here: https://www.ibm.com/docs/en/order-management-sw/10.0?topic=container-installing-order-management-software-operator
+For more information about installing the opeartor from the command line, please see this link: https://www.ibm.com/docs/en/order-management-sw/10.0?topic=operator-installing-updating-order-management-software-online
 
 ### Create OMS Secret
 
@@ -373,7 +380,7 @@ To use SSL/TLS connections for both your user-facing applications and any requir
 
 While planning your SSL/TLS certificates and keys is a topic outside the scope of this document, you will need your keys to properly generate a PKCS12 format keystore.
 
-To create a new, empty key and trust store, you can execute the following commands (note: this demo is for a self-signed certificate; in your production enviroment this is not advised).
+To create a new self-signed certificate, key and trust store, you can execute the following commands; in your production enviroment this is not advised. This is only provided as an example:
 
 ```bash
 #You will need access to your key that signed your certificate
@@ -393,24 +400,7 @@ Once you have your key and trust stores, you should copy them to the relevant lo
 
 Once you have your Azure environment built, you are now prepared to deploy your OMEnvironment using the IBM Sterling Order Management Operator. You'll first install the oprator from the IBM Catalog, then use the operator to deploy your OMEnvironment.
 
-### Installing the OMS Openshift Operator
-
-As part of the enviroment preperation, the OMS Opeator should show up under the OperatorHub inside of Openshift. You can either manually install the operator from the GUI, or you can use the provided scripts to install the opeartor. Note: If using the scripts, be mindful of the version you're deploying. You need to set your OMS version, operator version name, and operator current CSV:
-
-```bash
-#Note: This example is for the PROFESSIONAL version of the OMS Operator
-export OMS_VERSION="icr.io/cpopen/ibm-oms-pro-case-catalog:v1.0"
-export OMS_NAMESPACE="OMS"
-export OPERATOR_NAME="ibm-oms-pro"
-export OPERATOR_CSV="ibm-oms-pro.v1.0.0"
-wget -nv https://raw.githubusercontent.com/Azure/sterling/main/config/operators/install-oms-operator.yaml -O /tmp/install-oms-operator.yaml
-envsubst < /tmp/install-oms-operator.yaml > /tmp/install-oms-operator-updated.yaml
-oc apply -f /tmp/install-oms-operator-updated.yaml
-```
-
-For more information about installing the opeartor from the command line, please see this link: https://www.ibm.com/docs/en/order-management-sw/10.0?topic=operator-installing-updating-order-management-software-online
-
-### Deploying OMS Via the OpenShift Operator
+## Deploying OMS Via the OpenShift Operator
 
 Once the operator is deployed, you can now deploy your OMEnvironment provided you have met all the pre-requisites. For more information about the installation process and avaialble options (as well as sample configuration files) please visit: https://www.ibm.com/docs/en/order-management-sw/10.0?topic=operator-installing-order-management-software-by-using
 
