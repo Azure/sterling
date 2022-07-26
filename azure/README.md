@@ -91,10 +91,6 @@ az group create --location "East US" --name <your resource group name>
 az deployment group create --resource-group <your resource group name> --template-file bootstrap.bicep --parameters parameters.json
 ```
 
-Alternatively you can deploy straight from this repository:
-
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fsterling%2Fmain%2Fazure%2Fbootstrap.bicep)
-
 ## Post-Deployment
 
 Once this deployment completes, you should have a functional environment that will support deploying Sterling Order Management. However, this deployment is only a starting point. Please make sure you:
