@@ -5,6 +5,18 @@
         "branchName": {
             "value": "anfurgiu/init"
         },
+        "omsNamespace":{
+            "value": "oms"
+        },
+        "whichOMS":{
+            "value": "icr.io/cpopen/ibm-oms-pro-case-catalog:v1.0"
+        },
+        "ibmEntitlementKey" : {
+            "value": ""
+        },
+        "aroVisibility" : {
+            "value" : "Public"
+        },                        
         "location": {
             "value": "eastus"
         },
@@ -24,30 +36,6 @@
                     }
                 }
             ]
-        },
-        "jumpboxVirtualMachineName": {
-            "value": "omsvmjumpbox"
-        },
-        "db2VirtualMachineNamePrefix": {
-            "value": "omsvmdb2"
-        },
-        "mqVirtualMachineName": {
-            "value": "omsvmmq"
-        },
-        "osDiskType": {
-            "value": "Premium_LRS"
-        },
-        "virtualMachineSize": {
-            "value": "Standard_B2ms"
-        },
-        "db2VirtualMachineSize": {
-            "value": "Standard_E8s_v4"
-        },
-        "mqVirtualMachineSize": {
-            "value": "Standard_B2ms"
-        },
-        "adminUsername": {
-            "value": "azureuser"
         },
         "vnetName": {
             "value": "omsvnet"
@@ -91,6 +79,45 @@
         "subnetDataPrefix": {
             "value": "10.0.6.0/26"
         },
+        "osDiskType": {
+            "value": "Premium_LRS"
+        },
+        "adminUsername": {
+            "value": "azureuser"
+        },        
+        "virtualMachineSize": {
+            "value": "Standard_B2ms"
+        },
+        "jumpboxVirtualMachineName": {
+            "value": "omsvmjumpbox"
+        },
+        "devVMName":{
+            "value": "omsvmdev"
+        },                
+        "db2VirtualMachineNamePrefix": {
+            "value": "omsvmdb2"
+        },
+        "db2VirtualMachineSize": {
+            "value": "Standard_E8s_v4"
+        },
+        "db2InstallerArchiveName" : {
+            "value": "v11.5.7_linuxx64_server_dec.tar.gz"
+        },
+        "db2DatabaseName": {
+            "value" : "omsDB2"
+        },
+        "db2SchemaName": {
+            "value": "oms"
+        },                
+        "mqVirtualMachineName": {
+            "value": "omsvmmq"
+        },
+        "mqVirtualMachineSize": {
+            "value": "Standard_B2ms"
+        },
+        "mqInstallerArchiveName" : {
+            "value": "IBM_MQ_9.2.0_LINUX_X86-64_TRIAL.tar.gz"
+        },                
         "storageNamePrefix": {
             "value": "omsfiles"
         },
@@ -109,17 +136,8 @@
         "db2lbprivateIP":{
             "value": "10.0.4.100"
         },
-        "devVMName":{
-            "value": "omsvmdev"
-        },
         "registryName":{
             "value": "omsacr01"
-        },
-        "omsNamespace":{
-            "value": "oms"
-        },
-        "whichOMS":{
-            "value": "icr.io/cpopen/ibm-oms-pro-case-catalog:v1.0"
         },
         "DBgeoRedundantBackup": {
             "value": "Disabled"
@@ -141,24 +159,6 @@
         },
         "postgreSQLEdition": {
             "value": "MemoryOptimized"
-        },
-        "aroVisibility" : {
-            "value" : "Public"
-        },
-        "mqInstallerArchiveName" : {
-            "value": "IBM_MQ_9.2.0_LINUX_X86-64_TRIAL.tar.gz"
-        },
-        "db2InstallerArchiveName" : {
-            "value": "v11.5.7_linuxx64_server_dec.tar.gz"
-        },
-        "db2DatabaseName": {
-            "value" : "omsDB2"
-        },
-        "db2SchemaName": {
-            "value": "oms"
-        },
-        "ibmEntitlementKey" : {
-            "value": ""
         }
     }
 }

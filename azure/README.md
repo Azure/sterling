@@ -51,24 +51,37 @@ az storage container generate-sas --account-name ominstaller --name installers -
 ```
 Note the full SAS token (string)
 
-### Deploying from this repository
+Finally, update your parmaters file with the EXACT name of the archives for DB2 and/or MQ
+
+## Deployment Parameters
+
+This repository contains a paramters file that contains most of the default values you can use to deploy your environment. You can adjust these as you see fit, however, there are a few you should be aware before you deploy:
+
+* aroVisibility: This is set to ```"Public"``` in the paramaters file. If set to ```"Private"``` your WebUI and APIServer endpoints will ONLY be accessible from your JumpBox and/or any resources that can reach your virtual network. The current parameters file has this set to ```Public```.
+* whichOMS: Which version of OMS you want to deploy. This should correspond to the Operator image name. The parameters file is set to use the "Professional Edition." More information about which image to use for the version you want can be found here: https://www.ibm.com/docs/en/order-management-sw/10.0?topic=operator-installing-updating-order-management-software-online
+* ibmEntitlementKey: Please set this to your current IBM entitlement key if you need to connect to or pull any images from any IBM repository
+* omsNamespace: The namespace to deploy all relevant OMS artifacts into. Defaults to ```OMS``` but can be changed to whatever you like.
+* db2InstallerArchiveName: The file name of the tar.gz file containing the setup files for IBM DB2 (if installing a DB2 VM as part of your deployment)
+* mqInstallerArchiveName: The file name of the tar.gz file containing the setup files for IBM MQ (if installing a MQ VM as part of your deployment)
+
+## Deploying from this repository
 
 You will need a public DNS Zone that can be accessed by the OpenShift installer. During deployment, you will be prompted for the following:
 
-- OpenShift Pull Secret
-- Application Registration Client Id
-- Enterprise Application Object Id
-- Application Registration Client Secret
-- ARO Cluster Name
-- ARO Domain Name
-- Administrator Password
-- InstallerStorageAccountName
-- InstallerContainerName 
-- InstallerSASToken string
-- Create DB2 VM? (Y/N)
-- Create MQ VM? (Y/N)
+- OpenShift Pull Secret - If your cluster needs to pull containers from any Red Hat registry, you can provide this. If not, it can left empty
+- Application Registration Client Id - The client ID of your Service Principal
+- Enterprise Application Object Id - The Object ID of your Enterprise Application (that matches the name of your service principal)
+- Application Registration Client Secret - Your generated service principal secret 
+- ARO Cluster Name - Your ARO cluster name
+- ARO Domain Name - A custom domain to use for your cluster
+- Administrator Password - The main password that will be used to create and access any virtual machines, databases, etc in your deployment.
+- InstallerStorageAccountName - If installing DB2 or MQ, the storage account name where the installers are located (note: just the storage account name, not FQDN)
+- InstallerContainerName - If installing DB2 or MQ, the name of the container on the storage account where the installers are located.
+- InstallerSASToken string - If installing DB2 or MQ, the SAS token you generated that provides READ and LIST permissions on the storage container. Do not include any question marks (?) in the token
+- Create DB2 VM? (Y/N) - Select "Y" to create a new virtual machine in your deployment that will install OBM DB2, create an emtpty database, and a new schema.
+- Create MQ VM? (Y/N) = Select "Y" to create a new virtual machine in your deployment that will install IBM MQ
 
-**Note**: If you choose to install MQ and/or DB2 VMs, **you MUST provide values for the InstallerStorageAccountName, InstallerContainerName, and InstallerSASToken values**; if you plan on running these services elsewhere (such as PostgreSQL or Oracle), then you can provide empty values. Please see the section "Preparing your installers" for more information.
+**Note**: If you choose to install MQ and/or DB2 VMs, **you MUST provide values for the InstallerStorageAccountName, InstallerContainerName, and InstallerSASToken values**; if you plan on running these services elsewhere (such as PostgreSQL or Oracle), then you can provide empty values. Please see the section "Preparing your installers" for more information. The installers will then attempt to connect to these storage accounts during deployment to download the binaries to perform the install. Please all so the "Parameters" section of this guide for more configuration options.
 
 To deploy this environment, clone this repository and change to the ```./azure``` folder and run the following Azure CLI command:
 
