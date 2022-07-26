@@ -57,22 +57,6 @@ wget -nv https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/op
 envsubst < /tmp/ibm-integration-operatorgroup.yaml > /tmp/ibm-integration-operatorgroup-updated.yaml
 oc apply -f /tmp/ibm-integration-operatorgroup-updated.yaml
 
-#Install OMS Opeartor
-export OMS_VERSION=$WHICH_OMS
-
-if [ "$WHICH_OMS" == *"-pro-"* ]
-then
-  export OPERATOR_NAME="ibm-oms-pro"
-  export OPERATOR_CSV="ibm-oms-pro.v1.0.0"
-else
-  export OPERATOR_NAME="ibm-oms-ent"
-  export OPERATOR_CSV="ibm-oms-ent.v1.0.0"
-fi
-
-echo "Installing OMS Operator..."
-echo "Name: $OPERATOR_NAME"
-echo "Operator CSV: $OPERATOR_CSV"
-
 #Create OMS OpenShift Artifacts (PVC, RBAC, and Secret)
 wget -nv https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/oms/oms-pvc.yaml -O /tmp/oms-pvc.yaml
 wget -nv https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/oms/oms-rbac.yaml -O /tmp/oms-rbac.yaml
@@ -98,7 +82,21 @@ oc create secret generic $ACR_NAME-dockercfg --from-file=.dockercfg=/tmp/oms-pul
 #export IBM_ENTITLEMENT_KEY=
 #oc create secret docker-registry ibm-entitlement-key --docker-server=cp.icr.io --docker-username=cp --docker-password=$IBM_ENTITLEMENT_KEY -n $OMS_NAMESPACE
 
-#Install Operator
+#Install OMS Opeartor
+export OMS_VERSION=$WHICH_OMS
+
+if [ "$WHICH_OMS" == *"-pro-"* ]
+then
+  export OPERATOR_NAME="ibm-oms-pro"
+  export OPERATOR_CSV="ibm-oms-pro.v1.0.0"
+else
+  export OPERATOR_NAME="ibm-oms-ent"
+  export OPERATOR_CSV="ibm-oms-ent.v1.0.0"
+fi
+
+echo "Installing OMS Operator..."
+echo "Name: $OPERATOR_NAME"
+echo "Operator CSV: $OPERATOR_CSV"
 wget -nv https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/operators/install-oms-operator.yaml -O /tmp/install-oms-operator.yaml
 envsubst < /tmp/install-oms-operator.yaml > /tmp/install-oms-operator-updated.yaml
 oc apply -f /tmp/install-oms-operator-updated.yaml
