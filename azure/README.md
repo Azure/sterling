@@ -51,11 +51,11 @@ az storage container generate-sas --account-name ominstaller --name installers -
 ```
 Note the full SAS token (string)
 
-Finally, update your parmaters file with the EXACT name of the archives for DB2 and/or MQ
+Finally, update your parameters file with the EXACT name of the archives for DB2 and/or MQ
 
 ## Deployment Parameters
 
-This repository contains a paramters file that contains most of the default values you can use to deploy your environment. You can adjust these as you see fit, however, there are a few you should be aware before you deploy:
+This repository contains a parameters file that contains most of the default values you can use to deploy your environment. You can adjust these as you see fit, however, there are a few you should be aware before you deploy:
 
 * aroVisibility: This is set to ```"Public"``` in the parameters file. If set to ```"Private"``` your WebUI and APIServer endpoints will ONLY be accessible from your JumpBox and/or any resources that can reach your virtual network. The current parameters file has this set to ```Public```.
 * whichOMS: Which version of OMS you want to deploy. This should correspond to the Operator image name. The parameters file is set to use the "Professional Edition." More information about which image to use for the version you want can be found here: https://www.ibm.com/docs/en/order-management-sw/10.0?topic=operator-installing-updating-order-management-software-online
@@ -94,6 +94,16 @@ az deployment group create --resource-group <your resource group name> --templat
 ## Post-Deployment
 
 Once this deployment completes, you should have a functional environment that will support deploying Sterling Order Management. However, this deployment is only a starting point. Please make sure you:
+
+### Connecting to your Azure VM(s) / Jumpbox for Administration
+
+This repository will deploy all associated resource* into a private virtual network which means resources (such as virtual machines, storage accounts, etc) will not be accessible from outside the virtual network. You can access these resources by using Azure Bastion to connect to a virtual machine and access your resources from there. This repository deploys a "jump box" RHEL virtual machine you can use for this purpose. You can also extend this network into other networks as you see fit.
+
+For help or getting started information with Azure Bastion, please reference this link: https://docs.microsoft.com/en-us/azure/bastion/bastion-connect-vm-rdp-windows
+
+**Note**: You can control your ARO "visibility" with the "aroVisibility" parameter (See [Deployment Parameters](#deployment-parameters) for more information)
+
+### Considerations
 
 * **Change any appropriate administrator passwords**: This installer uses the "admin password" parameter to set the administrator passwords for the following services:
  * VM Admin Accounts
