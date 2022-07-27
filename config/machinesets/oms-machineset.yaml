@@ -5,31 +5,31 @@ metadata:
     machine.openshift.io/cluster-api-cluster: $clusterInstanceName
     machine.openshift.io/cluster-api-machine-role: worker
     machine.openshift.io/cluster-api-machine-type: worker
-  name: vi-gpu-tesla-z$zone
+  name: oms-machineset-z$zone
   namespace: openshift-machine-api
 spec:
   replicas: $numReplicas
   selector:
     matchLabels:
-      components: vi-gpu-tesla
+      components: oms-machineset
       machine.openshift.io/cluster-api-cluster: $clusterInstanceName
       machine.openshift.io/cluster-api-machineset: $clusterInstanceName-vi-gpu-tesla-z$zone
   template:
     metadata:
       creationTimestamp: null
       labels:
-        components: vi-gpu-tesla
+        components: oms-machineset
         machine.openshift.io/cluster-api-cluster: $clusterInstanceName
         machine.openshift.io/cluster-api-machine-role: worker
         machine.openshift.io/cluster-api-machine-type: worker
-        machine.openshift.io/cluster-api-machineset: $clusterInstanceName-vi-gpu-tesla-z$zone
+        machine.openshift.io/cluster-api-machineset: $clusterInstanceName-oms-machineset-z$zone
     spec:
       metadata:
         creationTimestamp: null
         labels:
-          components: vi-gpu-tesla
+          components: oms-machineset
           node-role.kubernetes.io/worker: ""
-          icp4data: vi-gpu-tesla2wh
+          icp4data: oms-machineset2wh
       providerSpec:
         value:
           apiVersion: azureproviderconfig.openshift.io/v1beta1
@@ -39,7 +39,7 @@ spec:
           image:
             offer: ""
             publisher: ""
-            resourceID: /resourceGroups/$clusterInstanceName-rg/providers/Microsoft.Compute/images/$clusterInstanceName
+            resourceID: /resourceGroups/$clusterInstanceName-$domain/providers/Microsoft.Compute/images/$clusterInstanceName
             sku: ""
             version: ""
           internalLoadBalancer: ""
@@ -58,8 +58,6 @@ spec:
           publicIP: false
           publicLoadBalancer: $clusterInstanceName
           resourceGroup: $clusterInstanceName-rg
-          sshPrivateKey: ""
-          sshPublicKey: ""
           subnet: $subnetWorkerNodeName
           userDataSecret:
             name: worker-user-data
