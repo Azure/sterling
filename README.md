@@ -181,7 +181,7 @@ After downloading and extracting the required setup files for DB2, install your 
 To use this response file, first you need to add your desired password to the file (this sample file does not contain one). For example, assuming you extracted the DB2 setup files to the /mnt path on your virtual machine, you can do this by running the following commands (and supplying your DBPASSWORD and DBFENCED_PASSWORD as environment variables for substitution):
 
 ```bash
- wget -nv https://raw.githubusercontent.com/Azure/sterling/main/config/db2/install.rsp -O /mnt/install.rsp
+wget -nv https://raw.githubusercontent.com/Azure/sterling/main/config/db2/install.rsp -O /mnt/install.rsp
 export DBPASSWORD=""
 export DBFENCED_PASSWORD=""
 envsubst < /mnt/install.rsp >/mnt/install.rsp
@@ -222,6 +222,8 @@ Finally, to make sure this mount is persisted through reboots, add the mount inf
 ```bash
 sudo echo "<your storage account name>prm.file.core.windows.net:/<your storage account name>/mq /MQHA nfs rw,hard,noatime,nolock,vers=4,tcp,_netdev 0 0" >> /etc/fstab
 ```
+
+You can now create your queue managers and use this new, mounted storage as your queue storage location. Once your queues are created, you will need to capture your JMS ```.bindings``` file (which is needed by OMS). Copy this file to a location (or host) that is capable of using the ```oc``` command, and see the below section about creating your config map for your MQ bindings in the section [Creating MQ Bindings Config Map](#create-mq-bindings-config-map), below.
 
 ### Install Tools
 
@@ -341,6 +343,19 @@ wget -nv https://raw.githubusercontent.com/Azure/sterling/main/config/oms-secret
 envsubst < oms-secret.yaml > oms-secret.yaml
 oc create -f oms-secret.yaml
 ```
+
+### Create MQ Bindings ConfigMap
+
+Users of IBM MQ for their messaging platform will need to create a configuration map in their OMS namespace that contains queue binding information. After you have configured your queue managers and created your JMS bindings, you need to obtain a copy of your ```.bindings``` file. Next, you'll create your configuration map with the following command:
+
+```bash
+export OMS_NAMESPACE="OMS"
+oc create configmap oms-bindings --from-file=.bindings -n $OMS_NAMESPACE
+```
+
+Note: the file name is important, and should be named ```.bindings```!
+
+This configmap will be referenced when your deploy OMS through the operator.
 
 ### Create Required PVC(s)
 

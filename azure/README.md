@@ -104,6 +104,9 @@ Once this deployment completes, you should have a functional environment that wi
  * Ensure availability of your database tier: If using DB2, consider configuring HA for your DB2 VMS. More information from IBM can be found here: https://www.ibm.com/support/pages/setting-two-node-db2-hadr-pacemaker-cluster-virtual-ip-microsoft-azure (Note: this deployment does install required Pacemaker components; you'll just need to add nodes and your additional Azure infrastructures)
  * For IBM MQ, consider adding more nodes and sharing the Premium Files storage among your nodes
 
+### Preparing to deploy your OMEnvironment from the Sterling Operator
+
+For more detailed information about post-deployment steps (and creating required secrets, persistent volumes, SSL information, etc) be sure to check the Quickstart Guide documentation at the root of this repository in the [Quickstart Guide](../README.md#create-oms-secret) starting at the "Creating an OMS Secret" step (as everything else should be prepared upt to that point if you deployed from this repository)
 
 ## Contributing
 
