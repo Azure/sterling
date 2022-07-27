@@ -425,6 +425,29 @@ Once the operator is deployed, you can now deploy your OMEnvironment provided yo
 
 Once your environment is set up and configured, please consider the following steps to complete your installation.
 
+### Right-sizing / Resizing your ARO Cluster
+
+Once you deploy your ARO cluster, you will get "default" worker profiles. These may (or may not) be appropriate for your OMS workload. If you need to create additional machines or different VM sizes, some sample machinesets are available in this repo.
+
+To deploy a larger VM size, you can run following commands:
+
+```bash
+export resourceGroupName=
+export clusterInstanceName=
+export domainName=
+export numReplicas=3
+export vnetName=
+export subnetWorkerNodeName=
+export zone=1
+
+#Get the ARO Instance ILB name; might be randomly generated, so we need to query
+export aroilbname = $(az network lb list -g $clusterInstanceName-$domainName --query "[?!(contains(name, 'internal'))].name")
+
+wget -nv https://raw.githubusercontent.com/Azure/sterling/main/config/machinesets/oms-machineset.yaml -O /tmp/oms-machineset.yaml
+envsubst < /tmp/oms-machineset.yaml > /tmp/oms-machineset-updated.yaml
+oc apply -f /tmp/oms-machineset-updated.yaml
+```
+
 ### Licensing your DB2 and MQ Instances
 
 Post-installation, if you have not already (and you're using IBM DB2 and/or IBM MQ), please obtain your license files for DB2 and MQ and apply the licenses as specified by IBM in their documentation:
