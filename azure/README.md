@@ -11,7 +11,7 @@ There are a series of cloud-init files in this repository that are used during d
     ```bash
     awk -v ORS='\\n' '1' cloud-init-<vm name>.yaml
     ```
-3. Take the resulting one-line output and replace it in the relevant .bicep file's ```cloudInitData``` line. NOTE: Make sure you eescape the apostrophes in the string with a preceding `\'` .
+3. Take the resulting one-line output and replace it in the relevant .bicep file's ```cloudInitData``` line. NOTE: Make sure you escape the apostrophes in the string with a preceding `\'` .
 
 ## Preparing to deploy
 
@@ -21,7 +21,7 @@ You will need to [create an Azure Application Registration (SPN)](https://docs.m
 
 After creating the SPN and assigning its access, you will need to create a [secret](https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal#option-2-create-a-new-application-secret) that will be used during the OCP install process.
 
-More details on [creating a service principal for Azure Redhat Openshift can be found here](https://docs.microsoft.com/en-us/azure/openshift/howto-create-service-principal?pivots=aro-azurecli)
+More details on [creating a service principal for Azure Redhat OpenShift can be found here](https://docs.microsoft.com/en-us/azure/openshift/howto-create-service-principal?pivots=aro-azurecli)
 
 Once you have created your service principal and secret, you will need both the client ID (application ID) of your service principal *and* your associated application object ID as well. To get these values, you can run the following two commands:
 
@@ -32,7 +32,7 @@ az ad app list --display-name ocp-test --query "[].appId" -o tsv
 az ad app show --id <value from previous command>
 ```
 
-Those values, along with your generated secret, will be used in this deployment. Both the application registarion ID and enterprise application are needed for the ARO install and associated role permissions required.
+Those values, along with your generated secret, will be used in this deployment. Both the application registration ID and enterprise application are needed for the ARO install and associated role permissions required.
 
 ### Preparing your installers
 
@@ -57,7 +57,7 @@ Finally, update your parmaters file with the EXACT name of the archives for DB2 
 
 This repository contains a paramters file that contains most of the default values you can use to deploy your environment. You can adjust these as you see fit, however, there are a few you should be aware before you deploy:
 
-* aroVisibility: This is set to ```"Public"``` in the paramaters file. If set to ```"Private"``` your WebUI and APIServer endpoints will ONLY be accessible from your JumpBox and/or any resources that can reach your virtual network. The current parameters file has this set to ```Public```.
+* aroVisibility: This is set to ```"Public"``` in the parameters file. If set to ```"Private"``` your WebUI and APIServer endpoints will ONLY be accessible from your JumpBox and/or any resources that can reach your virtual network. The current parameters file has this set to ```Public```.
 * whichOMS: Which version of OMS you want to deploy. This should correspond to the Operator image name. The parameters file is set to use the "Professional Edition." More information about which image to use for the version you want can be found here: https://www.ibm.com/docs/en/order-management-sw/10.0?topic=operator-installing-updating-order-management-software-online
 * ibmEntitlementKey: Please set this to your current IBM entitlement key if you need to connect to or pull any images from any IBM repository
 * omsNamespace: The namespace to deploy all relevant OMS artifacts into. Defaults to ```OMS``` but can be changed to whatever you like.
@@ -95,12 +95,12 @@ az deployment group create --resource-group <your resource group name> --templat
 
 Once this deployment completes, you should have a functional environment that will support deploying Sterling Order Management. However, this deployment is only a starting point. Please make sure you:
 
-* **Change any appropriate administrator passwords**: This installer uses the "admin password" paramter to set the administrator passwords for the following services:
+* **Change any appropriate administrator passwords**: This installer uses the "admin password" parameter to set the administrator passwords for the following services:
  * VM Admin Accounts
  * PostgreSQL Databases
  * DB2 Instance Accounts
  Once the install completes, you should go through and change this passwords as required.
-* **Enable HA/DR where appropriate**: This installer is desgined to be a starting point for your environment, and if you plan to use this deployment as a template for non-development environments, you should make sure you:
+* **Enable HA/DR where appropriate**: This installer is designed to be a starting point for your environment, and if you plan to use this deployment as a template for non-development environments, you should make sure you:
  * Ensure availability of your database tier: If using DB2, consider configuring HA for your DB2 VMS. More information from IBM can be found here: https://www.ibm.com/support/pages/setting-two-node-db2-hadr-pacemaker-cluster-virtual-ip-microsoft-azure (Note: this deployment does install required Pacemaker components; you'll just need to add nodes and your additional Azure infrastructures)
  * For IBM MQ, consider adding more nodes and sharing the Premium Files storage among your nodes
 
