@@ -38,6 +38,7 @@ This repository provides deployument guidance and best practices for running IBM
     - [SSL Connections and Keystore Configuration](#ssl-connections-and-keystoretruststore-configuration)
   - [Step 7: Deploying OMS](#step-7-deploying-oms)
   - [Step 8: Post Deployment Tasks](#step-8-post-deployment-tasks)
+    - [Right-Sizing / Resizing your ARO Cluster](#right-sizing--resizing-your-aro-cluster)
     - [Licensing your DB2 and MQ Instances](#licensing-your-db2-and-mq-instances)
     - [Migrating Your Data](#migrating-your-data)
   - [Contributing](#contributing)
