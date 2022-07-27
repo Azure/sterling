@@ -43,25 +43,25 @@ This repository provides deployument guidance and best practices for running IBM
 
 ## What's in this repository?
 
-This repisotory serves two purposes: first, it is designed to give you an idea of what sort of architecture you can consider deploying into your Azure subscription to support 
+This repository serves two purposes: first, it is designed to give you an idea of what sort of architecture you can consider deploying into your Azure subscription to support 
 running your Sterling Order Management workload(s) as well as best practice considerations for scale, performance, and security.
 
-Secondly, there are a series of sample deployment templates and configuration scripts designed to get you up and running with an environment ready for you to deploy your existing Sterling OMS resources into. These resources are broken out into the following directories within this respository:
+Secondly, there are a series of sample deployment templates and configuration scripts designed to get you up and running with an environment ready for you to deploy your existing Sterling OMS resources into. These resources are broken out into the following directories within this repository:
 
-- ./azure - Contains a series of .bicep files that can be used to boostrap a reference deployment of all the required Azure resources for your deployment
+- ./azure - Contains a series of .bicep files that can be used to bootstrap a reference deployment of all the required Azure resources for your deployment
 - ./config - Contains files used by the installer examples or Azure automation scripts to configure services or other requirements of the platform
 
-If you are interested in a boostrap environment to deploy Sterling OMS into, please see this README that explains more: [Sterling Azure Bootstrap Resources](./azure/README.md)
+If you are interested in a bootstrap environment to deploy Sterling OMS into, please see this README that explains more: [Sterling Azure Bootstrap Resources](./azure/README.md)
 
 ## Overview
 
 This repository is designed to help you plan your Sterling Order Management deployment on Microsoft Azure with a configuration similar to the below diagram:
 
-![A Sample OMS Networking/Resource Digram](/docs/images/SterlingNetworkDiagram.png)
+![A Sample OMS Networking/Resource Diagram](/docs/images/SterlingNetworkDiagram.png)
 
 To get started, you'll need to accomplish the following tasks:
 
-1. Preparing and configuring your Azure environment for an Azure Redhat Openshift deployment
+1. Preparing and configuring your Azure environment for an Azure Redhat OpenShift deployment
 2. Deploy all the required Azure resources (including Azure Redhat OpenShift)
 3. Install and configure your message queue system as well as your backend database instance(s) (see below)
 4. Configure Azure RedHat OpenShift, including:
@@ -75,7 +75,7 @@ To get started, you'll need to accomplish the following tasks:
 
 ## Before You Begin
 
-To sucessfully install and configure OMS on Azure, you'll need to make sure you have all of the following requirements (or a plan for them):
+To successfully install and configure OMS on Azure, you'll need to make sure you have all of the following requirements (or a plan for them):
 
 * An active Azure subscription
  * A quota of at least 40 vCPU allowed for your VM type(s) of choice. Request a quota increase if needed.
@@ -101,7 +101,7 @@ Finally, for managing and configuring Azure Redhat OpenShift, you'll also need t
 
 At a minimum, your Azure environment should contain a resource group that contains the following resources:
 
-1. A Virtual Network: This virtual network will host the following subnets (with reccomended CIDR ranges*):
+1. A Virtual Network: This virtual network will host the following subnets (with recommended CIDR ranges*):
     - control (/24): the control subnet is used by Azure RedHat OpenShift control nodes.
     - worker (/24): the worker subnet is used by Azure RedHat OpenShift worker nodes.
     - data (/27): this delegated subnet can be used for PostgreSQL (if needed)
@@ -117,9 +117,9 @@ At a minimum, your Azure environment should contain a resource group that contai
     - Development VM(s): Machines that can be used be developers for that can connect to any required cluster, data, or queue resources inside the virtual network
 4. An Azure Container Registry for storing your custom Sterling OMS containers.
 
-*Note:* Aside from the control and worker subnets, your CIDR ranges are completely up to you and should be sized appropriatley for any additional growth you forsee.
+*Note:* Aside from the control and worker subnets, your CIDR ranges are completely up to you and should be sized appropriately for any additional growth you forsee.
 
-For a more detailed accounting of the suggsted Azure resources, check out this guide and for sample deployment scripts to help you get started, check out the ./azure folder in this repository for some .bicep files you can just to quick start your environment. In addition, for a more detailed explanation of the Azure resources, please review this guide.
+For a more detailed accounting of the suggested Azure resources, check out this guide and for sample deployment scripts to help you get started, check out the ./azure folder in this repository for some .bicep files you can just to quick start your environment. In addition, for a more detailed explanation of the Azure resources, please review this guide.
 
 ### Creating an Azure Application Registration
 
@@ -127,20 +127,20 @@ You will need to [create an Azure Application Registration (SPN)](https://docs.m
 
 After creating the SPN and assigning its access, you will need to create a [secret](https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal#option-2-create-a-new-application-secret) that will be used during the OCP install process.
 
-More details on [creating a service principal for Azure Redhat Openshift can be found here](https://docs.microsoft.com/en-us/azure/openshift/howto-create-service-principal?pivots=aro-azurecli)
+More details on [creating a service principal for Azure Redhat OpenShift can be found here](https://docs.microsoft.com/en-us/azure/openshift/howto-create-service-principal?pivots=aro-azurecli)
 
 ### Creating a storage account for required IBM application installers
 
 IBM Sterling Order Management requires a database and MQ instance, and reccomends installing these services *outside* of your OpenShift cluster for scaling and performance purposes. As such, you will need to obtain setup files for each of these applications. You can obtain developer editions of these applications from the following links (IBM registration is required):
 
-* DB2 Commmunity Edition: https://www.ibm.com/products/db2-database/developers
+* DB2 Community Edition: https://www.ibm.com/products/db2-database/developers
 * IBM MQ For Developers: https://developer.ibm.com/articles/mq-downloads/
 
-Alternativly, for testing you can also consider container versions of these applications, but this is NOT reccomended for production or production-like environemnets.
+Alternatively, for testing you can also consider container versions of these applications, but this is NOT recommended for production or production-like environments.
 
 You can also acquire these applications via your Passport Advantage portal (which also should include your applicable licenses): https://www-112.ibm.com/software/howtobuy/passportadvantage/paoreseller/LoginPage?abu=
 
-To make these files available during installation, it is reccomended that you create a seperate storage account and place the compressed archives into a storage container. Once you upload your files to the storage account, you can then install and use [```azcopy```](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-v10) to copy the archives to your virtual machine(s) and install them as neccessary. The easiest way to do this is to [create a shared access signature (SAS) for the container](https://docs.microsoft.com/en-us/azure/cognitive-services/translator/document-translation/create-sas-tokens?tabs=Containers). Then, from your virtual machines, you can download the files as follows:
+To make these files available during installation, it is recommended that you create a separate storage account and place the compressed archives into a storage container. Once you upload your files to the storage account, you can then install and use [```azcopy```](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-v10) to copy the archives to your virtual machine(s) and install them as necessary. The easiest way to do this is to [create a shared access signature (SAS) for the container](https://docs.microsoft.com/en-us/azure/cognitive-services/translator/document-translation/create-sas-tokens?tabs=Containers). Then, from your virtual machines, you can download the files as follows:
 
 ```bash
 azcopy copy "https://<storage account name with setup archive>.blob.core.windows.net/<storage container name with setup archive>/<name of db2 archive>?<sastoken>" /tmp/db2.tar.gz
@@ -149,7 +149,7 @@ azcopy copy "https://<storage account name with setup archive>.blob.core.windows
 
 ## Step 2: Install Azure RedHat Openshift
 
-Once all of the networking requirements are met, you should install Azure RedHat OpenShift. This guide was written and tested with ARO 4.9.9. When configuring ARO, make sure you select the approproate subnets. You can also decide if you want your cluster to be available publically or not (note that if you choose to not make it public, you'll only be able to access the cluster from within the virtual network, from your Jump Box virtual machine). Your deployment may take a few minutes to complete.
+Once all of the networking requirements are met, you should install Azure RedHat OpenShift. This guide was written and tested with ARO 4.9.9. When configuring ARO, make sure you select the appropriate subnets. You can also decide if you want your cluster to be available publicly or not (note that if you choose to not make it public, you'll only be able to access the cluster from within the virtual network, from your Jump Box virtual machine). Your deployment may take a few minutes to complete.
 
 You can create a new cluster through the Azure Portal, or from the Azure CLI:
 
@@ -159,7 +159,7 @@ az aro create --resource-group $RESOURCEGROUP --name $CLUSTER --vnet aro-vnet --
 
 ## Step 3: Accessing your ARO Cluster
 
-After your deployment completes, you can retreive your portal URL and admin credentials by running the following commands:
+After your deployment completes, you can retrieve your portal URL and admin credentials by running the following commands:
 
 ```bash
 az aro show --name <your clustername> --resource-group <your resource group name> --query "consoleProfile.url" -o tsv
@@ -191,7 +191,7 @@ sudo /mnt/server_dec/db2setup -r /mnt/install.rsp
 This will complete the DB2 install. Once the installation completes, you should remove the response file. You should repeat this process for each DB2 instance you plan on creating for high availability. This will require you to install the required Pacemaker components for DB2:
 
 ```bash
-#Your DB2 Installer media should have come with local Pacemkaer installer files. These files and setup are IBM's own approved installation
+#Your DB2 Installer media should have come with local Pacemaker installer files. These files and setup are IBM's own approved installation
 #More information, including how to complete this setup, can be found here: https://www.ibm.com/docs/en/db2/11.5?topic=feature-integrated-solution-using-pacemaker
 cd /<install location>/db2/linuxamd64/pcmk
 sudo ./db2installPCMK -i
@@ -203,13 +203,13 @@ For more information, please refer to this documentation about building a highly
 
 ### Install and Configure IBM MQ (if applicable)
 
-For performance and high availability, it is reccomended to configure your MQ Queue Manager to use Azure Files Premium NFS shares on your MQ Virtual Machines. To do this, first create a new NFS share on your storage account:
+For performance and high availability, it is recommended to configure your MQ Queue Manager to use Azure Files Premium NFS shares on your MQ Virtual Machines. To do this, first create a new NFS share on your storage account:
 
 ```bash
-az storage share-rm create --resource-group <your resource gorup name> --storage-account <premium file storage account name> --name mq --quota 1024 --enabled-protocols NFS --output none
+az storage share-rm create --resource-group <your resource group name> --storage-account <premium file storage account name> --name mq --quota 1024 --enabled-protocols NFS --output none
 ```
 
-Then, on the MQ virtual machine(s), you can mount by running the following commands (as well as seting the default "mqm" user to have permissions on the share):
+Then, on the MQ virtual machine(s), you can mount by running the following commands (as well as setting the default "mqm" user to have permissions on the share):
 
 ```bash
 sudo mount -t nfs <your storage account name>.file.core.windows.net:/<your storage account name>/mq /MQHA -o vers=4,minorversion=1,sec=sys
@@ -217,7 +217,7 @@ sudo chown -R mqm:mqm /MQHA
 sudo chmod -R ug+rwx /MQHA
 ```
 
-Finally, to make sure this mount is persisten through reboots, add the mount information to your ```fstab``` file:
+Finally, to make sure this mount is persisted through reboots, add the mount information to your ```fstab``` file:
 
 ```bash
 sudo echo "<your storage account name>prm.file.core.windows.net:/<your storage account name>/mq /MQHA nfs rw,hard,noatime,nolock,vers=4,tcp,_netdev 0 0" >> /etc/fstab
@@ -225,7 +225,7 @@ sudo echo "<your storage account name>prm.file.core.windows.net:/<your storage a
 
 ### Install Tools
 
-To enable administration and deployment of Sterling OMS, you should make sure your jump box virtual machine has the follwing tools installed:
+To enable administration and deployment of Sterling OMS, you should make sure your jump box virtual machine has the following tools installed:
 
 First, download and set up the ```oc``` command line too. You can download the OpenShift clients from Red Hat at their mirror. This will provide the oc CLI and also includes kubectl
 
@@ -273,7 +273,7 @@ Note: The rest of this guide assumes the namespace in use is 'OMS', but you can 
 
 ### Install Azure Files CSI Driver
 
-Sterling OMS requires some persistent volumes for configuration (certifcates, secrets, etc), customizations (search indexes, etc), and logging. Therefore, it's required that you configure your Azure RedHat OpenShift cluster with the following storage configuration.
+Sterling OMS requires some persistent volumes for configuration (certificates, secrets, etc), customizations (search indexes, etc), and logging. Therefore, it's required that you configure your Azure RedHat OpenShift cluster with the following storage configuration.
 
 Note: You will need to [create a Azure Application Registration (service principal) that ARO will use](#creating-an-azure-application-registration) to interact with the storage account, if you have not already. This service principal will need, at a minimum, ```Contributor``` access to your resource group. Once you have created this service principal, you can then create a secret that your cluster will use to interact with provisioning storage accounts and file shares within the resource group.
 
@@ -310,7 +310,7 @@ oc create secret generic $ACR_NAME-dockercfg --from-file=.dockercfg=/tmp/oms-pul
 
 ### Install IBM Operator Catalog and the Sterling Operator
 
-As part of the enviroment preperation, the OMS Opeator should show up under the OperatorHub inside of Openshift. You can either manually install the operator from the GUI, or you can use the provided scripts to install the opeartor. Note: If using the scripts, be mindful of the version you're deploying. You need to set your OMS version, operator version name, and operator current CSV:
+As part of the environment preparation, the OMS Operator should show up under the OperatorHub inside of OpenShift. You can either manually install the operator from the GUI, or you can use the provided scripts to install the operator. Note: If using the scripts, be mindful of the version you're deploying. You need to set your OMS version, operator version name, and operator current CSV:
 
 ```bash
 #Note: This example is for the PROFESSIONAL version of the OMS Operator
@@ -323,11 +323,11 @@ envsubst < /tmp/install-oms-operator.yaml > /tmp/install-oms-operator-updated.ya
 oc apply -f /tmp/install-oms-operator-updated.yaml
 ```
 
-For more information about installing the opeartor from the command line, please see this link: https://www.ibm.com/docs/en/order-management-sw/10.0?topic=operator-installing-updating-order-management-software-online
+For more information about installing the operator from the command line, please see this link: https://www.ibm.com/docs/en/order-management-sw/10.0?topic=operator-installing-updating-order-management-software-online
 
 ### Create OMS Secret
 
-OMS Requires that a secret be created that contains relevant credentials for your database, your trust keystores, etc. A sample configuration file can be found in this repository under ./config/oms and can be modified to suit your needs (just supple the appropriate credentails to each variable):
+OMS Requires that a secret be created that contains relevant credentials for your database, your trust keystores, etc. A sample configuration file can be found in this repository under ./config/oms and can be modified to suit your needs (just supple the appropriate credentials to each variable):
 
 ```bash
 export NAMESPACE=""
@@ -344,7 +344,7 @@ oc create -f oms-secret.yaml
 
 ### Create Required PVC(s)
 
-Your OMS pods will require a persistent storage layer for logging, and any additional components or customizations for your deployment. While these volumes *can* be created at deployment time via the Helm charts or Operator, IBM reccomeneds you provision these prior to your deployment. As such, you should think about creating one (or more) PVCs as needed.
+Your OMS pods will require a persistent storage layer for logging, and any additional components or customizations for your deployment. While these volumes *can* be created at deployment time via the Helm charts or Operator, IBM recommends you provision these prior to your deployment. As such, you should think about creating one (or more) PVCs as needed.
 
 A sample PVC template is provided as part of this repository, and will use the Azure Files Standard storage class that was created earlier:
 
@@ -357,11 +357,11 @@ envsubst < oms-pvc.yaml > oms-pvc-updated.yaml
 oc create -f oms-pvc-updated.yaml
 ```
 
-Once this PVC is created, this share will be used by your deployment of your OMEnvironment, and you can stage files to this share via the Azure CLI or Azure Storage Explorer (for example, your keystore and truststores, see below)
+Once this PVC is created, this share will be used by your deployment of your OMEnvironment, and you can stage files to this share via the Azure CLI or Azure Storage Explorer (for example, your keystore and truststore, see below)
 
 ### Create RBAC Role
 
-There is a specialized RBAC role required for Sterling OMS. To deploy it, you can run the folowing commands:
+There is a specialized RBAC role required for Sterling OMS. To deploy it, you can run the following commands:
 
 ```bash
 export NAMESPACE="OMS"
@@ -380,7 +380,7 @@ To use SSL/TLS connections for both your user-facing applications and any requir
 
 While planning your SSL/TLS certificates and keys is a topic outside the scope of this document, you will need your keys to properly generate a PKCS12 format keystore.
 
-To create a new self-signed certificate, key and trust store, you can execute the following commands; in your production enviroment this is not advised. This is only provided as an example:
+To create a new self-signed certificate, key and trust store, you can execute the following commands; in your production environment this is not advised. This is only provided as an example:
 
 ```bash
 #You will need access to your key that signed your certificate
@@ -394,15 +394,15 @@ openssl pkcs12 -export -in selfkeycert.txt -out mykeystore.pkcs12 -name myKeysto
 keytool -import -file selfsigned.crt -alias selfsigned -keystore myTrustStore
 ```
 
-Once you have your key and trust stores, you should copy them to the relevant locations on any of the persistant volumes that you created above for your deployment. For more information, please see this documentation: https://www.ibm.com/docs/en/control-center/5.4.2?topic=connections-configuring-keystore-truststore-files
+Once you have your key and trust stores, you should copy them to the relevant locations on any of the persistent volumes that you created above for your deployment. For more information, please see this documentation: https://www.ibm.com/docs/en/control-center/5.4.2?topic=connections-configuring-keystore-truststore-files
 
 ## Step 7: Deploying OMS
 
-Once you have your Azure environment built, you are now prepared to deploy your OMEnvironment using the IBM Sterling Order Management Operator. You'll first install the oprator from the IBM Catalog, then use the operator to deploy your OMEnvironment.
+Once you have your Azure environment built, you are now prepared to deploy your OMEnvironment using the IBM Sterling Order Management Operator. You'll first install the operator from the IBM Catalog, then use the operator to deploy your OMEnvironment.
 
 ## Deploying OMS Via the OpenShift Operator
 
-Once the operator is deployed, you can now deploy your OMEnvironment provided you have met all the pre-requisites. For more information about the installation process and avaialble options (as well as sample configuration files) please visit: https://www.ibm.com/docs/en/order-management-sw/10.0?topic=operator-installing-order-management-software-by-using
+Once the operator is deployed, you can now deploy your OMEnvironment provided you have met all the pre-requisites. For more information about the installation process and available options (as well as sample configuration files) please visit: https://www.ibm.com/docs/en/order-management-sw/10.0?topic=operator-installing-order-management-software-by-using
 
 ## Step 8: Post Deployment Tasks
 
