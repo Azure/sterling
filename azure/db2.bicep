@@ -15,7 +15,7 @@ param installerStorageAccountName string
 param installerContainerName string
 @secure()
 param installerSASToken string
-param loadBalancerName string
+//param loadBalancerName string
 param db2InstallerArchiveName string
 param branchName string
 param db2DatabaseName string
