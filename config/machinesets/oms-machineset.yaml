@@ -13,7 +13,7 @@ spec:
     matchLabels:
       components: oms-machineset
       machine.openshift.io/cluster-api-cluster: $clusterInstanceName
-      machine.openshift.io/cluster-api-machineset: $clusterInstanceName-vi-gpu-tesla-z$zone
+      machine.openshift.io/cluster-api-machineset: $clusterInstanceName-oms-machineset-z$zone
   template:
     metadata:
       creationTimestamp: null
@@ -56,11 +56,11 @@ spec:
               storageAccountType: Premium_LRS
             osType: Linux
           publicIP: false
-          publicLoadBalancer: $clusterInstanceName
-          resourceGroup: $clusterInstanceName-rg
+          publicLoadBalancer: $aroilbname
+          resourceGroup: $clusterInstanceName-$domainName
           subnet: $subnetWorkerNodeName
           userDataSecret:
             name: worker-user-data
-          vmSize: Standard_NC12s_v3
+          vmSize: Standard_D16_v3
           vnet: $vnetName
           zone: "$zone"
