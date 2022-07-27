@@ -6,6 +6,8 @@ This repository provides deployument guidance and best practices for running IBM
 
 > 🚧 **WARNING** this guide is currently under active development. If you would like to contribute or use this right now, please reach out so we can support you.
 
+> 🐧 **bash ahead!** Most, if not all, of the example scripts in this repository were written to executed in a bash scripting environment on Linux. Consider using a Linux virtual machine, or [WSL2](https://docs.microsoft.com/en-us/windows/wsl/install) to work with these examples.
+
 ## Table of Contents:
 
 - [QuickStart Guide: Sterling Order Management on Azure](#quickstart-guide-sterling-order-management-on-azure)

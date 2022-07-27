@@ -2,6 +2,9 @@
 
 In this folder, you can find resources that can help you get up to speed quickly with the required resources for a successful deployment of Sterling OMS on Azure. There are several pre-requisites which are outlined in the main repository readme (link). However, these bicep files can aid you in getting an environment up and running
 
+> 🐧 **bash ahead!** Most, if not all, of the example scripts in this repository were written to executed in a bash scripting environment on Linux. Consider using a Linux virtual machine, or [WSL2](https://docs.microsoft.com/en-us/windows/wsl/install) to work with these examples.
+
+
 ## Updating cloud init file(s) (Optional)
 
 There are a series of cloud-init files in this repository that are used during different deployment steps to "stage" a virtual machine with different software packages, custom installers, and other steps. If you'd like to modify a particular VM's cloud init script, you can do the following:
