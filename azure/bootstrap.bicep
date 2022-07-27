@@ -1,69 +1,123 @@
+@description('Which branch name do you want to pull artifact, like installer scripts, from the Azure Sterling Repository')
 param branchName string
+@description('Your Azure Application Registration ClientID')
 param clientID string
+@description('Your Azure Enterprise Application Registration ObjectID (see README for more information')
 param objectID string
+@description('Your Azure Application Registration Secret')
 @secure()
 param clientSecret string
+@description('Which Azure region to deploy to')
 param location string
+@description('The name of your Azure Redhat OpenShift Cluster')
 param aroClusterName string
+@description('Your ARO Cluster Visibility (Public/Private)')
 param aroVisibility string
+@description('Your desired OMS Namespace in your ARO cluster')
 param omsNamespace string
+@description('Your ARO Domain Name (see README for more information')
 param domain string
+@description('Number of initial workers to deploy to your cluster')
 param numworkers int
+@description('Your Red Hat Pull Secret, if applicable')
 param OpenShiftPullSecret string
+@description('An array of NSG rules (JSON Objects) to deploy, such as inbound SSH, RDP, etc...')
 param networkSecurityGroupRules array
+@description('The (host)name of your "jumpbox" for securely connecting to resources')
 param jumpboxVirtualMachineName string
+@description('The (host)name prefix of your DB2 virtual machines, if deploying any. Multiple VMs can be deployed with -1, -2, etc for securely connecting to resources')
 param db2VirtualMachineNamePrefix string
+@description('The (host)name prefix of your MQ virtual machines, if deploying any. Multiple VMs can be deployed with -1, -2, etc for securely connecting to resources')
 param mqVirtualMachineName string
-
-param mqInstallerArchiveName string
-param db2InstallerArchiveName string
-
+@description('What type of storage to use for your VM OD disks (Premium LRS)')
 param osDiskType string
+@description('For non-specific virtual machines (such as your jumpbox), which VM SKU to use')
 param virtualMachineSize string
+@description('DB2 VM SKU/Size')
 param db2VirtualMachineSize string
+@description('MQ VM SKU/Size')
 param mqVirtualMachineSize string
+@description('The name of the initial (admin) user that will be created on your VMs')
 param adminUsername string
+@description('Your admin user password. NOTE: This password will also be the default used for other services, like DB2, PostgreSQL, etc')
 @secure()
 param adminPassword string
+@description('The name of the virtual network to create')
 param vnetName string
+@description('VNET Address Space')
 param vnetAddressPrefix string
+@description('Control node subnet address space')
 param subnetControlNodePrefix string
+@description('Control node subnet name')
 param subnetControlNodeName string
+@description('Worker node worker address space')
 param subnetWorkerNodePrefix string
+@description('Worker node subnet name')
 param subnetWorkerNodeName string
+@description('Endpoints subnet address space')
 param subnetEndpointsPrefix string
+@description('Endpoints node subnet name')
 param subnetEndpointsName string
-param storageNamePrefix string
+@description('Bastion subnet address space')
 param subnetBastionPrefix string
+@description('Bastion subnet name')
 param subnetBastionName string
+@description('Bastion host name')
 param bastionHostName string
+@description('VMs subnet name')
+param subnetVMName string
+@description('VMs subnet address space')
+param subnetVMPrefix string
+@description('Data subnet name')
+param subnetDataName string
+@description('Data subnet address space')
+param subnetDataPrefix string
+@description('If installing MQ as part of this deployment, provide the filename of the MQ tar.gz file')
+param mqInstallerArchiveName string
+@description('If installing DB2 as part of this deployment, provide the filename of the DB2 tar.gz file')
+param db2InstallerArchiveName string
+@description('If installing DB2 and/or MQ as part of this deployment, provide the the storage account name where the installers can be downloaded from')
 param installerStorageAccountName string
+@description('If installing DB2 and/or MQ as part of this deployment, provide the the storage account container name where the installers can be downloaded from')
 param installerContainerName string
+@description('If installing DB2 and/or MQ as part of this deployment, provide the the a SAS token with read and list permissions to the container with the binaries')
 @secure()
 param installerSASToken string
+@description('The name of the Azure Premium File Share to create for your MQ instance')
 param mqsharename string
-param loadBalancerName string
-param db2lbprivateIP string
+@description('The name of the outbound NAT gateway for your virtual machines')
 param gatewayName string
-param subnetVMName string
-param subnetVMPrefix string
-param subnetDataName string
-param subnetDataPrefix string
-
+@description('If deploying Azure PostgreSQL Flexible Server, setting for using geo-redundnant backups or not')
 param DBgeoRedundantBackup string
+@description('If deploying Azure PostgreSQL Flexible Server, number of days to keep backups')
 param DBbackupRetentionDays int
+@description('If deploying Azure PostgreSQL Flexible Server, initial size of your database')
 param dbStorageSizeGB int
+@description('If deploying Azure PostgreSQL Flexible Server, the name of your PostgreSQL service')
 param postgreSQLName string
+@description('If deploying Azure PostgreSQL Flexible Server, the version of PostgreSQL to deploy')
 param postgreSQLVersion string
+@description('If deploying Azure PostgreSQL Flexible Server, the VM Size to use')
 param postgreSQLVMClass string
+@description('If deploying Azure PostgreSQL Flexible Server, the VM compute tier to use')
 param postgreSQLEdition string
-
+@description('Developer VM Name')
 param devVMName string
+@description('Azure Container Registry Name')
 param registryName string
+@description('Which OMS Version (image) to deploy')
 param whichOMS string
+@description('If installing DB2, the name of the empty database to be created')
 param db2DatabaseName string
+@description('If installing DB2, name of the schema to be created in your new, empty database')
 param db2SchemaName string
+@description('Your IBM Entitlement Key')
 param ibmEntitlementKey string
+@description('Storage Account Name Prefix')
+param storageNamePrefix string
+
+//param loadBalancerName string
+//param db2lbprivateIP string
 
 @description('Do you want to create a DB2 VM (Y/N)?')
 @allowed([
@@ -248,7 +302,7 @@ module db2vm1 'db2.bicep' = if (installdb2vm == 'Y' || installdb2vm == 'y') {
     installerContainerName: installerContainerName
     installerSASToken: installerSASToken
     db2InstallerArchiveName: db2InstallerArchiveName
-    loadBalancerName: loadBalancerName
+    //loadBalancerName: loadBalancerName
     db2DatabaseName: db2DatabaseName
     db2SchemaName: db2SchemaName
   }
