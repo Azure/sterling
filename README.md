@@ -343,7 +343,7 @@ export DBPASSWORD=""
 export TLSSTOREPW=""
 export TRUSTSTOREPW=""
 export KEYSTOREPW=""
-wget -nv https://raw.githubusercontent.com/Azure/sterling/main/config/oms-secret.yaml -O oms-secret.yaml
+wget -nv https://raw.githubusercontent.com/Azure/sterling/main/config/oms/oms-secret.yaml -O oms-secret.yaml
 envsubst < oms-secret.yaml > oms-secret.yaml
 oc create -f oms-secret.yaml
 ```
@@ -384,7 +384,7 @@ There is a specialized RBAC role required for Sterling OMS. To deploy it, you ca
 
 ```bash
 export NAMESPACE="OMS"
-wget -nv https://raw.githubusercontent.com/Azure/sterling/main/config/oms-rbac.yaml -O oms-rbac.yaml
+wget -nv https://raw.githubusercontent.com/Azure/sterling/main/config/oms/oms-rbac.yaml -O oms-rbac.yaml
 envsubst < oms-rbac.yaml > oms-rbac-updated.yaml
 oc create -f oms-rbac-updated.yaml
 ```
