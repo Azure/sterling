@@ -20,3 +20,8 @@ echo "mqm       hard  nofile     10240" >> /etc/security/limits.conf
 firewall-offline-cmd --zone=public --add-port=6566/tcp
 systemctl enable firewalld
 systemctl start firewalld
+
+#Add MQ bin and java folders to path, globally
+touch /etc/profile.d/mq.sh
+echo 'PATH=$PATH:/opt/mqm/bin' >> /etc/profile.d/mq.sh
+echo 'PATH=$PATH:/opt/mqm/java/bin' >> /etc/profile.d/mq.sh
