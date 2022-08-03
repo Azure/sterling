@@ -32,6 +32,7 @@ This repository provides deployument guidance and best practices for running IBM
     - [Add Azure Container Registry Credentials to Namespace Docker Credential Secret](#add-azure-container-registry-credentials-to-namespace-docker-credential-secret)
     - [Install IBM Operator Catalog and the Sterling Operator](#install-ibm-operator-catalog-and-the-sterling-operator)
     - [Create OMS Secret](#create-oms-secret)
+    - [Create MQ Bindings Configuration Map](#create-mq-bindings-configmap)
     - [Create Required PVC(s)](#create-required-pvcs)
     - [Create RBAC Role](#create-rbac-role)
     - [Update Container Pull Secret(s) for your Azure Container Registry](#update-container-pull-secrets-for-your-azure-container-registry)
@@ -370,7 +371,7 @@ A sample PVC template is provided as part of this repository, and will use the A
 #Assumes you use the same storage class name from before; change as needed
 export STORAGECLASSNAME="azurefiles-standard"
 export SIZEINGB="20"
-wget -nv https://raw.githubusercontent.com/Azure/sterling/main/config/oms-pvc.yaml -O oms-pvc.yaml
+wget -nv https://raw.githubusercontent.com/Azure/sterling/main/config/oms/oms-pvc.yaml -O oms-pvc.yaml
 envsubst < oms-pvc.yaml > oms-pvc-updated.yaml
 oc create -f oms-pvc-updated.yaml
 ```
