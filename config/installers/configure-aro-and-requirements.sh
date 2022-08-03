@@ -53,9 +53,9 @@ chmod u+x /tmp/configure-azurefiles-driver.sh
 #Configure IBM Operator Catalog
 echo "==== OPERATOR INSTALL ===="
 oc create namespace openshift-marketplace
-wget -nv https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/operators/ibm-integration-operatorgroup.yaml -O /tmp/ibm-integration-operatorgroup.yaml
-envsubst < /tmp/ibm-integration-operatorgroup.yaml > /tmp/ibm-integration-operatorgroup-updated.yaml
-oc apply -f /tmp/ibm-integration-operatorgroup-updated.yaml
+#wget -nv https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/operators/ibm-integration-operatorgroup.yaml -O /tmp/ibm-integration-operatorgroup.yaml
+#envsubst < /tmp/ibm-integration-operatorgroup.yaml > /tmp/ibm-integration-operatorgroup-updated.yaml
+#oc apply -f /tmp/ibm-integration-operatorgroup-updated.yaml
 
 #Create OMS OpenShift Artifacts (PVC, RBAC, and Secret)
 wget -nv https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/oms/oms-pvc.yaml -O /tmp/oms-pvc.yaml
