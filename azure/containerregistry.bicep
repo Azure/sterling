@@ -58,3 +58,17 @@ resource registry_private_endpoint 'Microsoft.Network/privateEndpoints@2021-03-0
     ]
   }
 }
+
+resource registry_private_zone_group 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2020-06-01' = {
+  name: '${registry_private_endpoint.name}/dnsgroupname'
+  properties: {
+    privateDnsZoneConfigs: [
+      {
+        name: 'registry'
+        properties: {
+          privateDnsZoneId:registry_private_zone.id
+        }
+      }
+    ]
+  }
+}
