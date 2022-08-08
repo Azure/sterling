@@ -1,8 +1,8 @@
-export tenantId=$(cat ~/.azure/osServicePrincipal.json | jq -r .tenantId)
-export subscriptionId=$(cat ~/.azure/osServicePrincipal.json | jq -r .subscriptionId)
-export clientId=$(cat ~/.azure/osServicePrincipal.json | jq -r .clientId)
-export clientSecret=$(cat ~/.azure/osServicePrincipal.json | jq -r .clientSecret)
-export driver_version="v1.18.0"
+export TENANT_ID=$(cat ~/.azure/osServicePrincipal.json | jq -r .tenantId)
+export SUBSCRIPTION_ID=$(cat ~/.azure/osServicePrincipal.json | jq -r .subscriptionId)
+export CLIENT_ID=$(cat ~/.azure/osServicePrincipal.json | jq -r .clientId)
+export CLIENT_SECRET=$(cat ~/.azure/osServicePrincipal.json | jq -r .clientSecret)
+export DRIVER_VERSION="v1.18.0"
 export RESOURCE_GROUP_NAME=$(cat ~/.azure/osServicePrincipal.json | jq -r .resourceGroup)
 
 
@@ -23,8 +23,8 @@ sudo -E oc adm policy add-scc-to-user privileged system:serviceaccount:kube-syst
 sudo -E oc create configmap azure-cred-file --from-literal=path="/etc/kubernetes/cloud.conf" -n kube-system
 
 #driver_version=$azureFilesCSIVersion
-echo "Driver version " $driver_version
-curl -skSL https://raw.githubusercontent.com/kubernetes-sigs/azurefile-csi-driver/$driver_version/deploy/install-driver.sh | bash -s $driver_version --
+echo "Driver version " $DRIVER_VERSION
+curl -skSL https://raw.githubusercontent.com/kubernetes-sigs/azurefile-csi-driver/$DRIVER_VERSION/deploy/install-driver.sh | bash -s $DRIVER_VERSION --
 
  #Configure Azure Files Standard
  wget -nv https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/azure-file-storage/azurefiles-standard.yaml -O /tmp/azurefiles-standard.yaml
