@@ -309,9 +309,10 @@ export ACR_NAME=<your azure container registry name>
 export RESOURCE_GROUP_NAME=<your resource group name>
 export ACR_LOGIN_SERVER=$(az acr show -n $ACR_NAME -g $RESOURCE_GROUP_NAME | jq -r .loginServer)
 export ACR_PASSWORD=$(az acr credential show -n $ACR_NAME -g $RESOURCE_GROUP_NAME | jq -r '.passwords[0].value')
+export OMS_NAMESPACE=""
 wget -nv https://raw.githubusercontent.com/Azure/sterling/main/config/oms/oms-pullsecret.json -O /tmp/oms-pullsecret.json
 envsubst < /tmp/oms-pullsecret.json > /tmp/oms-pullsecret-updated.json
-oc create secret generic $ACR_NAME-dockercfg --from-file=.dockercfg=/tmp/oms-pullsecret-updated.json --type=kubernetes.io/dockercfg
+oc create secret generic $ACR_NAME-dockercfg --from-file=.dockercfg=/tmp/oms-pullsecret-updated.json --type=kubernetes.io/dockercfg -n $OMS_NAMESPACE
 ```
 
 ### Install IBM Operator Catalog and the Sterling Operator
