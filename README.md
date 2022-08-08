@@ -376,7 +376,7 @@ envsubst < oms-pvc.yaml > oms-pvc-updated.yaml
 oc create -f oms-pvc-updated.yaml
 ```
 
-Once this PVC is created, this share will be used by your deployment of your OMEnvironment, and you can stage files to this share via the Azure CLI or Azure Storage Explorer (for example, your keystore and truststore, see below)
+Once this PVC is created, this share will be used by your deployment of your OMEnvironment, and you can stage files to this share via the Azure CLI or Azure Storage Explorer (for example, your keystore and truststore files, see below)
 
 ### Create RBAC Role
 
@@ -389,9 +389,9 @@ envsubst < oms-rbac.yaml > oms-rbac-updated.yaml
 oc create -f oms-rbac-updated.yaml
 ```
 
-### Pushing your containers to your Azure Container Registry
+### Pushing (and pulling) your containers to an Azure Container Registry
 
-TODO
+If you have existing Sterling OMS containers that you have customized, you may want to (or need to) deploy your containers to an Azure Container Registry that will then be used by the OMS Opeartor when deploying your images. If you deployed an Azure Container Registry into a virtual network with no public access, make sure the host you're deploying your images from can reach the endpoint. This may mean exporting/importing your images in a compressed format onto a virtual machine within your subscription.
 
 ### SSL Connections and Keystore/Truststore Configuration
 
@@ -415,7 +415,19 @@ keytool -import -file selfsigned.crt -alias selfsigned -keystore myTrustStore
 
 Once you have your key and trust stores, you should copy them to the relevant locations on any of the persistent volumes that you created above for your deployment. For more information, please see this documentation: https://www.ibm.com/docs/en/control-center/5.4.2?topic=connections-configuring-keystore-truststore-files
 
-## Step 7: Deploying OMS
+## Step 7: Create IBM Entitlement Key Secret
+
+The Sterling OMS operator requires a secret named "ibm-entitlement-key" to exist in the namespace you are deploying OMS into. Your entitlement key can be obtained from the [IBM Container Library](https://myibm.ibm.com/products-services/containerlibrary): https://myibm.ibm.com/products-services/containerlibrary
+
+To create your entitlement key secret, you can run the following command:
+
+```bash
+export ENTITLEMENT_KEY=""
+export OMS_NAMESPACE=""
+oc create secret docker-registry ibm-entitlement-key --docker-username=cp --docker-password=$ENTITLEMENT_KEY --docker-server=cp.icr.io --namespace=$OMS_NAMESPACE
+```
+
+## Step 8: Deploying OMS
 
 Once you have your Azure environment built, you are now prepared to deploy your OMEnvironment using the IBM Sterling Order Management Operator. You'll first install the operator from the IBM Catalog, then use the operator to deploy your OMEnvironment.
 
