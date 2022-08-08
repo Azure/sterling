@@ -242,7 +242,7 @@ tar xvf /tmp/OCPInstall/openshift-client-linux.tar.gz -C /tmp/OCPInstall
 sudo cp /tmp/OCPInstall/oc /usr/bin
 ```
 
-💡 TIP: Copy the oc and kubectl client to your /usr/bin directory to access the client from any directory. This will be required for some installing scripts.
+💡 TIP: Copy the oc client to your /usr/bin directory to access the client from any directory. This will be required for installing and configuring your cluster via the sample scripts in this repository.
 
 ## Step 5: Logging into your OpenShift Cluster with the OpenShift Command Line Tool
 
@@ -286,16 +286,47 @@ Note: You will need to [create a Azure Application Registration (service princip
 This repository has scripts that can help you set up these drivers:
 
 ```bash
-export deployRegion="eastus"
-export resourceGroupName="myRG"
-export tenantId="tenantId"
-export subscriptionId="subscriptionId"
-export clientId="clientId"
-export clientSecret="clientSecret"
+export LOCATION="eastus"
+export RESOURCE_GROUP_NAME="myRG"
+export TENANT_ID="tenantId"
+export SUBSCRIPTION_ID="subscriptionId"
+export CLIENT_ID="clientId"
+export CLIENT_SECRET="clientSecret"
+export DRIVER_VERSION="v1.18.0"
+export BRANCH_NAME="main"
 
-wget -nv https://raw.githubusercontent.com/Azure/sterling/main/config/azure-file-storage/configure-azurefiles-driver.sh -O /tmp/configure-azurefiles-driver.sh
-chmod u+x /tmp/configure-azurefiles-driver.sh
-/tmp/configure-azurefiles-driver.sh
+#Create the azure.json file and upload as secret
+wget -nv https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/azure-file-storage/azure.json -O /tmp/azure.json
+envsubst < /tmp/azure.json > /tmp/azure-updated.json
+export AZURE_CLOUD_SECRET=`cat /tmp/azure-updated.json | base64 | awk '{printf $0}'; echo`
+wget -nv https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/azure-file-storage/azure-cloud-provider.yaml -O /tmp/azure-cloud-provider.yaml
+envsubst < /tmp/azure-cloud-provider.yaml > /tmp/azure-cloud-provider-updated.yaml
+oc apply -f /tmp/azure-cloud-provider-updated.yaml
+
+#sudo -E oc create secret generic azure-cloud-provider --from-literal=cloud-config=$(cat /tmp/azure.json | awk '{printf $0}'; echo) -n kube-system
+
+#Grant access
+sudo -E oc adm policy add-scc-to-user privileged system:serviceaccount:kube-system:csi-azurefile-node-sa
+
+#Install CSI Driver
+sudo -E oc create configmap azure-cred-file --from-literal=path="/etc/kubernetes/cloud.conf" -n kube-system
+
+#driver_version=$azureFilesCSIVersion
+echo "Driver version " $DRIVER_VERSION
+curl -skSL https://raw.githubusercontent.com/kubernetes-sigs/azurefile-csi-driver/$DRIVER_VERSION/deploy/install-driver.sh | bash -s $DRIVER_VERSION --
+
+#Configure Azure Files Standard
+wget -nv https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/azure-file-storage/azurefiles-standard.yaml -O /tmp/azurefiles-standard.yaml
+envsubst < /tmp/azurefiles-standard.yaml > /tmp/azurefiles-standard-updated.yaml
+sudo -E oc apply -f /tmp/azurefiles-standard-updated.yaml
+
+#Deploy premium Storage Class
+wget -nv https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/azure-file-storage/azurefiles-premium.yaml -O /tmp/azurefiles-premium.yaml
+envsubst < /tmp/azurefiles-premium.yaml > /tmp/azurefiles-premium-updated.yaml
+sudo -E oc apply -f /tmp/azurefiles-premium-updated.yaml
+
+#Deploy volume binder
+sudo -E oc apply -f https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/azure-file-storage/persistent-volume-binder.yaml
 ```
 
 For more detailed information on deploying Azure Files Storage Drivers to OpenShift, you can find more documentation here: 
@@ -337,16 +368,18 @@ For more information about installing the operator from the command line, please
 OMS Requires that a secret be created that contains relevant credentials for your database, your trust keystores, etc. A sample configuration file can be found in this repository under ./config/oms and can be modified to suit your needs (just supple the appropriate credentials to each variable):
 
 ```bash
-export NAMESPACE=""
+export BRANCH_NAME="main"
+export OMS_NAMESPACE=""
 export CONSOLEADMINPW=""
 export CONSOLENONADMINPW=""
 export DBPASSWORD=""
 export TLSSTOREPW=""
 export TRUSTSTOREPW=""
 export KEYSTOREPW=""
-wget -nv https://raw.githubusercontent.com/Azure/sterling/main/config/oms/oms-secret.yaml -O oms-secret.yaml
-envsubst < oms-secret.yaml > oms-secret.yaml
-oc create -f oms-secret.yaml
+wget -nv https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/oms/oms-secret.yaml -O /tmp/oms-secret.yaml
+envsubst < /tmp/oms-secret.yaml > /tmp/oms-secret-updated.yaml
+oc create -f /tmp/oms-secret-updated.yaml
+rm /tmp/oms-secret-updated
 ```
 
 ### Create MQ Bindings ConfigMap
