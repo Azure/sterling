@@ -58,6 +58,13 @@ oc create namespace openshift-marketplace
 #oc apply -f /tmp/ibm-integration-operatorgroup-updated.yaml
 
 #Create OMS OpenShift Artifacts (PVC, RBAC, and Secret)
+export CONSOLEADMINPW="$ADMIN_PASSWORD"
+export CONSOLENONADMINPW="$ADMIN_PASSWORD"
+export DBPASSWORD="$ADMIN_PASSWORD"
+export TLSSTOREPW="$ADMIN_PASSWORD"
+export TRUSTSTOREPW="$ADMIN_PASSWORD"
+export KEYSTOREPW="$ADMIN_PASSWORD"
+
 wget -nv https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/oms/oms-pvc.yaml -O /tmp/oms-pvc.yaml
 wget -nv https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/oms/oms-rbac.yaml -O /tmp/oms-rbac.yaml
 wget -nv https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/oms/oms-secret.yaml -O /tmp/oms-secret.yaml
