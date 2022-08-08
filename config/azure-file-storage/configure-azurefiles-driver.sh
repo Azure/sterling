@@ -37,4 +37,4 @@ curl -skSL https://raw.githubusercontent.com/kubernetes-sigs/azurefile-csi-drive
  sudo -E oc apply -f /tmp/azurefiles-premium-updated.yaml
 
 #Deploy volume binder
-sudo -E /tmp/OCPInstall/oc apply -f https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/azure-file-storage/persistent-volume-binder.yaml
+sudo -E oc apply -f https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/azure-file-storage/persistent-volume-binder.yaml
