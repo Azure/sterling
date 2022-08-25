@@ -4,7 +4,7 @@ metadata:
   name: amq-dash
   namespace: active-mq
 spec:
-  host: amq-dash-active-mq.apps.anotherdomain.eastus.aroapp.io
+  host: amq-dash-active-mq.apps.$DOMAIN.$LOCATION.aroapp.io
   to:
     kind: Service
     name: active-mq

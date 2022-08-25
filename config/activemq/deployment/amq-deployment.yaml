@@ -21,7 +21,7 @@ spec:
          - name: azure-acr-credentials
       containers:
           - name: active-mq
-            image: omsacr01.azurecr.io/util/active-mq:1.4
+            image: $ACTIVEMQ_IMAGENAME
             env:
               - name: ACTIVEMQ_TMP
                 value : "/tmp"
@@ -34,9 +34,9 @@ spec:
                   memory: 1000Mi
                   cpu: 400m
             volumeMounts:
-            #- name: active-creds
-            #  mountPath: /opt/apache/apache-activemq-5.17.1/conf/jetty-realm.properties
-            #  subPath: jetty-realm.properties
+            - name: active-creds
+              mountPath: /opt/apache/apache-activemq-5.17.1/conf/jetty-realm.properties
+              subPath: jetty-realm.properties
             - name: active-storage
               mountPath: /opt/apache/apache-activemq-5.17.1/data
       volumes:
