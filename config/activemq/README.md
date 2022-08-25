@@ -34,11 +34,7 @@ docker run -p 8161:8161 <your repository name>.azurecr.io/active-mq-openjdk:1.0
 
 Once you have a working ActiveMQ instance, your next step is to deploy it in your OpenShift environment. First, clone this repository (or copy all of the files in the ./deployment folder).
 
-## Prerequisites
-
-This deployment assumes that you have a deployed OpenShift cluster, access to the cluster, the OpenShift command line tool installed, and the Azure Files storage drivers and storage classes installed (as provided as part of the Quick Start guide at the root of this repository). You will also need the Azure CLI () and be logged into your current subscription where your cluster is deployed to.
-
-## Deployment Overview
+### Deployment Overview
 
 The provided .yaml files are designed to deploy the following artifacts in your OpenShift cluster:
 
@@ -50,7 +46,12 @@ The provided .yaml files are designed to deploy the following artifacts in your 
 
 ***Note*** The OMS configuration currently requires a formatted uri in the configuration of host:port, and since this deployment will be using ClusterIP as the deployed service configuration, we will need to use the assigned service port when configuring your OM Environment
 
-## Deployment Steps
+
+### Prerequisites
+
+This deployment assumes that you have a deployed OpenShift cluster, access to the cluster, the OpenShift command line tool installed, and the Azure Files storage drivers and storage classes installed (as provided as part of the Quick Start guide at the root of this repository). You will also need the Azure CLI () and be logged into your current subscription where your cluster is deployed to.
+
+### Deployment Steps
 
 First, make sure you clone (or download) the files in the ./Deployment folder of this repository directory Then, you'll need to specify a few environment variables:
 
