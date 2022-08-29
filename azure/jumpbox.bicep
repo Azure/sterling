@@ -26,7 +26,7 @@ var subnetRef = '${vnetId}/subnets/${subnetName}'
 var subscriptionID = subscription().subscriptionId
 var resourceGroupName = resourceGroup().name
 var tenantID = tenant().tenantId
-var cloudInitData = '#cloud-config\n\nruncmd:\n - echo "Setting environment variables..."\n - export OMS_NAMESPACE=${omsNamespace}\n - export ARO_CLUSTER=${aroName}\n - export WHICH_OMS=${whichOMS}\n - export BRANCH_NAME=${branchName}\n - export LOCATION=${location}\n - export ADMIN_PASSWORD=${adminPassword}\n - export IBM_ENTITLEMENT_KEY=${ibmEntitlementKey}\n - export ACR_NAME=${acrName}\n - mkdir ~/.azure/\n - echo \'{"subscriptionId":"${subscriptionID}","clientId":"${clientID}","clientSecret":"${clientSecret}","tenantId":"${tenantID}","resourceGroup":"${resourceGroupName}"}\' > ~/.azure/osServicePrincipal.json\n - echo "Running system update..."\n - sudo dnf update -y\n - echo "System update completed!"\n - echo "Getting latest configuration script..."\n - [ wget, -nv, "https://raw.githubusercontent.com/Azure/sterling/${branchName}/config/installers/configure-aro-and-requirements.sh", -O, /tmp/configure-aro-and-requirements.sh ]\n - chmod +x /tmp/configure-aro-and-requirements.sh\n - echo "Running configuration script..."\n - sudo -E /tmp/configure-aro-and-requirements.sh\n'
+//var cloudInitData = '#cloud-config\n\nruncmd:\n - echo "Setting environment variables..."\n - export OMS_NAMESPACE=${omsNamespace}\n - export ARO_CLUSTER=${aroName}\n - export WHICH_OMS=${whichOMS}\n - export BRANCH_NAME=${branchName}\n - export LOCATION=${location}\n - export ADMIN_PASSWORD=${adminPassword}\n - export IBM_ENTITLEMENT_KEY=${ibmEntitlementKey}\n - export ACR_NAME=${acrName}\n - mkdir ~/.azure/\n - echo \'{"subscriptionId":"${subscriptionID}","clientId":"${clientID}","clientSecret":"${clientSecret}","tenantId":"${tenantID}","resourceGroup":"${resourceGroupName}"}\' > ~/.azure/osServicePrincipal.json\n - echo "Running system update..."\n - sudo dnf update -y\n - echo "System update completed!"\n - echo "Getting latest configuration script..."\n - [ wget, -nv, "https://raw.githubusercontent.com/Azure/sterling/${branchName}/config/installers/configure-aro-and-requirements.sh", -O, /tmp/configure-aro-and-requirements.sh ]\n - chmod +x /tmp/configure-aro-and-requirements.sh\n - echo "Running configuration script..."\n - sudo -E /tmp/configure-aro-and-requirements.sh\n'
 
 
 resource networkInterfaceName_resource 'Microsoft.Network/networkInterfaces@2018-10-01' = {
@@ -105,7 +105,8 @@ resource virtualMachineName_resource 'Microsoft.Compute/virtualMachines@2021-03-
       computerName: virtualMachineName
       adminUsername: adminUsername
       adminPassword: adminPassword
-      customData: base64(cloudInitData)
+      customData: base64(loadTextContent('cloud-init-jumpbox.yaml'))
+      //customData: base64(cloudInitData)
       linuxConfiguration: {
         disablePasswordAuthentication: false
       }
