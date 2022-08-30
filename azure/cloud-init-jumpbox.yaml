@@ -20,3 +20,10 @@ runcmd:
  - chmod +x /tmp/configure-aro-and-requirements.sh
  - echo "Running configuration script..."
  - sudo -E /tmp/configure-aro-and-requirements.sh
+ - echo "Getting pgsql tools/configuration script..."
+ - [ wget, -nv, "https://raw.githubusercontent.com/Azure/sterling/${branchName}/config/installers/setup-pgsql-tools.sh", -O, /tmp/setup-pgsql-tools.sh ]
+ - echo "Running pgsql installation script..."
+ - sudo -E /tmp/setup-pgsql-tools.sh
+ 
+ 
+ 
