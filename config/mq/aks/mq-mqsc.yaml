@@ -189,14 +189,14 @@ data:
       Name=AuthorizationService
       EntryPoints=14
       SecurityPolicy=UserExternal
----
-kind: Secret
-apiVersion: v1
-metadata:
-  name: helmsecure
-  namespace: $TARGET_NAMESPACE
-data:
-  tls.key: $QM_KEY
-  tls.crt: $QM_CERT
-  app.crt: $APP_CERT
-type: Opaque      
+#---
+#kind: Secret
+#apiVersion: v1
+#metadata:
+#  name: helmsecure
+#  namespace: $TARGET_NAMESPACE
+#data:
+#  tls.key: $QM_KEY
+#  tls.crt: $QM_CERT
+#  app.crt: $APP_CERT
+#type: Opaque      
