@@ -17,7 +17,7 @@ This repository provides deployument guidance and best practices for running IBM
   - [Before You Begin](#before-you-begin)
   - [Step 1: Preparing Your Azure Environment](#step-1-preparing-your-azure-environment)
     - [Creating an Azure Application Registration](#creating-an-azure-application-registration)
-    - [Creating a storage account for required IBM application installers](#creating-a-storage-account-for-required-ibm-application-installers)
+    - [Optional: Creating a storage account for required IBM application installers](#creating-a-storage-account-for-required-ibm-application-installers)
   - [Step 2: Install Azure RedHat Openshift](#step-2-install-azure-redhat-openshift)
   - [Step 3: Accessing your ARO Cluster](#step-3-accessing-your-aro-cluster)
   - [Step 4: Post ARO Deployment Tasks](#step-4-post-azure-redhat-openshift-deployment-tasks)
@@ -90,6 +90,10 @@ To successfully install and configure OMS on Azure, you'll need to make sure you
 * An active Azure subscription
  * A quota of at least 40 vCPU allowed for your VM type(s) of choice. Request a quota increase if needed.
  * You will need subscription owner permissions for the deployment.
+* You will need to deploy a JMS-based messaging system into your environment. Most likely, this is IBM MQ, but there are other alteratives. As such, you can:
+  * Deploy Virtual Machines configured with appropriate storage and install the messaging components yourself
+  * Deploy MQ in an Azure Kubernetes Cluster with a High Availability configuration
+  * Deploy one or more alterative JMS Broker in Azure Container Instances
 * You will need to deploy a backend database as part of your environment. Depending on your chosen platform, you currently have the following options:
   * For IBM DB2:
     * You can obtain a licensed copy of DB2 from the IBM Passport Advantage Website: https://www-112.ibm.com/software/howtobuy/passportadvantage/paoreseller/LoginPage?abu=
@@ -99,7 +103,7 @@ To successfully install and configure OMS on Azure, you'll need to make sure you
     * IBM Provides guidance around configuring Oracle for Sterling OMS: https://www.ibm.com/products/db2-database/developers
     * The images provided for OMS do not include Oracle drivers; your images will need updated with these drivers. For more information, see this support document: 
   * For PostgreSQL (Preview):
-    * IBM has preview support for PostgreSQL. As such, you can deploy Azure PostgreSQL Database Flexible Server or Hyperscale (Citus) in your Azure subscription.
+    * IBM has preview support for PostgreSQL. As such, you can deploy Azure PostgreSQL Database Flexible Server in your Azure subscription.
 * The Azure CLI: https://docs.microsoft.com/en-us/cli/azure/install-azure-cli
 
 Once you have access to your Azure subscription, you'll then need to set up an Application Registration (SPN) that has contributor access to the subscription you are are going to deploy to.
@@ -141,14 +145,12 @@ More details on [creating a service principal for Azure Redhat OpenShift can be 
 
 ### (Optional) Creating a storage account for required IBM application installers
 
-IBM Sterling Order Management requires a database and MQ instance, and recommends installing these services *outside* of your OpenShift cluster for scaling and performance purposes. As such, you will need to obtain setup files for each of these applications. You can obtain developer editions of these applications from the following links (IBM registration is required):
+IBM Sterling Order Management requires a database and MQ instance, and recommends installing these services *outside* of your OpenShift cluster for scaling and performance purposes. If you wish to run these inside an Azure Virtual Machine(s), you will need to obtain setup files for each of these applications. You can obtain developer editions of these applications from the following links (IBM registration is required):
 
 * DB2 Community Edition: https://www.ibm.com/products/db2-database/developers
 * IBM MQ For Developers: https://developer.ibm.com/articles/mq-downloads/
 
-Alternatively, for testing you can also consider container versions of these applications, but this is NOT recommended for production or production-like environments.
-
-You can also acquire these applications via your Passport Advantage portal (which also should include your applicable licenses): https://www-112.ibm.com/software/howtobuy/passportadvantage/paoreseller/LoginPage?abu=
+You can acquire these applications via your Passport Advantage portal (which also should include your applicable licenses): https://www-112.ibm.com/software/howtobuy/passportadvantage/paoreseller/LoginPage?abu=
 
 To make these files available during installation, it is recommended that you create a separate storage account and place the compressed archives into a storage container. Once you upload your files to the storage account, you can then install and use [```azcopy```](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-v10) to copy the archives to your virtual machine(s) and install them as necessary. The easiest way to do this is to [create a shared access signature (SAS) for the container](https://docs.microsoft.com/en-us/azure/cognitive-services/translator/document-translation/create-sas-tokens?tabs=Containers). Then, from your virtual machines, you can download the files as follows:
 
@@ -229,7 +231,7 @@ psql -d "<your Azure PostgresSQL Connection String>" -U '<admin user name>' -P '
 
 Note: You may use whatever PostgreSQL utility you'd like for this task, provided the client running the tool can successfully access the correct database endpoint.
 
-### Install and Configure IBM MQ (if applicable)
+### Install and Configure IBM MQ on a Virtual Machine (if applicable)
 
 For performance and high availability, it is recommended to configure your MQ Queue Manager to use Azure Files Premium NFS shares on your MQ Virtual Machines. To do this, first create a new NFS share on your storage account:
 
@@ -253,9 +255,13 @@ sudo echo "<your storage account name>prm.file.core.windows.net:/<your storage a
 
 You can now create your queue managers and use this new, mounted storage as your queue storage location. Once your queues are created, you will need to capture your JMS ```.bindings``` file (which is needed by OMS). Copy this file to a location (or host) that is capable of using the ```oc``` command, and see the below section about creating your config map for your MQ bindings in the section [Creating MQ Bindings Config Map](#create-mq-bindings-config-map), below.
 
+### Install and Configure IBM MQ on an Azure Kubernetes Cluster (if applicable)
+
+Alteratively, if you don't want to install, configure, and maintain your own Azure Virtual Machines IBM does provide Helm Charts for installing MQ in Azure Kubernetes Service: https://github.com/ibm-messaging/mq-helm. An example deployment and configuration script can be found in this repoistory in the [/config/mq/aks](./config/mq/aks/README.md) folder.
+
 ### Deploy Alternative JMS Message Broker (if applicable)
 
-
+Finally, if you don't want to use IBM MQ there are other supported JMS Brokers, like ActiveMQ. A sample, single-instance ActiveMQ container deployment is provided in the [/config/activemq/deployment](./config/activemq/deployment/README.md) folder. *Note:* This example is provided as a simple bootstrap example; more consideration should be given to a production-level deployment.
 
 ### Install Tools
 
