@@ -21,9 +21,11 @@ This repository provides deployument guidance and best practices for running IBM
   - [Step 2: Install Azure RedHat Openshift](#step-2-install-azure-redhat-openshift)
   - [Step 3: Accessing your ARO Cluster](#step-3-accessing-your-aro-cluster)
   - [Step 4: Post ARO Deployment Tasks](#step-4-post-azure-redhat-openshift-deployment-tasks)
-    - [Private VM Outbound Internet Access](#private-vm-outbound-internet-access)
+    - [Private Outbound Internet Access](#private-vm-outbound-internet-access)
     - [Install and Configure IBM DB2 (if applicable)](#install-and-configure-ibm-db2-if-applicable)
+    - [Deploy and Configure Azure PostgreSQL Flexible Server (if applicable)](#install-and-configure-ibm-db2-if-applicable)
     - [Install and Configure IBM MQ (if applicable)](#install-and-configure-ibm-mq-if-applicable)
+    - [Install and Configure JMS Message Broker (if applicable)](#install-and-configure-ibm-mq-if-applicable)    
     - [Install Tools](#install-tools)
   - [Step 5: Logging into your OpenShift Cluster with the OpenShift Command Line Tool](#step-5-logging-into-your-openshift-cluster-with-the-openshift-command-line-tool)
   - [Step 6: Deploy OMS Prerequisites & Artifacts](#step-6-deploy-oms-prerequisites--artifacts)
@@ -32,7 +34,7 @@ This repository provides deployument guidance and best practices for running IBM
     - [Add Azure Container Registry Credentials to Namespace Docker Credential Secret](#add-azure-container-registry-credentials-to-namespace-docker-credential-secret)
     - [Install IBM Operator Catalog and the Sterling Operator](#install-ibm-operator-catalog-and-the-sterling-operator)
     - [Create OMS Secret](#create-oms-secret)
-    - [Create MQ Bindings Configuration Map](#create-mq-bindings-configmap)
+    - [Create MQ Bindings Configuration Map (if applicable)](#create-mq-bindings-configmap)
     - [Create Required PVC(s)](#create-required-pvcs)
     - [Create RBAC Role](#create-rbac-role)
     - [Update Container Pull Secret(s) for your Azure Container Registry](#update-container-pull-secrets-for-your-azure-container-registry)
@@ -40,7 +42,7 @@ This repository provides deployument guidance and best practices for running IBM
   - [Step 7: Deploying OMS](#step-7-deploying-oms)
   - [Step 8: Post Deployment Tasks](#step-8-post-deployment-tasks)
     - [Right-Sizing / Resizing your ARO Cluster](#right-sizing--resizing-your-aro-cluster)
-    - [Licensing your DB2 and MQ Instances](#licensing-your-db2-and-mq-instances)
+    - [Licensing your DB2 and MQ Instances (If Applicable)](#licensing-your-db2-and-mq-instances)
     - [Migrating Your Data](#migrating-your-data)
   - [Contributing](#contributing)
   - [Trademarks](#trademarks)
@@ -133,9 +135,9 @@ After creating the SPN and assigning its access, you will need to create a [secr
 
 More details on [creating a service principal for Azure Redhat OpenShift can be found here](https://docs.microsoft.com/en-us/azure/openshift/howto-create-service-principal?pivots=aro-azurecli)
 
-### Creating a storage account for required IBM application installers
+### (Optional) Creating a storage account for required IBM application installers
 
-IBM Sterling Order Management requires a database and MQ instance, and reccomends installing these services *outside* of your OpenShift cluster for scaling and performance purposes. As such, you will need to obtain setup files for each of these applications. You can obtain developer editions of these applications from the following links (IBM registration is required):
+IBM Sterling Order Management requires a database and MQ instance, and recommends installing these services *outside* of your OpenShift cluster for scaling and performance purposes. As such, you will need to obtain setup files for each of these applications. You can obtain developer editions of these applications from the following links (IBM registration is required):
 
 * DB2 Community Edition: https://www.ibm.com/products/db2-database/developers
 * IBM MQ For Developers: https://developer.ibm.com/articles/mq-downloads/
@@ -151,7 +153,7 @@ azcopy copy "https://<storage account name with setup archive>.blob.core.windows
 azcopy copy "https://<storage account name with setup archive>.blob.core.windows.net/<storage container name with setup archive>/<name of mq archive>?<sastoken>" /tmp/mq.tar.gz
 ```
 
-## Step 2: Install Azure RedHat Openshift
+## Step 2: Install Azure RedHat OpenShift (ARO)
 
 Once all of the networking requirements are met, you should install Azure RedHat OpenShift. This guide was written and tested with ARO 4.9.9. When configuring ARO, make sure you select the appropriate subnets. You can also decide if you want your cluster to be available publicly or not (note that if you choose to not make it public, you'll only be able to access the cluster from within the virtual network, from your Jump Box virtual machine). Your deployment may take a few minutes to complete.
 
@@ -205,6 +207,24 @@ sudo sudo ./db2cppcmk -i
 
 For more information, please refer to this documentation about building a highly-available DB2 instance in Azure: https://docs.microsoft.com/en-us/azure/virtual-machines/workloads/sap/high-availability-guide-rhel-ibm-db2-luw
 
+
+### Configure your Azure PostgresSQL Database (if applicable)
+
+If you chose to deploy Azure PostgreSQL as your backend database system, you should now make sure your database and target schemas exist. You can do this by using a tool (such as ) to login and create your database and/or schema:
+
+```bash
+psql -d "<your Azure PostgresSQL Connection String>" -U '<admin user name>' -P '<admin password>' -c "CREATE SCHEMA OMS"
+```
+
+Furthermore, you may want to create a new database user for your deployment:
+
+```bash
+psql -d "<your Azure PostgresSQL Connection String>" -U '<admin user name>' -P '<admin password>' -c "CREATE USER OMSUser"
+psql -d "<your Azure PostgresSQL Connection String>" -U '<admin user name>' -P '<admin password>' -c "GRANT ALL PRIVILEGES ON DATABASE <database name> TO OMSUser"
+```
+
+Note: You may use whatever PostgreSQL utility you'd like for this task, provided the client running the tool can successfully access the correct database endpoint.
+
 ### Install and Configure IBM MQ (if applicable)
 
 For performance and high availability, it is recommended to configure your MQ Queue Manager to use Azure Files Premium NFS shares on your MQ Virtual Machines. To do this, first create a new NFS share on your storage account:
@@ -228,6 +248,10 @@ sudo echo "<your storage account name>prm.file.core.windows.net:/<your storage a
 ```
 
 You can now create your queue managers and use this new, mounted storage as your queue storage location. Once your queues are created, you will need to capture your JMS ```.bindings``` file (which is needed by OMS). Copy this file to a location (or host) that is capable of using the ```oc``` command, and see the below section about creating your config map for your MQ bindings in the section [Creating MQ Bindings Config Map](#create-mq-bindings-config-map), below.
+
+### Deploy Alternative JMS Message Broker (if applicable)
+
+
 
 ### Install Tools
 
@@ -376,6 +400,8 @@ export DBPASSWORD=""
 export TLSSTOREPW=""
 export TRUSTSTOREPW=""
 export KEYSTOREPW=""
+
+https://maximoappsuite.domain/
 wget -nv https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/oms/oms-secret.yaml -O /tmp/oms-secret.yaml
 envsubst < /tmp/oms-secret.yaml > /tmp/oms-secret-updated.yaml
 oc create -f /tmp/oms-secret-updated.yaml
@@ -499,6 +525,17 @@ oc apply -f /tmp/oms-machineset-updated.yaml
 ### Licensing your DB2 and MQ Instances
 
 Post-installation, if you have not already (and you're using IBM DB2 and/or IBM MQ), please obtain your license files for DB2 and MQ and apply the licenses as specified by IBM in their documentation:
+
+### Migrating Your Data
+
+If you are moving to Sterling OMS on Azure and you have an existing OMS environment, you should think carefully about your data migration scenario. Usually, this falls into one of two scenarios:
+
+1. You're migrating an existing DB2 Database into DB2 hosted in Azure, or
+2. You're going to migrate your data to Azure PostgreSQL Database
+
+You will also need to think carefully about how you minimize your downtime for your migration scenario. This may mean doing a majority of your data movement first, then when you're ready to cut-over to your Azure-based OMS environment, you'll need to do a final data reconciliation.
+
+For more detailed data migration information, as well as guidance on how to migrate your data, check out the ./datamigration folder in this repository
 
 ## Contributing
 
