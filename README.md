@@ -33,13 +33,17 @@ This repository provides deployument guidance and best practices for running IBM
     - [Install Azure Files CSI Driver](#install-azure-files-csi-driver)
     - [Add Azure Container Registry Credentials to Namespace Docker Credential Secret](#add-azure-container-registry-credentials-to-namespace-docker-credential-secret)
     - [Install IBM Operator Catalog and the Sterling Operator](#install-ibm-operator-catalog-and-the-sterling-operator)
+    - [Create Required Database User & Assign Permissions](#create-required-database-user--assign-permissions)
+    - [Update Maximum Connections to Azure PostgreSQL Database](#update-maximum-connections-to-azure-postgresql-database)
     - [Create OMS Secret](#create-oms-secret)
     - [Create MQ Bindings Configuration Map (if applicable)](#create-mq-bindings-configmap)
     - [Create Required PVC(s)](#create-required-pvcs)
     - [Create RBAC Role](#create-rbac-role)
-    - [Update Container Pull Secret(s) for your Azure Container Registry](#update-container-pull-secrets-for-your-azure-container-registry)
-    - [SSL Connections and Keystore Configuration](#ssl-connections-and-keystoretruststore-configuration)
-  - [Step 7: Deploying OMS](#step-7-deploying-oms)
+    - [Pushing (and pulling) your containers to an Azure Container Registry](#pushing-and-pulling-your-containers-to-an-azure-container-registry)
+    - [SSL Connections and Keystore/Truststore Configuration](#ssl-connections-and-keystoretruststore-configuration)
+  - [Step 7: Create IBM Entitlement Key Secret](#step-7-create-ibm-entitlement-key-secret)
+  - [Step 8: Deploying OMS](#step-8-deploying-oms)
+  - [Deploying OMS Via the OpenShift Operator](#deploying-oms-via-the-openshift-operator)
   - [Step 8: Post Deployment Tasks](#step-8-post-deployment-tasks)
     - [Right-Sizing / Resizing your ARO Cluster](#right-sizing--resizing-your-aro-cluster)
     - [Licensing your DB2 and MQ Instances (If Applicable)](#licensing-your-db2-and-mq-instances)
@@ -386,6 +390,15 @@ oc apply -f /tmp/install-oms-operator-updated.yaml
 ```
 
 For more information about installing the operator from the command line, please see this link: https://www.ibm.com/docs/en/order-management-sw/10.0?topic=operator-installing-updating-order-management-software-online
+
+
+### Create Required Database User & Assign Permissions
+
+Before you deploy OMS, make sure that the database username and password you intend to use is created and assigned the proper permissions
+
+### Update Maximum Connections to Azure PostgreSQL Database
+
+If you're using Azure PostgreSQL database as your database platform, you may need to adjust your ```max_connections``` server property to allow for the required number of agent/application connection simultaniously. More information can be found here: https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/concepts-server-parameters
 
 ### Create OMS Secret
 
