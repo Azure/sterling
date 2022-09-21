@@ -30,7 +30,7 @@ Once your container is built, you can test the functionality by running the cont
 docker run -p 8161:8161 <your repository name>.azurecr.io/active-mq-openjdk:1.0
 ```
 
-## Deploying your ActiveMQ Container to Azure Redhat OpenShift
+## Option 1: Deploying your ActiveMQ Container to Azure Redhat OpenShift
 
 Once you have a working ActiveMQ instance, your next step is to deploy it in your OpenShift environment. First, clone this repository (or copy all of the files in the ./deployment folder).
 
@@ -110,6 +110,10 @@ oc get endpoints -n active-mq -o json | jq '.items[].subsets[].addresses[].ip'
 #Get Service Port
 oc get endpoints -n active-mq -o json | jq '.items[].subsets[].ports[] | select(.name == "openwire") | .port'
 ```
+
+## Option 2: Deploy ActiveMQ to Azure Container Instance
+
+
 
 ## Using ActiveMQ in your OMEnviroment deployment
 
