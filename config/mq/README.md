@@ -65,7 +65,7 @@ You will need the ObjectID of that identity for the next step of the process. Mo
 For AKS to successfully manage and connect to your storage resources, the managed identity of your cluster control plane needs 'contributor' access to the resource group that contains the virtual network you connceted the cluster to. You can assign this permission by running the following command:
 
 ```bash
-
+az role assignment create --assignee "<managed identity object ID>" --role "Contribtor" --scope "/subscriptions/<subscriptionId>/resourcegroups/<resourceGroupName>"
 ```
 
 ### Create NFS Storage Class
