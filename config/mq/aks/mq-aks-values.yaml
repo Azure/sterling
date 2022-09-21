@@ -2,27 +2,25 @@ license: accept
 queueManager:
   nativeha:
     enable: true
-    tls:
-      secretName: helmsecure
   mqscConfigMaps:
-    - name: helmsecure
+    - name: mqsc
       items:
         - mq.mqsc
   qminiConfigMaps:
-    - name: helmsecure
+    - name: mqsc
       items:
         - mq.ini
   name: omsmq
 persistence:
   dataPVC:
     enable: true
-    storageClassName: azurefile-csi-premium
+    storageClassName: azurefile-premium-nfs
   logPVC:
     enable: true
-    storageClassName: azurefile-csi-premium
+    storageClassName: azurefile-premium-nfs
   qmPVC:
     enable: true
-    storageClassName: azurefile-csi-premium
+    storageClassName: azurefile-premium-nfs
 security:
   context:
     fsGroup: 0
