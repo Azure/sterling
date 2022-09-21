@@ -1,6 +1,6 @@
 param clusterName string
 param location string
-param k8sversion string
+param k8sversion string = '1.23.8'
 param virtualNetworkName string
 param subnetName string
 param serviceCidr string
@@ -16,15 +16,12 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2022-07-02-previ
     name: 'Basic'
     tier: 'Paid'
   }
-  extendedLocation: {
-    name: 'string'
-    type: 'EdgeZone'
-  }
   identity: {
         type: 'SystemAssigned'
   }
   properties: {
     kubernetesVersion: k8sversion
+    dnsPrefix: '${clusterName}-dns'
     agentPoolProfiles: [
       {
         name: 'agentpool'
@@ -33,7 +30,7 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2022-07-02-previ
         osDiskSizeGB: 128
         osDiskType: 'Managed'
         kubeletDiskType: 'OS'
-        vnetSubnetID: '${vnetId}/subnets/aks'
+        vnetSubnetID: '${vnetId}/subnets/${subnetName}'
         maxPods: 110
         type: 'VirtualMachineScaleSets'
         enableAutoScaling: false
@@ -48,11 +45,11 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2022-07-02-previ
       {
         name: 'mqpool'
         count: 3
-        vmSize: 'Standard_B2ms'
+        vmSize: 'Standard_D4s_v3'
         osDiskSizeGB: 128
         osDiskType: 'Managed'
         kubeletDiskType: 'OS'
-        vnetSubnetID: '${vnetId}/subnets/aks'
+        vnetSubnetID: '${vnetId}/subnets/${subnetName}'
         maxPods: 30
         type: 'VirtualMachineScaleSets'
         enableAutoScaling: false
@@ -69,10 +66,10 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2022-07-02-previ
       clientId: 'msi'
       secret: 'string'
     }    
-    nodeResourceGroup: concat('MC_OMSDEMO_', clusterName, '_eastus')
+    nodeResourceGroup: 'MC_${clusterName}'
     enableRBAC: true
     networkProfile: {
-      networkPluginMode: 'azure'
+      networkPlugin: 'azure'
       networkPolicy: 'azure'
       loadBalancerSku: 'Standard'
       serviceCidr: serviceCidr
@@ -102,57 +99,10 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2022-07-02-previ
     oidcIssuerProfile: {
         enabled: false
     }
-  }
-}
-
-
-
-resource systemPool 'Microsoft.ContainerService/managedClusters/agentPools@2022-06-02-preview' = {
-  name: 'agentPool'
-  parent: aksCluster
-  properties: {
-    count: 1
-    enableAutoScaling: false
-    enableCustomCATrust: false
-    enableEncryptionAtHost: false
-    kubeletDiskType: 'OS'
-    maxPods: 110
-    mode: 'System'
-    orchestratorVersion: k8sversion
-    osDiskSizeGB: 128
-    osDiskType: 'Managed'
-    osSKU: 'Ubuntu'
-    osType: 'Linux'
-    type: 'VirtualMachineScaleSets'
-    upgradeSettings: {
-      maxSurge: 'string'
+    apiServerAccessProfile: {
+      enablePrivateCluster: true
     }
-    vmSize: 'Standard_B4ms'
-    vnetSubnetID: '${vnetId}/subnets/aks'
   }
 }
 
-resource mqPool 'Microsoft.ContainerService/managedClusters/agentPools@2022-06-02-preview' = {
-  name: 'mqPool'
-  parent: aksCluster
-  properties: {
-    count: 3
-    enableAutoScaling: false
-    enableCustomCATrust: false
-    enableEncryptionAtHost: false
-    kubeletDiskType: 'OS'
-    maxPods: 30
-    mode: 'System'
-    orchestratorVersion: k8sversion
-    osDiskSizeGB: 128
-    osDiskType: 'Managed'
-    osSKU: 'Ubuntu'
-    osType: 'Linux'
-    type: 'VirtualMachineScaleSets'
-    upgradeSettings: {
-      maxSurge: 'string'
-    }
-    vmSize: 'Standard_B4ms'
-    vnetSubnetID: '${vnetId}/subnets/aks'
-  }
-}
+
