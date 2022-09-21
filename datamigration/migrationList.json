@@ -1,0 +1,8 @@
+[
+    {
+        "table": "YFS_INVENTORY_SUPPLY",
+        "schema": "oms",
+        "doTruncate": true,
+        "whereClause": ""
+    }
+]

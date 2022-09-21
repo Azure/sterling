@@ -1,0 +1,641 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "omsadf"
+		},
+		"AzurePostgreSQL_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'AzurePostgreSQL'"
+		},
+		"DB2Server_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'DB2Server'"
+		},
+		"migrationPlanStorageAccount_sasUri": {
+			"type": "secureString",
+			"metadata": "Secure string for 'sasUri' of 'migrationPlanStorageAccount'"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/CopyTableAndMaybeTruncate')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Should Truncate",
+						"type": "IfCondition",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@equals(pipeline().parameters.Truncate,true)",
+								"type": "Expression"
+							},
+							"ifTrueActivities": [
+								{
+									"name": "Truncate Table",
+									"type": "Lookup",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "AzurePostgreSqlSource",
+											"query": {
+												"value": "@concat('TRUNCATE ',toLower(pipeline().parameters.WhichSchema), '.', toLower(pipeline().parameters.WhichTable), '; select 1 as result;')",
+												"type": "Expression"
+											},
+											"partitionOption": "None"
+										},
+										"dataset": {
+											"referenceName": "TargetPostgreTable",
+											"type": "DatasetReference",
+											"parameters": {
+												"TargetTable": {
+													"value": "@pipeline().parameters.WhichTable",
+													"type": "Expression"
+												},
+												"TargetSchema": {
+													"value": "@pipeline().parameters.WhichSchema",
+													"type": "Expression"
+												}
+											}
+										},
+										"firstRowOnly": false
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "Copy Table",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Finalize Mapping",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "Db2Source"
+							},
+							"sink": {
+								"type": "AzurePostgreSQLSink",
+								"writeBatchSize": 100000,
+								"writeBatchTimeout": "00:30:00",
+								"writeMethod": "CopyCommand"
+							},
+							"enableStaging": false,
+							"translator": {
+								"value": "@json(replace(variables('MappingSetting'),'\\',''))",
+								"type": "Expression"
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "DB2Table",
+								"type": "DatasetReference",
+								"parameters": {
+									"WhichTable": {
+										"value": "@pipeline().parameters.WhichTable",
+										"type": "Expression"
+									},
+									"WhichSchema": {
+										"value": "@toUpper(pipeline().parameters.WhichSchema)",
+										"type": "Expression"
+									}
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "TargetPostgreTable",
+								"type": "DatasetReference",
+								"parameters": {
+									"TargetTable": {
+										"value": "@toLower(pipeline().parameters.WhichTable)",
+										"type": "Expression"
+									},
+									"TargetSchema": {
+										"value": "@toLower(pipeline().parameters.WhichSchema)",
+										"type": "Expression"
+									}
+								}
+							}
+						]
+					},
+					{
+						"name": "Get Source Columns For Mapping",
+						"type": "Lookup",
+						"dependsOn": [
+							{
+								"activity": "Should Truncate",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "Db2Source",
+								"query": {
+									"value": "@concat('select colno as position, colname as column_name from syscat.columns where tabname = ''',pipeline().parameters.WhichTable,''' and tabschema = ''',toUpper(pipeline().parameters.WhichSchema),'''')",
+									"type": "Expression"
+								}
+							},
+							"dataset": {
+								"referenceName": "DB2Table",
+								"type": "DatasetReference",
+								"parameters": {
+									"WhichTable": {
+										"value": "@pipeline().parameters.WhichTable",
+										"type": "Expression"
+									},
+									"WhichSchema": {
+										"value": "@toUpper(pipeline().parameters.WhichSchema)",
+										"type": "Expression"
+									}
+								}
+							},
+							"firstRowOnly": false
+						}
+					},
+					{
+						"name": "For Each Column",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Get Source Columns For Mapping",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Get Source Columns For Mapping').output.value",
+								"type": "Expression"
+							},
+							"isSequential": true,
+							"activities": [
+								{
+									"name": "BuildMapping_Strings",
+									"type": "AppendVariable",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "MappingStrings",
+										"value": {
+											"value": "{\"source\":{\"name\":\"@{item().COLUMN_NAME}\"},\"sink\":{\"name\":\"@{toLower(item().COLUMN_NAME)}\"}}",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "Finalize Mapping",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "JSONify",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "MappingSetting",
+							"value": {
+								"value": "{\n   \"type\":\"TabularTranslator\",\n   \"mappings\": @{variables('MappingArray')}\n}",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "JSONify",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "For Each Column",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@variables('MappingStrings')",
+								"type": "Expression"
+							},
+							"isSequential": true,
+							"activities": [
+								{
+									"name": "AppendJSON",
+									"type": "AppendVariable",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "MappingArray",
+										"value": {
+											"value": "@json(item())",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"WhichSchema": {
+						"type": "string"
+					},
+					"WhichTable": {
+						"type": "string"
+					},
+					"Truncate": {
+						"type": "bool"
+					}
+				},
+				"variables": {
+					"MappingArray": {
+						"type": "Array"
+					},
+					"MappingSetting": {
+						"type": "String"
+					},
+					"MappingStrings": {
+						"type": "Array"
+					}
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-09-15T18:07:30Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/DB2Table')]",
+				"[concat(variables('factoryId'), '/datasets/TargetPostgreTable')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MigrateTablesByPlan')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Get Plan File",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "JsonSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "JsonReadSettings"
+								}
+							},
+							"dataset": {
+								"referenceName": "migrationPlan",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"firstRowOnly": false
+						}
+					},
+					{
+						"name": "Iterate Through Plan",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Get Plan File",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Get Plan File').output.value",
+								"type": "Expression"
+							},
+							"batchCount": 4,
+							"activities": [
+								{
+									"name": "Execute Copy Pipeline",
+									"type": "ExecutePipeline",
+									"dependsOn": [],
+									"userProperties": [],
+									"typeProperties": {
+										"pipeline": {
+											"referenceName": "CopyTableAndMaybeTruncate",
+											"type": "PipelineReference"
+										},
+										"waitOnCompletion": true,
+										"parameters": {
+											"WhichSchema": {
+												"value": "@item().schema",
+												"type": "Expression"
+											},
+											"WhichTable": {
+												"value": "@item().table",
+												"type": "Expression"
+											},
+											"Truncate": {
+												"value": "@bool(item().doTruncate)",
+												"type": "Expression"
+											}
+										}
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"variables": {
+					"ShouldTruncate": {
+						"type": "Boolean"
+					}
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-09-15T18:07:30Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/migrationPlan')]",
+				"[concat(variables('factoryId'), '/pipelines/CopyTableAndMaybeTruncate')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DB2Table')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "DB2Server",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"WhichTable": {
+						"type": "string"
+					},
+					"WhichSchema": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "Db2Table",
+				"schema": [],
+				"typeProperties": {
+					"schema": {
+						"value": "@dataset().WhichSchema",
+						"type": "Expression"
+					},
+					"table": {
+						"value": "@dataset().WhichTable",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/DB2Server')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/TargetPostgreTable')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzurePostgreSQL",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"TargetTable": {
+						"type": "string"
+					},
+					"TargetSchema": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "AzurePostgreSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": {
+						"value": "@dataset().TargetSchema",
+						"type": "Expression"
+					},
+					"table": {
+						"value": "@dataset().TargetTable",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzurePostgreSQL')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/migrationPlan')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "migrationPlanStorageAccount",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "migrationList.json",
+						"container": "omsdbmigration"
+					}
+				},
+				"schema": {
+					"type": "object",
+					"properties": {
+						"table": {
+							"type": "string"
+						},
+						"schema": {
+							"type": "string"
+						},
+						"doTruncate": {
+							"type": "boolean"
+						},
+						"whereClause": {
+							"type": "string"
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/migrationPlanStorageAccount')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzurePostgreSQL')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzurePostgreSql",
+				"typeProperties": {
+					"connectionString": "[parameters('AzurePostgreSQL_connectionString')]"
+				},
+				"connectVia": {
+					"referenceName": "OMSSelfHostedRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/integrationRuntimes/OMSSelfHostedRuntime')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/migrationPlanStorageAccount')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"sasUri": "[parameters('migrationPlanStorageAccount_sasUri')]"
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AutoResolveIntegrationRuntime')]",
+			"type": "Microsoft.DataFactory/factories/integrationRuntimes",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "Managed",
+				"typeProperties": {
+					"computeProperties": {
+						"location": "AutoResolve",
+						"dataFlowProperties": {
+							"computeType": "General",
+							"coreCount": 8,
+							"timeToLive": 0,
+							"cleanup": true
+						},
+						"pipelineExternalComputeScaleProperties": {
+							"timeToLive": 60
+						}
+					}
+				},
+				"managedVirtualNetwork": {
+					"type": "ManagedVirtualNetworkReference",
+					"referenceName": "default"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/managedVirtualNetworks/default')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/OMSSelfHostedRuntime')]",
+			"type": "Microsoft.DataFactory/factories/integrationRuntimes",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "SelfHosted",
+				"typeProperties": {}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/default')]",
+			"type": "Microsoft.DataFactory/factories/managedVirtualNetworks",
+			"apiVersion": "2018-06-01",
+			"properties": {},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DB2Server')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "Db2",
+				"typeProperties": {
+					"connectionString": "[parameters('DB2Server_connectionString')]"
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
+		}
+	]
+}
