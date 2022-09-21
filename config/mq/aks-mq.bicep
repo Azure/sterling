@@ -71,7 +71,7 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2022-07-02-previ
     networkProfile: {
       networkPlugin: 'azure'
       networkPolicy: 'azure'
-      loadBalancerSku: 'Standard'
+      loadBalancerSku: 'Basic'
       serviceCidr: serviceCidr
       dnsServiceIP: dnsServiceIP
       dockerBridgeCidr: '172.17.0.1/16'
