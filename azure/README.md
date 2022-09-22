@@ -9,6 +9,12 @@ In this folder, you can find resources that can help you get up to speed quickly
 
 There are a series of cloud-init files in this repository that are used during different deployment steps to "stage" a virtual machine with different software packages, custom installers, and other steps. If you'd like to modify a particular VMs cloud init script, simply modify the commands in the relevant yaml file that is referenced in each bicep template. The results will be loaded at deployment time, and are "asynchronous" (meaning that the scripts will run after the resources are created, but any subsequent deployments do not wait for these post-creation scripts to run).
 
+### More Deployment Options
+
+In addition to this bootstrap resource, note that configurations for message brokers outside of virtual machines are also an option. Please see the "MQ in AKS" amd "Active MQ" sections of this repo (under configuration) for more details and options:
+
+- [Using AKS for Native HA IBM MQ](../config/mq/README.md)
+- [Using ActiveMQ in ARO or Azure Container Instances](../config/activemq/README.md)
 
 ## Preparing to deploy
 
@@ -72,17 +78,14 @@ You will need a public DNS Zone that can be accessed by the OpenShift installer.
 - ARO Cluster Name - Your ARO cluster name
 - ARO Domain Name - A custom domain to use for your cluster
 - Administrator Password - The main password that will be used to create and access any virtual machines, databases, etc in your deployment.
-- InstallerStorageAccountName - If installing DB2 or MQ, the storage account name where the installers are located (note: just the storage account name, not FQDN)
-- InstallerContainerName - If installing DB2 or MQ, the name of the container on the storage account where the installers are located.
-- InstallerSASToken string - If installing DB2 or MQ, the SAS token you generated that provides READ and LIST permissions on the storage container. Do not include any question marks (?) in the token
-- Create DB2 VM? (Y/N) - Select "Y" to create a new virtual machine in your deployment that will install OBM DB2, create an emtpty database, and a new schema.
-- Create MQ VM? (Y/N) = Select "Y" to create a new virtual machine in your deployment that will install IBM MQ
+- Create DB2 VMs? (Y/N) - Select "Y" to create a new virtual machine in your deployment that will can be used for IBM DB2 (this will also deploy a load balancer that can be used for HA configurations)
+- Create MQ VMs? (Y/N) = Select "Y" to create a new virtual machines in your deployment that can be used for IBM MQ (that will also mount shared storage)
 
-**Note**: If you choose to install MQ and/or DB2 VMs, **you MUST provide values for the InstallerStorageAccountName, InstallerContainerName, and InstallerSASToken values**; if you plan on running these services elsewhere (such as PostgreSQL or Oracle), then you can provide empty values. Please see the section "Preparing your installers" for more information. The installers will then attempt to connect to these storage accounts during deployment to download the binaries to perform the install. Please all so the "Parameters" section of this guide for more configuration options.
 
 To deploy this environment, clone this repository and change to the ```./azure``` folder and run the following Azure CLI command:
 
 ```bash
+#Note: Substitute Location as needed
 az group create --location "East US" --name <your resource group name>
 
 az deployment group create --resource-group <your resource group name> --template-file bootstrap.bicep --parameters parameters.json
@@ -90,7 +93,7 @@ az deployment group create --resource-group <your resource group name> --templat
 
 ## Post-Deployment
 
-Once this deployment completes, you should have a functional environment that will support deploying Sterling Order Management. However, this deployment is only a starting point. Please make sure you:
+Once this deployment completes, you should have a functional environment that will support deploying Sterling Order Management. However, this deployment is only a starting point. Below are a few other considerations and tasks:
 
 ### Connecting to your Azure VM(s) / Jumpbox for Administration
 
@@ -110,6 +113,7 @@ For help or getting started information with Azure Bastion, please reference thi
 * **Enable HA/DR where appropriate**: This installer is designed to be a starting point for your environment, and if you plan to use this deployment as a template for non-development environments, you should make sure you:
  * Ensure availability of your database tier: If using DB2, consider configuring HA for your DB2 VMS. More information from IBM can be found here: https://www.ibm.com/support/pages/setting-two-node-db2-hadr-pacemaker-cluster-virtual-ip-microsoft-azure (Note: this deployment does install required Pacemaker components; you'll just need to add nodes and your additional Azure infrastructures)
  * For IBM MQ, consider adding more nodes and sharing the Premium Files storage among your nodes
+
 
 ### Preparing to deploy your OMEnvironment from the Sterling Operator
 
