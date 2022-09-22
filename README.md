@@ -78,6 +78,8 @@ This repository is designed to help you plan your Sterling Order Management depl
 
 ![A Sample OMS Networking/Resource Diagram](/docs/images/SterlingNetworkDiagram.png)
 
+**Important Note** The above diagram lists all of the possible components you can deploy for this architecture; you may not need, for instance, MQ VMs if you deploy MQ in Azure Kubernetes service or ActiveMQ in your OMS cluster or in an Azure Container instance. This is meant to highlight where the different components will sit depending on how you wish to deploy.
+
 To get started, you'll need to accomplish the following tasks:
 
 1. Preparing and configuring your Azure environment for an Azure Redhat OpenShift deployment
