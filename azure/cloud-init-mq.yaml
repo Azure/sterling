@@ -1,0 +1,22 @@
+#cloud-config
+runcmd:
+ - #export INSTALLER_STORAGEACCOUNT_NAME=${installerStorageAccountName}
+ - #export INSTALLER_STORAGECONTAINER_NAME=${installerContainerName}
+ - #export INSTALLER_SAS_TOKEN="${installerSASToken}"
+ - #export MQ_INSTALLER_ARCHIVE_FILENAME=${mqInstallerArchiveName}
+ - sudo yum update
+ - sudo yum install -y nfs-utils
+ - sudo yum install -y java-1.8.0-openjdk
+ - sudo mkdir /MQHA
+ - sudo mount -t nfs ${storageNamePrefix}prm.file.core.windows.net:/${storageNamePrefix}prm/${mqsharename} /MQHA -o vers=4,minorversion=1,sec=sys
+ - sudo echo "${storageNamePrefix}prm.file.core.windows.net:/${storageNamePrefix}prm/${mqsharename} /MQHA nfs rw,hard,noatime,nolock,vers=4,tcp,_netdev 0 0" >> /etc/fstab 
+ - sudo mkdir -p /MQHA/logs
+ - sudo mkdir -p /MQHA/qmgrs
+ - sudo groupadd mqclient
+ - sudo useradd app
+ - sudo wget https://aka.ms/downloadazcopy-v10-linux -O /tmp/azcopy.tar.gz
+ - sudo tar -xvf /tmp/azcopy.tar.gz -C /tmp
+ - sudo mv /tmp/azcopy_linux* /tmp/azcopy
+ - #[ wget, -nv, "https://raw.githubusercontent.com/Azure/sterling/${branchName}/config/installers/install-mq-from-storageaccount.sh", -O, /tmp/install-mq-from-storageaccount.sh ]
+ - #chmod +x /tmp/install-mq-from-storageaccount.sh
+ - #sudo -E /tmp/install-mq-from-storageaccount.sh

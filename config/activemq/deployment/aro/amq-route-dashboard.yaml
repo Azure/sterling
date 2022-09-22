@@ -1,0 +1,14 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: amq-dash
+  namespace: active-mq
+spec:
+  host: amq-dash-active-mq.apps.$DOMAIN.$LOCATION.aroapp.io
+  to:
+    kind: Service
+    name: active-mq
+    weight: 100
+  port:
+    targetPort: dashboard
+  wildcardPolicy: None

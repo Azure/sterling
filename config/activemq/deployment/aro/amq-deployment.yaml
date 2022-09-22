@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: active-mq
+labels:
+   app: active-mq
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: active-mq
+  template:
+    metadata:
+      labels:
+          app: active-mq
+    spec:
+      serviceAccountName: runasanyuid
+      securityContext:
+        runAsUser: 100
+      imagePullSecrets: 
+         - name: azure-acr-credentials
+      containers:
+          - name: active-mq
+            image: $ACTIVEMQ_IMAGENAME
+            env:
+              - name: ACTIVEMQ_TMP
+                value : "/tmp"
+            imagePullPolicy: Always
+            resources:
+               requests:
+                  memory: 500Mi
+                  cpu: 200m
+               limits:
+                  memory: 1000Mi
+                  cpu: 400m
+            volumeMounts:
+            - name: active-creds
+              mountPath: /opt/apache/apache-activemq-5.17.1/conf/jetty-realm.properties
+              subPath: jetty-realm.properties
+            - name: active-storage
+              mountPath: /opt/apache/apache-activemq-5.17.1/data
+      volumes:
+      - name: active-creds
+        secret:
+          secretName: active-mq-credentials
+      - name: active-storage
+        persistentVolumeClaim:
+          claimName: active-mq-storage
+      restartPolicy: Always
+      
+
+      

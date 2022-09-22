@@ -1,0 +1,39 @@
+license: accept
+queueManager:
+  nativeha:
+    enable: true
+  mqscConfigMaps:
+    - name: mqsc
+      items:
+        - mq.mqsc
+  qminiConfigMaps:
+    - name: mqsc
+      items:
+        - mq.ini
+  name: omsmq
+persistence:
+  dataPVC:
+    enable: true
+    storageClassName: azurefile-premium-nfs
+  logPVC:
+    enable: true
+    storageClassName: azurefile-premium-nfs
+  qmPVC:
+    enable: true
+    storageClassName: azurefile-premium-nfs
+security:
+  context:
+    fsGroup: 0
+metadata:
+  annotations:
+    productName: "IBM MQ Advanced for Developers"
+    productID: "2f886a3eefbe4ccb89b2adb97c78b9cb"
+    productChargedContainers: ""
+    productMetric: "FREE"
+route:
+  nodePort:
+    webconsole: true
+    mqtraffic: true
+  loadBalancer:
+    webconsole: true
+    mqtraffic: true
