@@ -1,0 +1,17 @@
+{
+"cloud":"AzurePublicCloud",
+"tenantId": "$TENANT_ID",
+"subscriptionId": "$SUBSCRIPTION_ID",
+"resourceGroup": "$RESOURCE_GROUP_NAME",
+"location": "$LOCATION",
+"aadClientId": "$CLIENT_ID",
+"aadClientSecret": "$CLIENT_SECRET",
+"useManagedIdentityExtension": false,
+"userAssignedIdentityID": "",
+"useInstanceMetadata": true,
+"vmType": "standard",
+"subnetName": "$SUBNET_PRIVATE_ENDPOINT_NAME",
+"vnetName": "$VNET_NAME",
+"vnetResourceGroup": "$RESOURCE_GROUP_NAME",
+"cloudProviderBackoff": true
+}
