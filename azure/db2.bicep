@@ -11,15 +11,15 @@ param adminUsername string
 @secure()
 param adminPassword string
 param zone string
-param installerStorageAccountName string
-param installerContainerName string
-@secure()
-param installerSASToken string
+//param installerStorageAccountName string
+//param installerContainerName string
+//@secure()
+//param installerSASToken string
 //param loadBalancerName string
-param db2InstallerArchiveName string
+//param db2InstallerArchiveName string
 param branchName string
-param db2DatabaseName string
-param db2SchemaName string
+//param db2DatabaseName string
+//param db2SchemaName string
 
 
 //var nsgId = resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', networkSecurityGroupName)
