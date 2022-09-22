@@ -17,15 +17,16 @@ This repository provides deployument guidance and best practices for running IBM
   - [Before You Begin](#before-you-begin)
   - [Step 1: Preparing Your Azure Environment](#step-1-preparing-your-azure-environment)
     - [Creating an Azure Application Registration](#creating-an-azure-application-registration)
-    - [Optional: Creating a storage account for required IBM application installers](#creating-a-storage-account-for-required-ibm-application-installers)
-  - [Step 2: Install Azure RedHat Openshift](#step-2-install-azure-redhat-openshift)
+    - [(Optional) Creating a storage account for required IBM application installers](#optional-creating-a-storage-account-for-required-ibm-application-installers)
+  - [Step 2: Install Azure RedHat OpenShift (ARO)](#step-2-install-azure-redhat-openshift-aro)
   - [Step 3: Accessing your ARO Cluster](#step-3-accessing-your-aro-cluster)
-  - [Step 4: Post ARO Deployment Tasks](#step-4-post-azure-redhat-openshift-deployment-tasks)
-    - [Private Outbound Internet Access](#private-vm-outbound-internet-access)
+  - [Step 4: Post Azure Redhat Openshift Deployment Tasks](#step-4-post-azure-redhat-openshift-deployment-tasks)
+    - [Private VM Outbound Internet Access](#private-vm-outbound-internet-access)
     - [Install and Configure IBM DB2 (if applicable)](#install-and-configure-ibm-db2-if-applicable)
-    - [Deploy and Configure Azure PostgreSQL Flexible Server (if applicable)](#install-and-configure-ibm-db2-if-applicable)
-    - [Install and Configure IBM MQ (if applicable)](#install-and-configure-ibm-mq-if-applicable)
-    - [Install and Configure JMS Message Broker (if applicable)](#install-and-configure-ibm-mq-if-applicable)    
+    - [Configure your Azure PostgresSQL Database (if applicable)](#configure-your-azure-postgressql-database-if-applicable)
+    - [Install and Configure IBM MQ on a Virtual Machine (if applicable)](#install-and-configure-ibm-mq-on-a-virtual-machine-if-applicable)
+    - [Install and Configure IBM MQ on an Azure Kubernetes Cluster (if applicable)](#install-and-configure-ibm-mq-on-an-azure-kubernetes-cluster-if-applicable)
+    - [Deploy Alternative JMS Message Broker (if applicable)](#deploy-alternative-jms-message-broker-if-applicable)
     - [Install Tools](#install-tools)
   - [Step 5: Logging into your OpenShift Cluster with the OpenShift Command Line Tool](#step-5-logging-into-your-openshift-cluster-with-the-openshift-command-line-tool)
   - [Step 6: Deploy OMS Prerequisites & Artifacts](#step-6-deploy-oms-prerequisites--artifacts)
@@ -34,9 +35,9 @@ This repository provides deployument guidance and best practices for running IBM
     - [Add Azure Container Registry Credentials to Namespace Docker Credential Secret](#add-azure-container-registry-credentials-to-namespace-docker-credential-secret)
     - [Install IBM Operator Catalog and the Sterling Operator](#install-ibm-operator-catalog-and-the-sterling-operator)
     - [Create Required Database User & Assign Permissions](#create-required-database-user--assign-permissions)
-    - [Update Maximum Connections to Azure PostgreSQL Database](#update-maximum-connections-to-azure-postgresql-database)
+    - [Update Maximum Connections to Azure PostgreSQL Database (if applicable)](#update-maximum-connections-to-azure-postgresql-database-if-applicable)
     - [Create OMS Secret](#create-oms-secret)
-    - [Create MQ Bindings Configuration Map (if applicable)](#create-mq-bindings-configmap)
+    - [Create MQ Bindings ConfigMap](#create-mq-bindings-configmap)
     - [Create Required PVC(s)](#create-required-pvcs)
     - [Create RBAC Role](#create-rbac-role)
     - [Pushing (and pulling) your containers to an Azure Container Registry](#pushing-and-pulling-your-containers-to-an-azure-container-registry)
@@ -45,8 +46,8 @@ This repository provides deployument guidance and best practices for running IBM
   - [Step 8: Deploying OMS](#step-8-deploying-oms)
   - [Deploying OMS Via the OpenShift Operator](#deploying-oms-via-the-openshift-operator)
   - [Step 8: Post Deployment Tasks](#step-8-post-deployment-tasks)
-    - [Right-Sizing / Resizing your ARO Cluster](#right-sizing--resizing-your-aro-cluster)
-    - [Licensing your DB2 and MQ Instances (If Applicable)](#licensing-your-db2-and-mq-instances)
+    - [Right-sizing / Resizing your ARO Cluster](#right-sizing--resizing-your-aro-cluster)
+    - [Licensing your DB2 and MQ Instances](#licensing-your-db2-and-mq-instances)
     - [Migrating Your Data](#migrating-your-data)
   - [Contributing](#contributing)
   - [Trademarks](#trademarks)
@@ -59,7 +60,15 @@ running your Sterling Order Management workload(s) as well as best practice cons
 Secondly, there are a series of sample deployment templates and configuration scripts designed to get you up and running with an environment ready for you to deploy your existing Sterling OMS resources into. These resources are broken out into the following directories within this repository:
 
 - ./azure - Contains a series of .bicep files that can be used to bootstrap a reference deployment of all the required Azure resources for your deployment
-- ./config - Contains files used by the installer examples or Azure automation scripts to configure services or other requirements of the platform
+- ./config - Contains files used by the installer examples or Azure automation scripts to configure services or other requirements of the platform:
+  - activemq - Contains sample Dockerfile for creating an ActiveMQ container, and deployment subfolders for sample deployments in Azure Container Instances and Azure RedHat OpenShift
+  - azure-file-storage - Contains artifacts for configuring Azure File Storage CSI drivers in Azure RedHat OpenShift
+  - db2 - Contains a sample response file (.rsp) for silent, unattended installs of DB2
+  - installers - Automation scripts used by the boostrap installer
+  - mq - Contains instructions for deploying HA-native MQ containers inside of Azure Kubernetes Service
+  - oms - Contains sample .yaml files for configuring OMS volumes, claims, pull secrets, and RBAC
+  - operators - Contains OpenShift operator deployment .yaml files
+- ./datamigration - Contains a sample Azure Data Factory Pipeline and instructions for helping migrate DB2 data to PostgreSQL
 
 If you are interested in a bootstrap environment to deploy Sterling OMS into, please see this README that explains more: [Sterling Azure Bootstrap Resources](./azure/README.md)
 
@@ -91,9 +100,9 @@ To successfully install and configure OMS on Azure, you'll need to make sure you
  * A quota of at least 40 vCPU allowed for your VM type(s) of choice. Request a quota increase if needed.
  * You will need subscription owner permissions for the deployment.
 * You will need to deploy a JMS-based messaging system into your environment. Most likely, this is IBM MQ, but there are other alteratives. As such, you can:
-  * Deploy Virtual Machines configured with appropriate storage and install the messaging components yourself
-  * Deploy MQ in an Azure Kubernetes Cluster with a High Availability configuration
-  * Deploy one or more alterative JMS Broker in Azure Container Instances
+  * Deploy Virtual Machines configured with appropriate storage and install the messaging components yourself, OR
+  * Deploy MQ in an Azure Kubernetes Cluster (or ARO) with a High Availability configuration, OR
+  * Deploy one or more alterative JMS Broker nodes in Azure Container Instances
 * You will need to deploy a backend database as part of your environment. Depending on your chosen platform, you currently have the following options:
   * For IBM DB2:
     * You can obtain a licensed copy of DB2 from the IBM Passport Advantage Website: https://www-112.ibm.com/software/howtobuy/passportadvantage/paoreseller/LoginPage?abu=
@@ -102,14 +111,10 @@ To successfully install and configure OMS on Azure, you'll need to make sure you
   * For Oracle:
     * IBM Provides guidance around configuring Oracle for Sterling OMS: https://www.ibm.com/products/db2-database/developers
     * The images provided for OMS do not include Oracle drivers; your images will need updated with these drivers. For more information, see this support document: 
-  * For PostgreSQL (Preview):
-    * IBM has preview support for PostgreSQL. As such, you can deploy Azure PostgreSQL Database Flexible Server in your Azure subscription.
+  * For PostgreSQL:
+    * The most recent Operator for IBM Sterling OMS has support for PostgreSQL. As such, you can deploy Azure PostgreSQL Database Flexible Server in your Azure subscription
 * The Azure CLI: https://docs.microsoft.com/en-us/cli/azure/install-azure-cli
-
-Once you have access to your Azure subscription, you'll then need to set up an Application Registration (SPN) that has contributor access to the subscription you are are going to deploy to.
-
-Finally, for managing and configuring Azure Redhat OpenShift, you'll also need the ```oc``` CLI tool. [You can download this tool from Red Hat at their official download site](https://mirror.openshift.com/pub/openshift-v4/clients/ocp/). You should also download and install the Azure CLI.
-
+* OpenShift Command Line Tools (oc): https://mirror.openshift.com/pub/openshift-v4/clients/ocp/
 
 ## Step 1: Preparing Your Azure Environment
 
@@ -123,21 +128,24 @@ At a minimum, your Azure environment should contain a resource group that contai
     - management (/30): this subnet is used for your "Jump Box" virtual machine(s) that can be used to securely connect to all other resources inside this network
     - development (/28): this subnet can be used to deploy developer virtual machines, if needed, to develop, test, and deploy OMS customized container images securely to the Azure Container Registry.
     - endpoints (/25): this subnet exists for hosting private endpoints for Azure services such as storage accounts, container registries, and other services to provide private connectivity.
+    - data (/26): this subnet should be used to deploy Azure PostgreSQL Flexible Server, as that service requires a delegted subnet
+    - Note: This is by no means a complete or exhausitve list; depending on other components you wish to deploy, you should plan and/or expand your address spaces and subnets as needed
 2. Azure Premium Files storage account: For hosting MQ Queue Manager data
 3. Azure Virtual Machines:
     - (If needed) At least one Virtual Machine to host IBM DB2. For production scenarios, you should consider configuring more than one host and using high availability for the instances. More information on this configuration can be found here:
     - (If needed) At least one Virtual Machine to host IBM MQ. For production scenarios, you should consider configuring more than one host and using a shared storage location (aka Azure Premium Files) for the queue storage
     - A Jump Box VM: This machine should be deployed and configured with any management tools you'll need to administer your environment.
     - Development VM(s): Machines that can be used be developers for that can connect to any required cluster, data, or queue resources inside the virtual network
-4. An Azure Container Registry for storing your custom Sterling OMS containers.
+4. (If needed) Azure PostgreSQL Flexible Server, if using PostgreSQL as your backend Database
+5. An Azure Container Registry for storing your custom Sterling OMS containers.
 
 *Note:* Aside from the control and worker subnets, your CIDR ranges are completely up to you and should be sized appropriately for any additional growth you forsee.
 
-For a more detailed accounting of the suggested Azure resources, check out this guide and for sample deployment scripts to help you get started, check out the ./azure folder in this repository for some .bicep files you can just to quick start your environment. In addition, for a more detailed explanation of the Azure resources, please review this guide.
+For a more detailed accounting of the suggested Azure resources, and for sample deployment scripts to help you get started, check out the [```./azure```](./azure/README.md) folder in this repository for some .bicep files you can just to quick start your environment. 
 
 ### Creating an Azure Application Registration
 
-You will need to [create an Azure Application Registration (SPN)](https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal) and grant it `Contributor` permissions on the subscription you plan to deploy into. If granting permissions at the subscription level is not possible, you can also configure the permissions on this resource group instead. have issue with state when attempting to use a single resource group.
+You will need to [create an Azure Application Registration (SPN)](https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal) and grant it `Contributor` permissions on the subscription you plan to deploy into. If granting permissions at the subscription level is not possible, you can also configure the permissions on this resource group instead. 
 
 After creating the SPN and assigning its access, you will need to create a [secret](https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal#option-2-create-a-new-application-secret) that will be used during the OCP install process.
 
@@ -161,7 +169,7 @@ azcopy copy "https://<storage account name with setup archive>.blob.core.windows
 
 ## Step 2: Install Azure RedHat OpenShift (ARO)
 
-Once all of the networking requirements are met, you should install Azure RedHat OpenShift. This guide was written and tested with ARO 4.9.9. When configuring ARO, make sure you select the appropriate subnets. You can also decide if you want your cluster to be available publicly or not (note that if you choose to not make it public, you'll only be able to access the cluster from within the virtual network, from your Jump Box virtual machine). Your deployment may take a few minutes to complete.
+Once all of the networking requirements are met, you should install Azure RedHat OpenShift. This guide was written and tested with ARO 4.9.9. When configuring ARO, make sure you select the appropriate subnets. You can also decide if you want your cluster to be available publicly or not (note that if you choose to not make it public, you'll only be able to access the cluster from within the virtual network, for example from a  "jump box" virtual machine). Your deployment may take a few minutes to complete.
 
 You can create a new cluster through the Azure Portal, or from the Azure CLI:
 
@@ -171,7 +179,7 @@ az aro create --resource-group $RESOURCEGROUP --name $CLUSTER --vnet aro-vnet --
 
 ## Step 3: Accessing your ARO Cluster
 
-After your deployment completes, you can retrieve your portal URL and admin credentials by running the following commands:
+After your deployment completes, you can retrieve your admin URL and admin credentials by running the following commands:
 
 ```bash
 az aro show --name <your clustername> --resource-group <your resource group name> --query "consoleProfile.url" -o tsv
@@ -184,7 +192,7 @@ Once you have all your resources deployed, you will need to complete the followi
 
 ### Private VM Outbound Internet Access
 
-If you did not deploy your Azure VMs with a public IP address, and you need to download and install applications like IBM MQ and IBM DB2 from a publicly available source, you may need to add a NAT Gateway to provide outbound connectivity to the internet. Please see this link for more information: https://docs.microsoft.com/en-us/azure/virtual-network/nat-gateway/nat-gateway-resource
+If you chose to deploy Azure Virtual Machines in your deployment, and you did not deploy them with public IP address, and you need to download and install applications like IBM MQ and IBM DB2 from a publicly available source, you may need to add a NAT Gateway to provide outbound connectivity to the internet. Please see this link for more information: https://docs.microsoft.com/en-us/azure/virtual-network/nat-gateway/nat-gateway-resource
 
 ### Install and Configure IBM DB2 (if applicable)
 
@@ -257,7 +265,7 @@ You can now create your queue managers and use this new, mounted storage as your
 
 ### Install and Configure IBM MQ on an Azure Kubernetes Cluster (if applicable)
 
-Alteratively, if you don't want to install, configure, and maintain your own Azure Virtual Machines IBM does provide Helm Charts for installing MQ in Azure Kubernetes Service: https://github.com/ibm-messaging/mq-helm. An example deployment and configuration script can be found in this repoistory in the [/config/mq/aks](./config/mq/aks/README.md) folder.
+Alteratively, if you don't want to install, configure, and maintain your own Azure Virtual Machines running MQ, IBM does provide Helm Charts for installing MQ in Azure Kubernetes Service: https://github.com/ibm-messaging/mq-helm. For more information, as well as an example deployment and configuration script, please take a look in the [/config/mq/aks](./config/mq/aks/README.md) folder of this repository.
 
 ### Deploy Alternative JMS Message Broker (if applicable)
 
@@ -386,6 +394,7 @@ As part of the environment preparation, the OMS Operator should show up under th
 
 ```bash
 #Note: This example is for the PROFESSIONAL version of the OMS Operator
+#See the link below for other operator version, name, and CSV values
 export OMS_VERSION="icr.io/cpopen/ibm-oms-pro-case-catalog:v1.0"
 export OMS_NAMESPACE="OMS"
 export OPERATOR_NAME="ibm-oms-pro"
@@ -400,9 +409,9 @@ For more information about installing the operator from the command line, please
 
 ### Create Required Database User & Assign Permissions
 
-Before you deploy OMS, make sure that the database username and password you intend to use is created and assigned the proper permissions
+Before you deploy OMS, make sure that the database username and password you intend to use is created and assigned the proper permissions. This varies by database provider, but the service account will need almost full control over the target database schema (if not the database itself). More information about database permissions can be found in IBM's documentation: https://www.ibm.com/docs/en/order-management-sw/10.0?topic=tier-installing-configuring-database-software-unix-linux
 
-### Update Maximum Connections to Azure PostgreSQL Database
+### Update Maximum Connections to Azure PostgreSQL Database (if applicable)
 
 If you're using Azure PostgreSQL database as your database platform, you may need to adjust your ```max_connections``` server property to allow for the required number of agent/application connection simultaniously. More information can be found here: https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/concepts-server-parameters
 
@@ -543,7 +552,7 @@ oc apply -f /tmp/oms-machineset-updated.yaml
 
 ### Licensing your DB2 and MQ Instances
 
-Post-installation, if you have not already (and you're using IBM DB2 and/or IBM MQ), please obtain your license files for DB2 and MQ and apply the licenses as specified by IBM in their documentation:
+Post-installation, if you have not already (and you're using IBM DB2 and/or IBM MQ), please obtain your license files and/or keys for DB2 and MQ and apply the licenses as specified by IBM in their documentation:
 
 ### Migrating Your Data
 
