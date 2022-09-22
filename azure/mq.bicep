@@ -13,11 +13,11 @@ param adminPassword string
 param zone string
 param storageNamePrefix string
 param mqsharename string
-param installerStorageAccountName string
-param installerContainerName string
-@secure()
-param installerSASToken string
-param mqInstallerArchiveName string
+//param installerStorageAccountName string
+//param installerContainerName string
+//@secure()
+//param installerSASToken string
+//param mqInstallerArchiveName string
 param branchName string
 
 var nsgId = resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', networkSecurityGroupName)

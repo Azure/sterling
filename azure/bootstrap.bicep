@@ -72,17 +72,17 @@ param subnetVMPrefix string
 param subnetDataName string
 @description('Data subnet address space')
 param subnetDataPrefix string
-@description('If installing MQ as part of this deployment, provide the filename of the MQ tar.gz file')
-param mqInstallerArchiveName string
-@description('If installing DB2 as part of this deployment, provide the filename of the DB2 tar.gz file')
-param db2InstallerArchiveName string
-@description('If installing DB2 and/or MQ as part of this deployment, provide the the storage account name where the installers can be downloaded from')
-param installerStorageAccountName string
-@description('If installing DB2 and/or MQ as part of this deployment, provide the the storage account container name where the installers can be downloaded from')
-param installerContainerName string
-@description('If installing DB2 and/or MQ as part of this deployment, provide the the a SAS token with read and list permissions to the container with the binaries')
-@secure()
-param installerSASToken string
+//@description('If installing MQ as part of this deployment, provide the filename of the MQ tar.gz file')
+//param mqInstallerArchiveName string
+//@description('If installing DB2 as part of this deployment, provide the filename of the DB2 tar.gz file')
+//param db2InstallerArchiveName string
+//@description('If installing DB2 and/or MQ as part of this deployment, provide the the storage account name where the installers can be downloaded from')
+//param installerStorageAccountName string
+//@description('If installing DB2 and/or MQ as part of this deployment, provide the the storage account container name where the installers can be downloaded from')
+//param installerContainerName string
+//@description('If installing DB2 and/or MQ as part of this deployment, provide the the a SAS token with read and list permissions to the container with the binaries')
+//@secure()
+//param installerSASToken string
 @description('The name of the Azure Premium File Share to create for your MQ instance')
 param mqsharename string
 @description('The name of the outbound NAT gateway for your virtual machines')
@@ -107,45 +107,31 @@ param devVMName string
 param registryName string
 @description('Which OMS Version (image) to deploy')
 param whichOMS string
-@description('If installing DB2, the name of the empty database to be created')
-param db2DatabaseName string
-@description('If installing DB2, name of the schema to be created in your new, empty database')
-param db2SchemaName string
+//@description('If installing DB2, the name of the empty database to be created')
+//param db2DatabaseName string
+//@description('If installing DB2, name of the schema to be created in your new, empty database')
+//param db2SchemaName string
 @description('Your IBM Entitlement Key')
 param ibmEntitlementKey string
 @description('Storage Account Name Prefix')
 param storageNamePrefix string
 
-//param loadBalancerName string
-//param db2lbprivateIP string
+param loadBalancerName string
+param db2lbprivateIP string
 
-@description('Do you want to create a DB2 VM (Y/N)?')
+@description('Do you want to create a VMs for DB2? (Y/N)?')
 @allowed([
   'Y'
   'N'
 ])
 param installdb2vm string
 
-//@description('Do you want a DB2 container in your cluster (for development purposes) (Y/N)?')
-//@allowed([
-//  'Y'
-//  'N'
-//])
-//param installdb2container string
-
-@description('Do you want to create an MQ VM (Y/N)?')
+@description('Do you want to create VMs for MQ (Y/N)?')
 @allowed([
   'Y'
   'N'
 ])
 param installmqvm string
-
-//@description('Do you want an MQ container in your cluster (Y/N)?')
-//@allowed([
-//  'Y'
-//  'N'
-//])
-//param installmqcontainer string
 
 
 @description('Do you want to create an instance of Azure PostgresSQL Flexible Server? (Y/N)?')
@@ -264,8 +250,7 @@ module bastionHost 'bastion.bicep' = {
   ]
 }
 
-/*
-module loadbalancer 'loadbalancer.bicep' = if (installdb2vm == 'Y' || installdb2vm == 'y')
+module loadbalancer 'loadbalancer.bicep' = if (installdb2vm == 'Y' || installdb2vm == 'y') {
   name: 'db2-lb'
   scope: resourceGroup()
   params :{
@@ -279,7 +264,7 @@ module loadbalancer 'loadbalancer.bicep' = if (installdb2vm == 'Y' || installdb2
     network
   ]
 }
-*/
+
 
 module db2vm1 'db2.bicep' = if (installdb2vm == 'Y' || installdb2vm == 'y') {
   name: 'db2vm-1'
@@ -298,13 +283,13 @@ module db2vm1 'db2.bicep' = if (installdb2vm == 'Y' || installdb2vm == 'y') {
     adminUsername: adminUsername
     adminPassword: adminPassword
     zone: '1'
-    installerStorageAccountName: installerStorageAccountName
-    installerContainerName: installerContainerName
-    installerSASToken: installerSASToken
-    db2InstallerArchiveName: db2InstallerArchiveName
+    //installerStorageAccountName: installerStorageAccountName
+    //installerContainerName: installerContainerName
+    //installerSASToken: installerSASToken
+    //db2InstallerArchiveName: db2InstallerArchiveName
     //loadBalancerName: loadBalancerName
-    db2DatabaseName: db2DatabaseName
-    db2SchemaName: db2SchemaName
+    //db2DatabaseName: db2DatabaseName
+    //db2SchemaName: db2SchemaName
   }
   dependsOn: [
     network
@@ -313,34 +298,38 @@ module db2vm1 'db2.bicep' = if (installdb2vm == 'Y' || installdb2vm == 'y') {
 }
 
 
-/*
-module db2vm2 'db2.bicep' = {
+
+module db2vm2 'db2.bicep'= if (installdb2vm == 'Y' || installdb2vm == 'y') {
   name: 'db2vm-2'
   scope: resourceGroup()
   params: {
+    branchName: branchName
     location: location
-    networkInterfaceName: '${db2VirtualMachineNamePrefix}-2-nic'
-    networkSecurityGroupName: '${db2VirtualMachineNamePrefix}-2-nsg'
+    networkInterfaceName: '${db2VirtualMachineNamePrefix}-1-nic'
+    networkSecurityGroupName: '${db2VirtualMachineNamePrefix}-1-nsg'
     networkSecurityGroupRules:networkSecurityGroupRules
     subnetName: subnetVMName
     virtualNetworkName: vnetName
-    virtualMachineName: '${db2VirtualMachineNamePrefix}-2'
+    virtualMachineName: '${db2VirtualMachineNamePrefix}-1'
     osDiskType: osDiskType
-    virtualMachineSize: virtualMachineSize
+    virtualMachineSize: db2VirtualMachineSize
     adminUsername: adminUsername
     adminPassword: adminPassword
     zone: '1'
-    installerStorageAccountName: installerStorageAccountName
-    installerContainerName: installerContainerName
-    installerSASToken: installerSASToken
-    loadBalancerName: loadBalancerName
+    //installerStorageAccountName: installerStorageAccountName
+    //installerContainerName: installerContainerName
+    //installerSASToken: installerSASToken
+    //db2InstallerArchiveName: db2InstallerArchiveName
+    //loadBalancerName: loadBalancerName
+    //db2DatabaseName: db2DatabaseName
+    //db2SchemaName: db2SchemaName
   }
   dependsOn: [
     network
-    loadbalancer
+    //loadbalancer
   ]
 }
-*/
+
 
 
 module mqvm1 'mq.bicep' = if (installmqvm == 'Y' || installmqvm == 'y') {
@@ -359,12 +348,12 @@ module mqvm1 'mq.bicep' = if (installmqvm == 'Y' || installmqvm == 'y') {
     adminUsername: adminUsername
     adminPassword: adminPassword
     zone: '1'
-    installerStorageAccountName: installerStorageAccountName
-    installerContainerName: installerContainerName
-    installerSASToken: installerSASToken
+    //installerStorageAccountName: installerStorageAccountName
+    //installerContainerName: installerContainerName
+    //installerSASToken: installerSASToken
     storageNamePrefix: storageNamePrefix
     mqsharename: mqsharename    
-    mqInstallerArchiveName: mqInstallerArchiveName
+    //mqInstallerArchiveName: mqInstallerArchiveName
     branchName: branchName
   }
   dependsOn: [
@@ -372,35 +361,36 @@ module mqvm1 'mq.bicep' = if (installmqvm == 'Y' || installmqvm == 'y') {
   ]
 }
 
-/*
-module mqvm3 'mq.bicep' = {
+
+module mqvm3 'mq.bicep' = if (installmqvm == 'Y' || installmqvm == 'y') {
   name: 'mqvm-2'
   scope: resourceGroup()
   params: {
     location: location
-    networkInterfaceName: '${mqVirtualMachineName}-2-nic'
-    networkSecurityGroupName: '${mqVirtualMachineName}-2-nsg'
+    networkInterfaceName: '${mqVirtualMachineName}-1-nic'
+    networkSecurityGroupName: '${mqVirtualMachineName}-1-nsg'
     networkSecurityGroupRules:networkSecurityGroupRules
     subnetName: subnetWorkerNodeName
     virtualNetworkName: vnetName
-    virtualMachineName: '${mqVirtualMachineName}-2'
+    virtualMachineName: '${mqVirtualMachineName}-1'
     osDiskType: osDiskType
-    virtualMachineSize: virtualMachineSize
+    virtualMachineSize: mqVirtualMachineSize
     adminUsername: adminUsername
     adminPassword: adminPassword
-    zone: '3'
-    installerStorageAccountName: installerStorageAccountName
-    installerContainerName: installerContainerName
-    installerSASToken: installerSASToken
+    zone: '1'
+    //installerStorageAccountName: installerStorageAccountName
+    //installerContainerName: installerContainerName
+    //installerSASToken: installerSASToken
     storageNamePrefix: storageNamePrefix
-    mqsharename: mqsharename
+    mqsharename: mqsharename    
+    //mqInstallerArchiveName: mqInstallerArchiveName
+    branchName: branchName
   }
   dependsOn: [
     network
     mqvm1
   ]
 }
-
 
 module devvm 'devvm.bicep' = {
   name: 'devvm'
@@ -423,7 +413,6 @@ module devvm 'devvm.bicep' = {
     network
   ]
 }
-*/
 
 module jumpbox 'jumpbox.bicep' = {
   name: 'jumpbox'
