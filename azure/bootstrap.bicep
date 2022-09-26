@@ -118,8 +118,17 @@ param storageNamePrefix string
 
 param loadBalancerName string
 param db2lbprivateIP string
+param logAnalyticsWorkspaceName string
 
-@description('Do you want to create a VMs for DB2? (Y/N)?')
+@description('Do you want to deploy a Log Analytics Workspace as part of this deployment? (Y/N)?')
+@allowed([
+  'Y'
+  'N'
+])
+param deployLogAnalytics string
+
+
+@description('Do you want to create VMs for DB2? (Y/N)?')
 @allowed([
   'Y'
   'N'
@@ -199,6 +208,8 @@ module postgreSQL 'postgresFlexible.bicep' = if (installPostgres == 'Y' || insta
     adminPassword: adminPassword
     subnetDataName: subnetDataName
     virtualNetworkName: vnetName
+    deployLogAnalytics: deployLogAnalytics
+    logAnalyticsWorkSpaceName: logAnalyticsWorkspaceName
   }
   dependsOn:[
     network
@@ -213,6 +224,8 @@ module containerRegistery 'containerregistry.bicep' = {
     location: location
     registryname: registryName
     vnetName: vnetName
+    deployLogAnalytics: deployLogAnalytics    
+    logAnalyticsWorkSpaceName: logAnalyticsWorkspaceName
   }
   dependsOn:[
     network
@@ -228,6 +241,8 @@ module premiumStorage 'storage.bicep' = {
     vnetName: vnetName
     location: location
     mqsharename: mqsharename
+    deployLogAnalytics: deployLogAnalytics    
+    logAnalyticsWorkSpaceName: logAnalyticsWorkspaceName
   }
   dependsOn:[
     network

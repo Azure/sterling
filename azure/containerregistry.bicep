@@ -3,9 +3,12 @@ param registryname string
 param location string
 param vnetName string
 param subnetEndpointsName string
+param deployLogAnalytics string
+param logAnalyticsWorkSpaceName string
 
 var vnetId = resourceId(resourceGroup().name, 'Microsoft.Network/virtualNetworks', vnetName)
 var subnetReference = '${vnetId}/subnets/${subnetEndpointsName}'
+var logAnalyticsId = resourceId(resourceGroup().name, 'insights-integration/providers/Microsoft.OperationalInsights/workspaces', logAnalyticsWorkSpaceName)
 
 resource registry_resource 'Microsoft.ContainerRegistry/registries@2021-09-01' = {
   name: registryname
@@ -70,5 +73,30 @@ resource registry_private_zone_group 'Microsoft.Network/privateEndpoints/private
         }
       }
     ]
+  }
+}
+
+resource pgLogAnalyticsSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (deployLogAnalytics  == 'Y' || deployLogAnalytics  == 'y') {
+  name: registry_resource.name
+  scope: registry_resource
+  properties: {
+    logAnalyticsDestinationType: 'AzureDiagnostics'
+    logs: [
+      {
+        category: 'allLogs'
+        enabled: true
+      }
+      {
+        category: 'audit'
+        enabled: true
+      }
+    ]
+    metrics: [
+      {
+        category: 'AllMetrics'
+        enabled: true
+      }
+    ]
+    workspaceId: logAnalyticsId
   }
 }
