@@ -198,7 +198,7 @@ resource mq_file_share 'Microsoft.Storage/storageAccounts/fileServices/shares@20
 }
 
 
-resource storageLogAnalyticsSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+resource storageLogAnalyticsSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (deployLogAnalytics  == 'Y' || deployLogAnalytics  == 'y') {
   name: storage_premium.name
   scope: storage_premium 
   properties: {
