@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "branchName": {
-            "value": "anfurgiu/init"
+            "value": "main"
         },
         "omsNamespace":{
             "value": "oms"
