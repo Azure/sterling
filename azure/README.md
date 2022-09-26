@@ -16,6 +16,16 @@ In addition to this bootstrap resource, note that configurations for message bro
 - [Using AKS for Native HA IBM MQ](../config/mq/README.md)
 - [Using ActiveMQ in ARO or Azure Container Instances](../config/activemq/README.md)
 
+### Monitoring (via Log Analytics)
+
+This deployment will prompt you as to whether to add a log analytics workspace to your deployment. If you choose to do so, you will get a new Log Analytics workspace in your target resource group and some of the deployed resources will have their logs and metrics pre-configured to be sent there:
+
+* Azure Premium Files Storage
+* Azure Database for PosgreSQL - Flexible Server
+* Azure Container Registry
+
+Any Azure Virtual Machines deployed will NOT be configured to be sent to the workspace, as they may require an agent to be installed on the VM (which is not currently part of this template). You should consider adding these where appropriate (or modifying this deployment to include them).
+
 ## Preparing to deploy
 
 ### Service Principal
