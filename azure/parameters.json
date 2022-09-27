@@ -9,7 +9,7 @@
             "value": "oms"
         },
         "whichOMS":{
-            "value": "icr.io/cpopen/ibm-oms-pro-case-catalog:v1.0"
+            "value": "icr.io/cpopen/ibm-oms-pro-case-catalog:v1.0.1-220921-0820"
         },
         "ibmEntitlementKey" : {
             "value": ""
