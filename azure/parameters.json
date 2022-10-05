@@ -162,6 +162,18 @@
         },
         "logAnalyticsWorkspaceName": {
             "value": "omsLogAnalytics"
+        },
+        "anfName" : {
+            "value": "omsanf"
+        },
+        "db2DataSizeGB" : {
+            "value" : 1000
+        },
+        "db2LogSizeGB" : {
+            "value" : 250
+        },
+        "subnetANFPrefix" : {
+            "value": "10.0.7.0/24"
         }
     }
 }

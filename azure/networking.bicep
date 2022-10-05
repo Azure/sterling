@@ -30,6 +30,8 @@ param subnetVMName string
 param subnetVMPrefix string
 param subnetDataPrefix string
 param subnetDataName string
+param subnetANFPrefix string
+param subnetANFName string
 
 resource vnet 'Microsoft.Network/virtualNetworks@2021-03-01' = {
   name: vnetName
@@ -75,7 +77,21 @@ resource vnet 'Microsoft.Network/virtualNetworks@2021-03-01' = {
             }
           ]
         }
-      }      
+      }
+      {
+        name: subnetANFName
+        properties: {
+          addressPrefix: subnetANFPrefix
+          delegations: [
+            {
+              name: 'NetAppDelegation'
+              properties: {
+                serviceName: 'Microsoft.Netapp/volumes'
+              }
+            }
+          ]
+        }
+      }            
       {
         name: subnetEndpointsName
         properties: {
