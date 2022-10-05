@@ -4,6 +4,11 @@ runcmd:
  - export ADMIN_USERNAME=${adminUsername}
  - export DB2_ADMIN_PASSWORD=${adminPassword}
  - export DB2_FENCED_PASSWORD=${adminPassword}
+ - export RESOURCE_GROUP=${resourceGroupName}
+ - export VM_NAME=${virtualMachineName}
+ - export ANF_ACCOUNT_NAME=${anfAccountName}
+ - export ANF_POOL_NAME=${anfPoolName}
+ - #export DB2_VM_PREFIX=${db2vmprefix}
  - #export INSTALLER_STORAGEACCOUNT_NAME=${installerStorageAccountName}
  - #export INSTALLER_STORAGECONTAINER_NAME=${installerContainerName}
  - #export INSTALLER_SAS_TOKEN="${installerSASToken}"
@@ -16,17 +21,28 @@ runcmd:
  - sudo yum -y install java-1.8.0-openjdk
  - sudo dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
  - sudo dnf install -y python3-dnf-plugin-versionlock
+ - sudo yum install -y nfs-utils
  - sudo wget https://aka.ms/downloadazcopy-v10-linux -O /tmp/azcopy.tar.gz
  - sudo tar -xvf /tmp/azcopy.tar.gz -C /tmp
  - sudo mv /tmp/azcopy_linux* /tmp/azcopy
  - sudo sed -i 's/enforcing/disabled/g' /etc/selinux/config /etc/selinux/config
- - sudo parted /dev/sdb --script mklabel gpt mkpart xfspart xfs 0% 100%
- - sudo mkfs.xfs /dev/sdb1
- - sudo partprobe /dev/sdb1 
- - sudo mkdir /db2data
- - sudo mount /dev/sdb1 /db2data
- - FSTAB="$(blkid | grep sdb1 | awk '$0=$2' | sed 's/"//g')   /db2data   xfs   defaults,nofail   1   2"
- - sudo su -c "echo $FSTAB >> /etc/fstab"
+ - #sudo parted /dev/sdb --script mklabel gpt mkpart xfspart xfs 0% 100%
+ - #sudo mkfs.xfs /dev/sdb1
+ - #sudo partprobe /dev/sdb1 
+ - #sudo mkdir /db2data
+ - #sudo mount /dev/sdb1 /db2data
+ - #FSTAB="$(blkid | grep sdb1 | awk '$0=$2' | sed 's/"//g')   /db2data   xfs   defaults,nofail   1   2"
+ - #sudo su -c "echo $fstab >> /etc/fstab"
+ - mkdir /db2data
+ - data_mount_ip = "$(az netappfiles volume list -g $RESOURCE_GROUP --account-name $ANF_ACCOUNT_NAME --pool-name $ANF_POOL_NAME -o json | jq -r '.[] | select (.name | contains(env.ANF_POOL_NAME) and contains("data")).mountTargets[0].ipAddress')"
+ - data_mount_vol_name = "$(az netappfiles volume list -g $RESOURCE_GROUP --account-name $ANF_ACCOUNT_NAME --pool-name $NF_POOL_NAME -o json | jq -r '.[] | select (.name | contains(env.ANF_POOL_NAME) and contains("data")).creationToken')"
+ - fstab="$data_mount_ip:/$data_mount_vol_name /db2data nfs bg,rw,hard,noatime,nolock,rsize=65536,wsize=65536,vers=3,tcp,_netdev 0 0"
+ - sudo su -c "echo $fstab >> /etc/fstab"
+ - mkdir /db2log
+ - log_mount_ip = "$(az netappfiles volume list -g $RESOURCE_GROUP --account-name $ANF_ACCOUNT_NAME --pool-name $ANF_POOL_NAME -o json | jq -r '.[] | select (.name | contains(env.ANF_POOL_NAME) and contains("log")).mountTargets[0].ipAddress')"
+ - log_mount_vol_name = "$(az netappfiles volume list -g $RESOURCE_GROUP --account-name $ANF_ACCOUNT_NAME --pool-name $NF_POOL_NAME -o json | jq -r '.[] | select (.name | contains(env.ANF_POOL_NAME) and contains("log")).creationToken')"
+ - fstab="$log_mount_ip:/$log_mount_vol_name /db2log nfs bg,rw,hard,noatime,nolock,rsize=65536,wsize=65536,vers=3,tcp,_netdev 0 0"
+ - sudo su -c "echo $fstab >> /etc/fstab"
  - #[ wget, -nv, "https://raw.githubusercontent.com/Azure/sterling/${branchName}/config/installers/install-db2-from-storageaccount.sh", -O, /tmp/install-db2-from-storageaccount.sh ]
  - #chmod +x /tmp/install-db2-from-storageaccount.sh
  - #sudo -E /tmp/install-db2-from-storageaccount.sh

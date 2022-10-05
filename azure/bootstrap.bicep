@@ -120,6 +120,11 @@ param loadBalancerName string
 param db2lbprivateIP string
 param logAnalyticsWorkspaceName string
 
+param anfName string
+param db2DataSizeGB int
+param db2LogSizeGB int
+param subnetANFPrefix string
+
 @description('Do you want to deploy a Log Analytics Workspace as part of this deployment? (Y/N)?')
 @allowed([
   'Y'
@@ -168,6 +173,8 @@ module network 'networking.bicep' = {
     subnetDataName: subnetDataName
     location: location
     gatewayName: gatewayName
+    subnetANFName: '${anfName}-vnet'
+    subnetANFPrefix: subnetANFPrefix
   }
 }
 
@@ -265,6 +272,20 @@ module bastionHost 'bastion.bicep' = {
   ]
 }
 
+module anf 'netappfilesDB2.bicep' = if (installdb2vm == 'Y' || installdb2vm == 'y') {
+  name: 'netappfiles'
+  scope: resourceGroup()
+  params: {
+    anfName: anfName
+    location: location
+    db2vmprefix: db2VirtualMachineNamePrefix
+    dataVolGB: db2DataSizeGB
+    logVolGB: db2LogSizeGB
+    virtualNetworkName: vnetName
+    anfSubnetName: '${anfName}-vnet'
+  }
+}
+
 module loadbalancer 'loadbalancer.bicep' = if (installdb2vm == 'Y' || installdb2vm == 'y') {
   name: 'db2-lb'
   scope: resourceGroup()
@@ -298,6 +319,8 @@ module db2vm1 'db2.bicep' = if (installdb2vm == 'Y' || installdb2vm == 'y') {
     adminUsername: adminUsername
     adminPassword: adminPassword
     zone: '1'
+    anfAccountName: anfName
+    anfPoolName: '${db2VirtualMachineNamePrefix}-1'    
     //installerStorageAccountName: installerStorageAccountName
     //installerContainerName: installerContainerName
     //installerSASToken: installerSASToken
@@ -308,7 +331,8 @@ module db2vm1 'db2.bicep' = if (installdb2vm == 'Y' || installdb2vm == 'y') {
   }
   dependsOn: [
     network
-    //loadbalancer
+    loadbalancer
+    anf
   ]
 }
 
@@ -320,17 +344,19 @@ module db2vm2 'db2.bicep'= if (installdb2vm == 'Y' || installdb2vm == 'y') {
   params: {
     branchName: branchName
     location: location
-    networkInterfaceName: '${db2VirtualMachineNamePrefix}-1-nic'
-    networkSecurityGroupName: '${db2VirtualMachineNamePrefix}-1-nsg'
+    networkInterfaceName: '${db2VirtualMachineNamePrefix}-2-nic'
+    networkSecurityGroupName: '${db2VirtualMachineNamePrefix}-2-nsg'
     networkSecurityGroupRules:networkSecurityGroupRules
     subnetName: subnetVMName
     virtualNetworkName: vnetName
-    virtualMachineName: '${db2VirtualMachineNamePrefix}-1'
+    virtualMachineName: '${db2VirtualMachineNamePrefix}-2'
     osDiskType: osDiskType
     virtualMachineSize: db2VirtualMachineSize
     adminUsername: adminUsername
     adminPassword: adminPassword
-    zone: '1'
+    zone: '3'
+    anfAccountName: anfName
+    anfPoolName: '${db2VirtualMachineNamePrefix}-2'
     //installerStorageAccountName: installerStorageAccountName
     //installerContainerName: installerContainerName
     //installerSASToken: installerSASToken
@@ -341,7 +367,8 @@ module db2vm2 'db2.bicep'= if (installdb2vm == 'Y' || installdb2vm == 'y') {
   }
   dependsOn: [
     network
-    //loadbalancer
+    loadbalancer
+    anf
   ]
 }
 
@@ -382,17 +409,17 @@ module mqvm3 'mq.bicep' = if (installmqvm == 'Y' || installmqvm == 'y') {
   scope: resourceGroup()
   params: {
     location: location
-    networkInterfaceName: '${mqVirtualMachineName}-1-nic'
-    networkSecurityGroupName: '${mqVirtualMachineName}-1-nsg'
+    networkInterfaceName: '${mqVirtualMachineName}-2-nic'
+    networkSecurityGroupName: '${mqVirtualMachineName}-2-nsg'
     networkSecurityGroupRules:networkSecurityGroupRules
     subnetName: subnetWorkerNodeName
     virtualNetworkName: vnetName
-    virtualMachineName: '${mqVirtualMachineName}-1'
+    virtualMachineName: '${mqVirtualMachineName}-2'
     osDiskType: osDiskType
     virtualMachineSize: mqVirtualMachineSize
     adminUsername: adminUsername
     adminPassword: adminPassword
-    zone: '1'
+    zone: '3'
     //installerStorageAccountName: installerStorageAccountName
     //installerContainerName: installerContainerName
     //installerSASToken: installerSASToken

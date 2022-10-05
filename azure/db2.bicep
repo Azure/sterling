@@ -7,10 +7,13 @@ param virtualNetworkName string
 param virtualMachineName string
 param osDiskType string
 param virtualMachineSize string
+// param db2vmprefix string
 param adminUsername string
 @secure()
 param adminPassword string
 param zone string
+param anfAccountName string
+param anfPoolName string
 //param installerStorageAccountName string
 //param installerContainerName string
 //@secure()
@@ -20,6 +23,7 @@ param zone string
 param branchName string
 //param db2DatabaseName string
 //param db2SchemaName string
+var resourceGroupName = resourceGroup().name
 
 
 //var nsgId = resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', networkSecurityGroupName)
@@ -61,29 +65,29 @@ resource networkInterfaceName_resource 'Microsoft.Network/networkInterfaces@2018
   */
 }
 
-resource datadisk_resource 'Microsoft.Compute/disks@2021-12-01' = {
-  name: '${virtualMachineName}-db2data'
-  location: location
-  sku: {
-    name: 'Premium_LRS'
-  }
-  zones: [
-    zone
-  ]
-  properties: {
-    creationData: {
-        createOption: 'Empty'
-    }
-    diskSizeGB: 256
-    diskIOPSReadWrite: 1100
-    diskMBpsReadWrite: 125
-    encryption: {
-       type: 'EncryptionAtRestWithPlatformKey'
-    }
-    networkAccessPolicy: 'AllowAll'
-    publicNetworkAccess: 'Enabled'
-  }
-}
+//resource datadisk_resource 'Microsoft.Compute/disks@2021-12-01' = {
+//  name: '${virtualMachineName}-db2data'
+//  location: location
+//  sku: {
+//    name: 'Premium_LRS'
+//  }
+//  zones: [
+//    zone
+//  ]
+//  properties: {
+//    creationData: {
+//        createOption: 'Empty'
+//    }
+//    diskSizeGB: 256
+//    diskIOPSReadWrite: 1100
+//    diskMBpsReadWrite: 125
+//    encryption: {
+//       type: 'EncryptionAtRestWithPlatformKey'
+//    }
+//    networkAccessPolicy: 'AllowAll'
+//    publicNetworkAccess: 'Enabled'
+//  }
+//}
 
 /*
 resource networkSecurityGroupName_resource 'Microsoft.Network/networkSecurityGroups@2019-02-01' = {
@@ -103,18 +107,18 @@ resource virtualMachineName_resource 'Microsoft.Compute/virtualMachines@2021-03-
       vmSize: virtualMachineSize
     }
     storageProfile: {
-      dataDisks: [
-        {
-          createOption: 'Attach'
-          deleteOption: 'Detach'
-          lun: 0
-          managedDisk: {
-            id: datadisk_resource.id
-          }
-          toBeDetached: false
-          writeAcceleratorEnabled: false
-        }
-      ]
+      //dataDisks: [
+      //  {
+      //    createOption: 'Attach'
+      //    deleteOption: 'Detach'
+      //    lun: 0
+      //    managedDisk: {
+      //      id: datadisk_resource.id
+      //    }
+      //    toBeDetached: false
+      //    writeAcceleratorEnabled: false
+      //  }
+      //]
       osDisk: {
         createOption: 'FromImage'
         managedDisk: {
