@@ -98,7 +98,7 @@
             "value": "omsvmdb2"
         },
         "db2VirtualMachineSize": {
-            "value": "Standard_E8s_v4"
+            "value": "Standard_E64ds_v4"
         },
         "db2InstallerArchiveName" : {
             "value": "v11.5.7_linuxx64_server_dec.tar.gz"
