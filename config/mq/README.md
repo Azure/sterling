@@ -32,12 +32,12 @@ Once you have your address space and/or subnet configured you can proceed. The i
 
 ### Deploy AKS
 
-To deploy your cluster, you can either do so through the Azure Portal, or use the provided sample bicep file to quickly stand up your cluster. The provided bicep and parameters file contains everything you should need to get started, but you can certainly customize the template for your needs (such as initial node pool sizes, VM sizes, etc).
+To deploy your cluster, you can either do so through the Azure Portal, or use the provided sample bicep file to quickly stand up your cluster. There is a provided bicep file that contains everything you should need to get started, but you can certainly customize the template for your needs (such as initial node pool sizes, VM sizes, etc).
 
-To deploy the provided example, simply use the Azure CLI's ```az deploy``` command:
+To deploy the provided example, simply use the Azure CLI's ```az deploy``` command from the repository directory:
 
 ```bash
-az deployment group create --resource-group <resource group name> --name MQAKS --template-file ./aks-mq.bicep
+az deployment group create --resource-group <resource group name> --name MQAKS --template-file ./azure/aks.bicep
 ```
 
 You will be prompted for values for things like the cluter name, location, and more. When the deployment finishes, you can get the cluster credentials added to your local ```.kubecfg``` by using the following commands:
