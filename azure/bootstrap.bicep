@@ -325,7 +325,7 @@ module db2vm1 'db2.bicep' = if (installdb2vm == 'Y' || installdb2vm == 'y') {
     //installerContainerName: installerContainerName
     //installerSASToken: installerSASToken
     //db2InstallerArchiveName: db2InstallerArchiveName
-    //loadBalancerName: loadBalancerName
+    loadBalancerName: loadBalancerName
     //db2DatabaseName: db2DatabaseName
     //db2SchemaName: db2SchemaName
   }
@@ -361,7 +361,7 @@ module db2vm2 'db2.bicep'= if (installdb2vm == 'Y' || installdb2vm == 'y') {
     //installerContainerName: installerContainerName
     //installerSASToken: installerSASToken
     //db2InstallerArchiveName: db2InstallerArchiveName
-    //loadBalancerName: loadBalancerName
+    loadBalancerName: loadBalancerName
     //db2DatabaseName: db2DatabaseName
     //db2SchemaName: db2SchemaName
   }
