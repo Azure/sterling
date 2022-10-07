@@ -350,3 +350,9 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+
+# Local Development Resources/Artifacts
+.DS_Store
+azure/bootstrap-local.bicep
+oms-deployments/omenvironment-pgsql.yml
+oms-deployments/omenvironment.yml
