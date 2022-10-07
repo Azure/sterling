@@ -20,7 +20,7 @@ param deployLogAnalytics string
 // Some variables to grab the details we need
 var vnetId = resourceId(resourceGroup().name, 'Microsoft.Network/virtualNetworks', vnetName)
 var subnetReference = '${vnetId}/subnets/${subnetEndpointsName}'
-var logAnalyticsId = resourceId(resourceGroup().name, 'insights-integration/providers/Microsoft.OperationalInsights/workspaces', logAnalyticsWorkSpaceName)
+//var logAnalyticsId = resourceId(resourceGroup().name, 'insights-integration/providers/Microsoft.OperationalInsights/workspaces', logAnalyticsWorkSpaceName)
 
 // More performant and lower latency storage for databases, Kafka and 
 // other resources.
@@ -224,6 +224,6 @@ resource storageLogAnalyticsSetting 'Microsoft.Insights/diagnosticSettings@2021-
         enabled: true
       }
     ]
-    workspaceId: logAnalyticsId
+    workspaceId: resourceId(resourceGroup().name, 'insights-integration/providers/Microsoft.OperationalInsights/workspaces', logAnalyticsWorkSpaceName)
   }
 }

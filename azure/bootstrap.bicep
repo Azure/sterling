@@ -272,7 +272,7 @@ module bastionHost 'bastion.bicep' = {
   ]
 }
 
-module anf 'netappfilesDB2.bicep' = if (installdb2vm == 'Y' || installdb2vm == 'y') {
+module anf 'netappfiles.bicep' = if (installdb2vm == 'Y' || installdb2vm == 'y') {
   name: 'netappfiles'
   scope: resourceGroup()
   params: {
@@ -284,6 +284,9 @@ module anf 'netappfilesDB2.bicep' = if (installdb2vm == 'Y' || installdb2vm == '
     virtualNetworkName: vnetName
     anfSubnetName: '${anfName}-vnet'
   }
+  dependsOn: [
+    network
+  ]
 }
 
 module loadbalancer 'loadbalancer.bicep' = if (installdb2vm == 'Y' || installdb2vm == 'y') {
