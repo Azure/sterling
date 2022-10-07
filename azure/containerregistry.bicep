@@ -8,7 +8,7 @@ param logAnalyticsWorkSpaceName string
 
 var vnetId = resourceId(resourceGroup().name, 'Microsoft.Network/virtualNetworks', vnetName)
 var subnetReference = '${vnetId}/subnets/${subnetEndpointsName}'
-var logAnalyticsId = resourceId(resourceGroup().name, 'insights-integration/providers/Microsoft.OperationalInsights/workspaces', logAnalyticsWorkSpaceName)
+//var logAnalyticsId = resourceId(resourceGroup().name, 'insights-integration/providers/Microsoft.OperationalInsights/workspaces', logAnalyticsWorkSpaceName)
 
 resource registry_resource 'Microsoft.ContainerRegistry/registries@2021-09-01' = {
   name: registryname
@@ -97,6 +97,6 @@ resource pgLogAnalyticsSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01
         enabled: true
       }
     ]
-    workspaceId: logAnalyticsId
+    workspaceId: resourceId(resourceGroup().name, 'insights-integration/providers/Microsoft.OperationalInsights/workspaces', logAnalyticsWorkSpaceName)
   }
 }

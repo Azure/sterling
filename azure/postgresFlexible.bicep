@@ -16,7 +16,7 @@ param logAnalyticsWorkSpaceName string
 
 var vnetId = resourceId(resourceGroup().name, 'Microsoft.Network/virtualNetworks', virtualNetworkName)
 var subnetReference = '${vnetId}/subnets/${subnetDataName}'
-var logAnalyticsId = resourceId(resourceGroup().name, 'insights-integration/providers/Microsoft.OperationalInsights/workspaces', logAnalyticsWorkSpaceName)
+//var logAnalyticsId = resourceId(resourceGroup().name, 'insights-integration/providers/Microsoft.OperationalInsights/workspaces', logAnalyticsWorkSpaceName)
 
 resource postgresprivatednszone 'Microsoft.Network/privateDnsZones@2020-06-01' = {
   name: 'omspostgres.private.postgres.database.azure.com'
@@ -84,6 +84,6 @@ resource pgLogAnalyticsSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01
         enabled: true
       }
     ]
-    workspaceId: logAnalyticsId
+    workspaceId: resourceId(resourceGroup().name, 'insights-integration/providers/Microsoft.OperationalInsights/workspaces', logAnalyticsWorkSpaceName)
   }
 }

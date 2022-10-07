@@ -98,26 +98,14 @@
             "value": "omsvmdb2"
         },
         "db2VirtualMachineSize": {
-            "value": "Standard_E64ds_v4"
+            "value": "Standard_E16ds_v4"
         },
-        "db2InstallerArchiveName" : {
-            "value": "v11.5.7_linuxx64_server_dec.tar.gz"
-        },
-        "db2DatabaseName": {
-            "value" : "omsDB2"
-        },
-        "db2SchemaName": {
-            "value": "oms"
-        },                
         "mqVirtualMachineName": {
             "value": "omsvmmq"
         },
         "mqVirtualMachineSize": {
             "value": "Standard_B2ms"
         },
-        "mqInstallerArchiveName" : {
-            "value": "IBM_MQ_9.2.0_LINUX_X86-64_TRIAL.tar.gz"
-        },                
         "storageNamePrefix": {
             "value": "omsfiles"
         },
@@ -134,7 +122,7 @@
             "value": "omsvmgateway"
         },
         "db2lbprivateIP":{
-            "value": "10.0.4.100"
+            "value": "10.0.5.50"
         },
         "registryName":{
             "value": "omsacr01"
