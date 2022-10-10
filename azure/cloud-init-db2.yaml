@@ -13,7 +13,7 @@ runcmd:
  - echo '{"subscriptionId":"${subscriptionID}","clientId":"${clientID}","clientSecret":"${clientSecret}","tenantId":"${tenantID}","resourceGroup":"${resourceGroupName}"}' > ~/.azure/osServicePrincipal.json
  - sudo yum -y install libstdc++.i686 libXmu.i686 libacl.i686 ncurses-libs.i686 ncurses-compat-libs.i686 motif.i686 xterm libmount.i686 libgcc.i686 libnsl.i686 libXdmcp.i686 libxcrypt.i686 libXdmcp libnsl psmisc elfutils-libelf-devel make pam-devel
  - sudo yum -y install ksh mksh
- - sudo yum -y jq
+ - sudo yum -y install jq
  - sudo yum -y install java-1.8.0-openjdk
  - sudo dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
  - sudo dnf install -y python3-dnf-plugin-versionlock
