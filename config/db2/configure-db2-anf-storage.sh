@@ -15,12 +15,12 @@ az login --service-principal -u $(cat ~/.azure/osServicePrincipal.json | jq -r .
 
 #Make mount folder and get anf IP/volume mapping
 mkdir /db2data
-export data_mount_ip = "$(az netappfiles volume list -g $RESOURCE_GROUP --account-name $ANF_ACCOUNT_NAME --pool-name $ANF_POOL_NAME -o json | jq -r '.[] | select (.name | contains(env.ANF_POOL_NAME) and contains("data")).mountTargets[0].ipAddress')"
-export data_mount_vol_name = "$(az netappfiles volume list -g $RESOURCE_GROUP --account-name $ANF_ACCOUNT_NAME --pool-name $NF_POOL_NAME -o json | jq -r '.[] | select (.name | contains(env.ANF_POOL_NAME) and contains("data")).creationToken')"
+export data_mount_ip="$(az netappfiles volume list -g $RESOURCE_GROUP --account-name $ANF_ACCOUNT_NAME --pool-name $ANF_POOL_NAME -o json | jq -r '.[] | select (.name | contains(env.ANF_POOL_NAME) and contains("data")).mountTargets[0].ipAddress')"
+export data_mount_vol_name="$(az netappfiles volume list -g $RESOURCE_GROUP --account-name $ANF_ACCOUNT_NAME --pool-name $NF_POOL_NAME -o json | jq -r '.[] | select (.name | contains(env.ANF_POOL_NAME) and contains("data")).creationToken')"
 fstab="$data_mount_ip:/$data_mount_vol_name /db2data nfs bg,rw,hard,noatime,nolock,rsize=65536,wsize=65536,vers=3,tcp,_netdev 0 0"
 sudo su -c "echo $fstab >> /etc/fstab"
 mkdir /db2log
-log_mount_ip = "$(az netappfiles volume list -g $RESOURCE_GROUP --account-name $ANF_ACCOUNT_NAME --pool-name $ANF_POOL_NAME -o json | jq -r '.[] | select (.name | contains(env.ANF_POOL_NAME) and contains("log")).mountTargets[0].ipAddress')"
-log_mount_vol_name = "$(az netappfiles volume list -g $RESOURCE_GROUP --account-name $ANF_ACCOUNT_NAME --pool-name $NF_POOL_NAME -o json | jq -r '.[] | select (.name | contains(env.ANF_POOL_NAME) and contains("log")).creationToken')"
+log_mount_ip="$(az netappfiles volume list -g $RESOURCE_GROUP --account-name $ANF_ACCOUNT_NAME --pool-name $ANF_POOL_NAME -o json | jq -r '.[] | select (.name | contains(env.ANF_POOL_NAME) and contains("log")).mountTargets[0].ipAddress')"
+log_mount_vol_name="$(az netappfiles volume list -g $RESOURCE_GROUP --account-name $ANF_ACCOUNT_NAME --pool-name $NF_POOL_NAME -o json | jq -r '.[] | select (.name | contains(env.ANF_POOL_NAME) and contains("log")).creationToken')"
 fstab="$log_mount_ip:/$log_mount_vol_name /db2log nfs bg,rw,hard,noatime,nolock,rsize=65536,wsize=65536,vers=3,tcp,_netdev 0 0"
 sudo su -c "echo $fstab >> /etc/fstab"
