@@ -19,4 +19,4 @@ export data_mount_ip="$(az netappfiles volume list -g $RESOURCE_GROUP --account-
 export data_mount_vol_name="$(az netappfiles volume list -g $RESOURCE_GROUP --account-name $ANF_ACCOUNT_NAME --pool-name $ANF_POOL_NAME -o json | jq -r '.[] | select (.name | contains(env.ANF_POOL_NAME) and contains("data")).creationToken')"
 fstab="$data_mount_ip:/$data_mount_vol_name /db2data nfs bg,rw,hard,noatime,nolock,rsize=65536,wsize=65536,vers=4.1,tcp,_netdev 0 0"
 sudo su -c "echo $fstab >> /etc/fstab"
-
+sudo mount -a
