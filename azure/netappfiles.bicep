@@ -2,12 +2,12 @@ param anfName string
 param location string
 param db2vmprefix string
 param dataVolGB int
-param logVolGB int
+//param logVolGB int
 param virtualNetworkName string
 param anfSubnetName string
 
 var dataVolBytes = dataVolGB * 1073741824
-var logVolBytes = logVolGB * 1073741824
+//var logVolBytes = logVolGB * 1073741824
 var vnetId = resourceId(resourceGroup().name, 'Microsoft.Network/virtualNetworks', virtualNetworkName)
 var subnetReference = '${vnetId}/subnets/${anfSubnetName}'
 
