@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "branchName": {
-            "value": "anfurgiu/init"
+            "value": "main"
         },
         "omsNamespace":{
             "value": "oms"
@@ -79,6 +79,12 @@
         "subnetDataPrefix": {
             "value": "10.0.6.0/26"
         },
+        "subnetANFName:" : {
+            "value" : "anf"
+        },
+        "subnetANFPrefix": {
+            "value": "10.0.6.0/26"
+        },
         "osDiskType": {
             "value": "Premium_LRS"
         },
@@ -143,7 +149,7 @@
             "value": "13"
         },
         "postgreSQLVMClass": {
-            "value": "Standard_E2ds_v4"
+            "value": "Standard_E16ds_v4"
         },
         "postgreSQLEdition": {
             "value": "MemoryOptimized"
@@ -156,12 +162,6 @@
         },
         "db2DataSizeGB" : {
             "value" : 1000
-        },
-        "db2LogSizeGB" : {
-            "value" : 250
-        },
-        "subnetANFPrefix" : {
-            "value": "10.0.7.0/24"
         }
     }
 }
