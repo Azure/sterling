@@ -11,6 +11,7 @@ param adminUsername string
 @secure()
 param adminPassword string
 param zone string
+param branchName string
 
 
 
