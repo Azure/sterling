@@ -7,7 +7,15 @@ In this folder, you can find resources that can help you get up to speed quickly
 
 ## Updating cloud init file(s) (Optional)
 
-There are a series of cloud-init files in this repository that are used during different deployment steps to "stage" a virtual machine with different software packages, custom installers, and other steps. If you'd like to modify a particular VMs cloud init script, simply modify the commands in the relevant yaml file that is referenced in each bicep template. The results will be loaded at deployment time, and are "asynchronous" (meaning that the scripts will run after the resources are created, but any subsequent deployments do not wait for these post-creation scripts to run).
+There are a series of cloud-init files in this repository that are used during different deployment steps to "stage" a virtual machine with different software packages, custom installers, and other steps. If you'd like to modify a particular VMs cloud init script, simply modify the commands in the relevant yaml file that corresponds to the relevant vm template.
+
+Once you finish your changes, you'll need to put the resulting data into an inline string in the template. You can convert your file to the relevant string by using the following command:
+
+```bash
+awk -v ORS='\\n' '1' <filename>.yaml
+```
+
+This will output the resulting string your console; place this in the relevant ```var cloudInitData = ''``` line in your template. **Note**: Be mindful of escaping single quotes in your strings!
 
 ### More Deployment Options
 
