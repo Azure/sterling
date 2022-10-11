@@ -4,29 +4,24 @@ runcmd:
  - export ADMIN_USERNAME=${adminUsername}
  - export DB2_ADMIN_PASSWORD=${adminPassword}
  - export DB2_FENCED_PASSWORD=${adminPassword}
- - #export INSTALLER_STORAGEACCOUNT_NAME=${installerStorageAccountName}
- - #export INSTALLER_STORAGECONTAINER_NAME=${installerContainerName}
- - #export INSTALLER_SAS_TOKEN="${installerSASToken}"
- - #export DB2_INSTALLER_ARCHIVE_FILENAME=${db2InstallerArchiveName}
- - #export DB2_DATABASE_NAME=${db2DatabaseName}
- - #export DB2_SCHEMA_NAME=${db2SchemaName}
+ - export RESOURCE_GROUP=${resourceGroupName}
+ - export VM_NAME=${virtualMachineName}
+ - export ANF_ACCOUNT_NAME=${anfAccountName}
+ - export ANF_POOL_NAME=${anfPoolName}
  - export BRANCH_NAME=${branchName}
+ - mkdir ~/.azure/
+ - echo '{"subscriptionId":"${subscriptionID}","clientId":"${clientID}","clientSecret":"${clientSecret}","tenantId":"${tenantID}","resourceGroup":"${resourceGroupName}"}' > ~/.azure/osServicePrincipal.json
  - sudo yum -y install libstdc++.i686 libXmu.i686 libacl.i686 ncurses-libs.i686 ncurses-compat-libs.i686 motif.i686 xterm libmount.i686 libgcc.i686 libnsl.i686 libXdmcp.i686 libxcrypt.i686 libXdmcp libnsl psmisc elfutils-libelf-devel make pam-devel
  - sudo yum -y install ksh mksh
+ - sudo yum -y install jq
  - sudo yum -y install java-1.8.0-openjdk
  - sudo dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
  - sudo dnf install -y python3-dnf-plugin-versionlock
+ - sudo yum install -y nfs-utils
  - sudo wget https://aka.ms/downloadazcopy-v10-linux -O /tmp/azcopy.tar.gz
  - sudo tar -xvf /tmp/azcopy.tar.gz -C /tmp
  - sudo mv /tmp/azcopy_linux* /tmp/azcopy
  - sudo sed -i 's/enforcing/disabled/g' /etc/selinux/config /etc/selinux/config
- - sudo parted /dev/sdb --script mklabel gpt mkpart xfspart xfs 0% 100%
- - sudo mkfs.xfs /dev/sdb1
- - sudo partprobe /dev/sdb1 
- - sudo mkdir /db2data
- - sudo mount /dev/sdb1 /db2data
- - FSTAB="$(blkid | grep sdb1 | awk '$0=$2' | sed 's/"//g')   /db2data   xfs   defaults,nofail   1   2"
- - sudo su -c "echo $FSTAB >> /etc/fstab"
- - #[ wget, -nv, "https://raw.githubusercontent.com/Azure/sterling/${branchName}/config/installers/install-db2-from-storageaccount.sh", -O, /tmp/install-db2-from-storageaccount.sh ]
- - #chmod +x /tmp/install-db2-from-storageaccount.sh
- - #sudo -E /tmp/install-db2-from-storageaccount.sh
+ - [ wget, -nv, "https://raw.githubusercontent.com/Azure/sterling/${branchName}/config/db2/configure-db2-anf-storage.sh", -O, /tmp/configure-db2-anf-storage.sh ]
+ - chmod +x /tmp/configure-db2-anf-storage.sh.sh
+ - sudo -E /tmp/configure-db2-anf-storage.sh.sh

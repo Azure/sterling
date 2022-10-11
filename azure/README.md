@@ -7,7 +7,15 @@ In this folder, you can find resources that can help you get up to speed quickly
 
 ## Updating cloud init file(s) (Optional)
 
-There are a series of cloud-init files in this repository that are used during different deployment steps to "stage" a virtual machine with different software packages, custom installers, and other steps. If you'd like to modify a particular VMs cloud init script, simply modify the commands in the relevant yaml file that is referenced in each bicep template. The results will be loaded at deployment time, and are "asynchronous" (meaning that the scripts will run after the resources are created, but any subsequent deployments do not wait for these post-creation scripts to run).
+There are a series of cloud-init files in this repository that are used during different deployment steps to "stage" a virtual machine with different software packages, custom installers, and other steps. If you'd like to modify a particular VMs cloud init script, simply modify the commands in the relevant yaml file that corresponds to the relevant vm template.
+
+Once you finish your changes, you'll need to put the resulting data into an inline string in the template. You can convert your file to the relevant string by using the following command:
+
+```bash
+awk -v ORS='\\n' '1' <filename>.yaml
+```
+
+This will output the resulting string your console; place this in the relevant ```var cloudInitData = ''``` line in your template. **Note**: Be mindful of escaping single quotes in your strings!
 
 ### More Deployment Options
 
@@ -15,6 +23,16 @@ In addition to this bootstrap resource, note that configurations for message bro
 
 - [Using AKS for Native HA IBM MQ](../config/mq/README.md)
 - [Using ActiveMQ in ARO or Azure Container Instances](../config/activemq/README.md)
+
+### Monitoring (via Log Analytics)
+
+This deployment will prompt you as to whether to add a log analytics workspace to your deployment. If you choose to do so, you will get a new Log Analytics workspace in your target resource group and some of the deployed resources will have their logs and metrics pre-configured to be sent there:
+
+* Azure Premium Files Storage
+* Azure Database for PosgreSQL - Flexible Server
+* Azure Container Registry
+
+Any Azure Virtual Machines deployed will NOT be configured to be sent to the workspace, as they may require an agent to be installed on the VM (which is not currently part of this template). You should consider adding these where appropriate (or modifying this deployment to include them).
 
 ## Preparing to deploy
 
