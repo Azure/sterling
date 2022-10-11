@@ -73,7 +73,7 @@ az role assignment create --assignee "<managed identity object ID>" --role "Cont
 For persistent storage, IBM MQ requires NFS-backed shared storage. For this reason, it is reccomended to use Azure Premium File storage with NFS shares in your cluster. To enable this, you must first create an NFS storage class using the ```file.csi.azure.com``` provisioner. A sample .yaml file is available in this repository (```azurefile-premium-nfs-storagecass.yaml```) to help you.
 
 ```bash
-kubectl apply -f ./azurefile-premium-nfs-storagecass.yaml
+kubectl apply -f ./azurefile-premium-nfs-storageclass.yaml
 ```
 
 ### Create Config Maps / Secrets
