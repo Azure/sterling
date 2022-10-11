@@ -37,7 +37,7 @@ This repository provides deployument guidance and best practices for running IBM
     - [Create Required Database User & Assign Permissions](#create-required-database-user--assign-permissions)
     - [Update Maximum Connections to Azure PostgreSQL Database (if applicable)](#update-maximum-connections-to-azure-postgresql-database-if-applicable)
     - [Create OMS Secret](#create-oms-secret)
-    - [Create MQ Bindings ConfigMap](#create-mq-bindings-configmap)
+    - [Create MQ Bindings ConfigMap (if needed)](#create-mq-bindings-configmap-if-needed)
     - [Create Required PVC(s)](#create-required-pvcs)
     - [Create RBAC Role](#create-rbac-role)
     - [Pushing (and pulling) your containers to an Azure Container Registry](#pushing-and-pulling-your-containers-to-an-azure-container-registry)
@@ -441,7 +441,7 @@ oc create -f /tmp/oms-secret-updated.yaml
 rm /tmp/oms-secret-updated
 ```
 
-### Create MQ Bindings ConfigMap
+### Create MQ Bindings ConfigMap (if needed)
 
 Users of IBM MQ for their messaging platform will need to create a configuration map in their OMS namespace that contains queue binding information. After you have configured your queue managers and created your JMS bindings, you need to obtain a copy of your ```.bindings``` file. Next, you'll create your configuration map with the following command:
 
