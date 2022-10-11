@@ -14,9 +14,13 @@ param vnetName string
 
 param mqsharename string
 
+param logAnalyticsWorkSpaceName string
+param deployLogAnalytics string
+
 // Some variables to grab the details we need
 var vnetId = resourceId(resourceGroup().name, 'Microsoft.Network/virtualNetworks', vnetName)
 var subnetReference = '${vnetId}/subnets/${subnetEndpointsName}'
+//var logAnalyticsId = resourceId(resourceGroup().name, 'insights-integration/providers/Microsoft.OperationalInsights/workspaces', logAnalyticsWorkSpaceName)
 
 // More performant and lower latency storage for databases, Kafka and 
 // other resources.
@@ -190,5 +194,36 @@ resource mq_file_share 'Microsoft.Storage/storageAccounts/fileServices/shares@20
     metadata: {}
     rootSquash: 'NoRootSquash'
     shareQuota: 100
+  }
+}
+
+
+resource storageLogAnalyticsSetting 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = if (deployLogAnalytics  == 'Y' || deployLogAnalytics  == 'y') {
+  name: storage_premium.name
+  scope: storage_premium 
+  properties: {
+    logAnalyticsDestinationType: 'AzureDiagnostics'
+    logs: [
+      {
+        category: 'StorageDelete'
+        enabled: true
+      }
+      {
+        category: 'StorageRead'
+        enabled: true
+      }
+      {
+        category: 'StorageWrite'
+        enabled: true
+      }
+
+    ]
+    metrics: [
+      {
+        category: 'Transaction'
+        enabled: true
+      }
+    ]
+    workspaceId: resourceId(resourceGroup().name, 'insights-integration/providers/Microsoft.OperationalInsights/workspaces', logAnalyticsWorkSpaceName)
   }
 }

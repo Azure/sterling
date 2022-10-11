@@ -11,13 +11,14 @@ param adminUsername string
 @secure()
 param adminPassword string
 param zone string
+param branchName string
 
 
 
 var nsgId = resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', networkSecurityGroupName)
 var vnetId = resourceId(resourceGroup().name, 'Microsoft.Network/virtualNetworks', virtualNetworkName)
 var subnetRef = '${vnetId}/subnets/${subnetName}'
-//var cloudInitData = '#cloud-config\n\nruncmd:\n - sudo apt-get update -y \n - sudo apt-get install -y ca-certificates curl gnupg lsb-release\n - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg\n - echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null\n - sudo apt-get update -y\n - sudo apt-get -y install docker-ce docker-ce-cli containerd.io\n - curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3\n - chmod 700 get_helm.sh\n - ./get_helm.sh\n - sudo usermod -aG docker $USER\n'
+var cloudInitData = '#cloud-config\n\nruncmd:\n - sudo apt-get update -y \n - sudo apt-get install -y ca-certificates curl gnupg lsb-release\n - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg\n - echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null\n - sudo apt-get update -y\n - sudo apt-get -y install docker-ce docker-ce-cli containerd.io\n - curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3\n - chmod 700 get_helm.sh\n - ./get_helm.sh\n - sudo usermod -aG docker $USER\n - mkdir /tmp/OCPInstall\n - [ wget, -nv, "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-linux.tar.gz", -O, /tmp/OCPInstall/openshift-client-linux.tar.gz ]\n - tar xvf /tmp/OCPInstall/openshift-client-linux.tar.gz -C /tmp/OCPInstall\n - sudo cp /tmp/OCPInstall/oc /usr/bin'
 
 
 resource networkInterfaceName_resource 'Microsoft.Network/networkInterfaces@2018-10-01' = {
@@ -96,8 +97,8 @@ resource virtualMachineName_resource 'Microsoft.Compute/virtualMachines@2021-03-
       computerName: virtualMachineName
       adminUsername: adminUsername
       adminPassword: adminPassword
-      //customData: base64(cloudInitData)
-      customData: base64(loadTextContent('cloud-init-jumpbox.yaml'))
+      customData: base64(cloudInitData)
+      //customData: base64(loadTextContent('cloud-init-jumpbox.yaml'))
       linuxConfiguration: {
         disablePasswordAuthentication: false
       }

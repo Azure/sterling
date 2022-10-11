@@ -72,17 +72,10 @@ param subnetVMPrefix string
 param subnetDataName string
 @description('Data subnet address space')
 param subnetDataPrefix string
-//@description('If installing MQ as part of this deployment, provide the filename of the MQ tar.gz file')
-//param mqInstallerArchiveName string
-//@description('If installing DB2 as part of this deployment, provide the filename of the DB2 tar.gz file')
-//param db2InstallerArchiveName string
-//@description('If installing DB2 and/or MQ as part of this deployment, provide the the storage account name where the installers can be downloaded from')
-//param installerStorageAccountName string
-//@description('If installing DB2 and/or MQ as part of this deployment, provide the the storage account container name where the installers can be downloaded from')
-//param installerContainerName string
-//@description('If installing DB2 and/or MQ as part of this deployment, provide the the a SAS token with read and list permissions to the container with the binaries')
-//@secure()
-//param installerSASToken string
+@description('Azure NetApp Files Subnet Name')
+param subnetANFName string
+@description('Azure NetApp Files Subnet Address Space')
+param subnetANFPrefix string
 @description('The name of the Azure Premium File Share to create for your MQ instance')
 param mqsharename string
 @description('The name of the outbound NAT gateway for your virtual machines')
@@ -107,19 +100,30 @@ param devVMName string
 param registryName string
 @description('Which OMS Version (image) to deploy')
 param whichOMS string
-//@description('If installing DB2, the name of the empty database to be created')
-//param db2DatabaseName string
-//@description('If installing DB2, name of the schema to be created in your new, empty database')
-//param db2SchemaName string
 @description('Your IBM Entitlement Key')
 param ibmEntitlementKey string
 @description('Storage Account Name Prefix')
 param storageNamePrefix string
+@description('Azure NetApp Files Account Name')
+param anfName string
+@description('Azure NetApp Files Data Volume Size (GB)')
+param db2DataSizeGB int
 
 param loadBalancerName string
 param db2lbprivateIP string
+param logAnalyticsWorkspaceName string
 
-@description('Do you want to create a VMs for DB2? (Y/N)?')
+
+
+@description('Do you want to deploy a Log Analytics Workspace as part of this deployment? (Y/N)?')
+@allowed([
+  'Y'
+  'N'
+])
+param deployLogAnalytics string
+
+
+@description('Do you want to create VMs and Azure NetApp Files for DB2? (Y/N)?')
 @allowed([
   'Y'
   'N'
@@ -159,6 +163,8 @@ module network 'networking.bicep' = {
     subnetDataName: subnetDataName
     location: location
     gatewayName: gatewayName
+    subnetANFName: subnetANFName
+    subnetANFPrefix: subnetANFPrefix
   }
 }
 
@@ -199,6 +205,8 @@ module postgreSQL 'postgresFlexible.bicep' = if (installPostgres == 'Y' || insta
     adminPassword: adminPassword
     subnetDataName: subnetDataName
     virtualNetworkName: vnetName
+    deployLogAnalytics: deployLogAnalytics
+    logAnalyticsWorkSpaceName: logAnalyticsWorkspaceName
   }
   dependsOn:[
     network
@@ -213,6 +221,8 @@ module containerRegistery 'containerregistry.bicep' = {
     location: location
     registryname: registryName
     vnetName: vnetName
+    deployLogAnalytics: deployLogAnalytics    
+    logAnalyticsWorkSpaceName: logAnalyticsWorkspaceName
   }
   dependsOn:[
     network
@@ -228,6 +238,8 @@ module premiumStorage 'storage.bicep' = {
     vnetName: vnetName
     location: location
     mqsharename: mqsharename
+    deployLogAnalytics: deployLogAnalytics    
+    logAnalyticsWorkSpaceName: logAnalyticsWorkspaceName
   }
   dependsOn:[
     network
@@ -246,6 +258,22 @@ module bastionHost 'bastion.bicep' = {
    location: location
   }
   dependsOn:[
+    network
+  ]
+}
+
+module anf 'netappfiles.bicep' = if (installdb2vm == 'Y' || installdb2vm == 'y') {
+  name: 'netappfiles'
+  scope: resourceGroup()
+  params: {
+    anfName: anfName
+    location: location
+    db2vmprefix: db2VirtualMachineNamePrefix
+    dataVolGB: db2DataSizeGB
+    virtualNetworkName: vnetName
+    anfSubnetName: '${anfName}-vnet'
+  }
+  dependsOn: [
     network
   ]
 }
@@ -283,17 +311,16 @@ module db2vm1 'db2.bicep' = if (installdb2vm == 'Y' || installdb2vm == 'y') {
     adminUsername: adminUsername
     adminPassword: adminPassword
     zone: '1'
-    //installerStorageAccountName: installerStorageAccountName
-    //installerContainerName: installerContainerName
-    //installerSASToken: installerSASToken
-    //db2InstallerArchiveName: db2InstallerArchiveName
-    //loadBalancerName: loadBalancerName
-    //db2DatabaseName: db2DatabaseName
-    //db2SchemaName: db2SchemaName
+    anfAccountName: anfName
+    anfPoolName: '${db2VirtualMachineNamePrefix}-1'    
+    loadBalancerName: loadBalancerName
+    clientID: clientID
+    clientSecret: clientSecret    
   }
   dependsOn: [
     network
-    //loadbalancer
+    loadbalancer
+    anf
   ]
 }
 
@@ -305,28 +332,27 @@ module db2vm2 'db2.bicep'= if (installdb2vm == 'Y' || installdb2vm == 'y') {
   params: {
     branchName: branchName
     location: location
-    networkInterfaceName: '${db2VirtualMachineNamePrefix}-1-nic'
-    networkSecurityGroupName: '${db2VirtualMachineNamePrefix}-1-nsg'
+    networkInterfaceName: '${db2VirtualMachineNamePrefix}-2-nic'
+    networkSecurityGroupName: '${db2VirtualMachineNamePrefix}-2-nsg'
     networkSecurityGroupRules:networkSecurityGroupRules
     subnetName: subnetVMName
     virtualNetworkName: vnetName
-    virtualMachineName: '${db2VirtualMachineNamePrefix}-1'
+    virtualMachineName: '${db2VirtualMachineNamePrefix}-2'
     osDiskType: osDiskType
     virtualMachineSize: db2VirtualMachineSize
     adminUsername: adminUsername
     adminPassword: adminPassword
-    zone: '1'
-    //installerStorageAccountName: installerStorageAccountName
-    //installerContainerName: installerContainerName
-    //installerSASToken: installerSASToken
-    //db2InstallerArchiveName: db2InstallerArchiveName
-    //loadBalancerName: loadBalancerName
-    //db2DatabaseName: db2DatabaseName
-    //db2SchemaName: db2SchemaName
+    zone: '3'
+    anfAccountName: anfName
+    anfPoolName: '${db2VirtualMachineNamePrefix}-2'
+    loadBalancerName: loadBalancerName
+    clientID: clientID
+    clientSecret: clientSecret
   }
   dependsOn: [
     network
-    //loadbalancer
+    loadbalancer
+    anf
   ]
 }
 
@@ -348,12 +374,8 @@ module mqvm1 'mq.bicep' = if (installmqvm == 'Y' || installmqvm == 'y') {
     adminUsername: adminUsername
     adminPassword: adminPassword
     zone: '1'
-    //installerStorageAccountName: installerStorageAccountName
-    //installerContainerName: installerContainerName
-    //installerSASToken: installerSASToken
     storageNamePrefix: storageNamePrefix
     mqsharename: mqsharename    
-    //mqInstallerArchiveName: mqInstallerArchiveName
     branchName: branchName
   }
   dependsOn: [
@@ -367,23 +389,19 @@ module mqvm3 'mq.bicep' = if (installmqvm == 'Y' || installmqvm == 'y') {
   scope: resourceGroup()
   params: {
     location: location
-    networkInterfaceName: '${mqVirtualMachineName}-1-nic'
-    networkSecurityGroupName: '${mqVirtualMachineName}-1-nsg'
+    networkInterfaceName: '${mqVirtualMachineName}-2-nic'
+    networkSecurityGroupName: '${mqVirtualMachineName}-2-nsg'
     networkSecurityGroupRules:networkSecurityGroupRules
     subnetName: subnetWorkerNodeName
     virtualNetworkName: vnetName
-    virtualMachineName: '${mqVirtualMachineName}-1'
+    virtualMachineName: '${mqVirtualMachineName}-2'
     osDiskType: osDiskType
     virtualMachineSize: mqVirtualMachineSize
     adminUsername: adminUsername
     adminPassword: adminPassword
-    zone: '1'
-    //installerStorageAccountName: installerStorageAccountName
-    //installerContainerName: installerContainerName
-    //installerSASToken: installerSASToken
+    zone: '3'
     storageNamePrefix: storageNamePrefix
     mqsharename: mqsharename    
-    //mqInstallerArchiveName: mqInstallerArchiveName
     branchName: branchName
   }
   dependsOn: [
@@ -408,6 +426,7 @@ module devvm 'devvm.bicep' = {
     adminUsername: adminUsername
     adminPassword: adminPassword
     zone: '1'
+    branchName: branchName
   }
   dependsOn: [
     network

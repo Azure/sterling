@@ -21,6 +21,8 @@ This ADF pipeline is provided for demonstration and testing purposes only; you *
 
 Before you begin, you need to make sure that you have a source DB2 Database that contains your data and a target destination Azure PostgreSQL Database. You will also need access to a user account that can read all the source tables, as well as write to the target tables on the Postgres side. Furthermore, this tool only works on the assumption that your tables exist both places. As such, it's best to do an OMS deployment and use the new deployment to create your empty schema.
 
+**Database/Schema/Object Ownership Note:** If you choose NOT to use the same user/role that OMS will be using when you migrate your data (or create your database/schema/objects), note that you should take the time to change ownership of the objects prior to deploying OMS, especially if you need to run any DataMangement tasks (as part of an upgrade/fixpack).
+
 ### Define Migration Plan
 
 This process works off of a defined migration plan in the form of an XML configuration file. A sample file is provided in this repository, but the general idea is an array of JSON objects that contain the source table to copy, the source schema of the table, and if the target table on the destination side should be truncated or not. If you'd like to specify a "WHERE" clause for your source data (for instance all data up until a particular date/time) you can write that SQL statement in the "whereClause" section (an empty where clause will copy all table data).
