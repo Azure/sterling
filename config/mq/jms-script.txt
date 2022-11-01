@@ -103,5 +103,5 @@ def q(SSI_MASS_SYNC) qu(SSI_MASS_SYNC) qmgr(omsmq)
 def q(TO_CONFIRMSHIPMENT) qu(TO_CONFIRMSHIPMENT) qmgr(omsmq) 
 def q(TO_UBX_MASTER) qu(TO_UBX_MASTER) qmgr(omsmq) 
 def q(TO_UBX_CONFIG) qu(TO_UBX_CONFIG) qmgr(omsmq) 
-def qcf(omsmqqcf) qmgr(omsmq) tran(CLIENT) chan(OMS.SVRCON) host(10.1.0.119) port(1414)\
+def qcf(omsmqqcf) qmgr(omsmq) tran(CLIENT) chan(OMS.SVRCON) host(10.1.0.119) port(1414)
 end
