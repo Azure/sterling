@@ -30,6 +30,18 @@ Before you begin, you should make sure your target virtual network and subnet ar
 
 Once you have your address space and/or subnet configured you can proceed. The included sample deployment uses Azure CNI to help integrate your cluster into your existing infrastructure. In addition, the provided sample deployment also uses a private cluster configuration, meaning your API server will NOT be accessible publically, and only from sources with "visibility" to your virtual network.
 
+### Notice: Internal Load Balancer Configuration
+
+The default charts provided within the IBM repository will, be default, deploy your load balancers with public IP addresses. If you want to keep your load balancers internal and deploy with private IP addresses, you will need to do this before deploying the chart.
+
+One way to accomplish this is through an annotation to the load balancer template, as described here: [Create an internal load balancer](https://learn.microsoft.com/en-us/azure/aks/internal-lb#create-an-internal-load-balancer)
+
+```bash
+service.beta.kubernetes.io/azure-load-balancer-internal: "true"
+```
+
+This will instruct Azure Kubernetes Service to deploy the load balancer with a private IP address in whatever virtual network  was set up for the service when you deployed it. Furthermore, if there are Azure Policies defined for your Azure Kubernetes Service that prohibit non-internal load balancers, your deployment may fail.
+
 ### Deploy AKS
 
 To deploy your cluster, you can either do so through the Azure Portal, or use the provided sample bicep file to quickly stand up your cluster. There is a provided bicep file that contains everything you should need to get started, but you can certainly customize the template for your needs (such as initial node pool sizes, VM sizes, etc).
