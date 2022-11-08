@@ -559,12 +559,15 @@ oc apply -f /tmp/oms-machineset-updated.yaml
 
 Post-installation, if you have not already (and you're using IBM DB2 and/or IBM MQ), please obtain your license files and/or keys for DB2 and MQ and apply the licenses as specified by IBM in their documentation:
 
+* Applying DB2 Licenses: https://www.ibm.com/docs/en/db2/11.5?topic=licenses-applying-db2
+* Licensing IBM MQ: https://www.ibm.com/docs/en/ibm-mq/9.1?topic=mq-license-information
+
 ### Migrating Your Data
 
 If you are moving to Sterling OMS on Azure and you have an existing OMS environment, you should think carefully about your data migration scenario. Usually, this falls into one of two scenarios:
 
 1. You're migrating an existing DB2 Database into DB2 hosted in Azure, or
-2. You're going to migrate your data to Azure PostgreSQL Database
+2. You're going to migrate your data to Azure PostgreSQL Database - Fleixble Server
 
 You will also need to think carefully about how you minimize your downtime for your migration scenario. This may mean doing a majority of your data movement first, then when you're ready to cut-over to your Azure-based OMS environment, you'll need to do a final data reconciliation.
 
