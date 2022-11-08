@@ -1,8 +1,8 @@
-# IBM MQ - Azure Kubernetes Service Deployment Examaple
+# IBM MQ - Azure Kubernetes Service Deployment Example
 
 IBM Sterling Order Management (OMS) has a requirement for a JMS-compliant messaging system, and may customers opt to use IBM MQ as their backend messaging system. While there are many ways to run IBM MQ workloads in Azure, one appealing and highly-available way is to use Azure Kubernetes Service (AKS) to host your MQ instances. IBM has a Helm chart that enables HA-native deployments of IBM MQ, from which this sample draws: https://github.com/ibm-messaging/mq-helm
 
-IBM MQ on AKS, backed with Azure Premium Files storage, provides a highly-scalble and resliant solution for your MQ workloads. While you can also opt to run IBM MQ in your OpenShift cluster, if there is a desire or need to run your workloads OUTSIDE of your OpenShift cluster, you may want to consider this option.
+IBM MQ on AKS, backed with Azure Premium Files storage, provides a highly-scalable and resilient solution for your MQ workloads. While you can also opt to run IBM MQ in your OpenShift cluster, if there is a desire or need to run your workloads OUTSIDE of your OpenShift cluster, you may want to consider this option.
 
 ## Notice: Production Readiness
 
@@ -23,12 +23,12 @@ To function correctly. your existing Azure deployment should contain the followi
 
 ### Pre-Deployment Steps
 
-Before you begin, you should make sure your target virtual network and subnet are sized approproately for your cluster. Microsoft has very specific and targeted guidance around properly sizing your network depending on which CNI provider you want to use with your cluster: 
+Before you begin, you should make sure your target virtual network and subnet are sized appropriately for your cluster. Microsoft has very specific and targeted guidance around properly sizing your network depending on which CNI provider you want to use with your cluster: 
 
  * kubenet: https://learn.microsoft.com/en-us/azure/aks/configure-kubenet
  * Azure CNI: https://learn.microsoft.com/en-us/azure/aks/configure-azure-cni
 
-Once you have your address space and/or subnet configured you can proceed. The included sample deployment uses Azure CNI to help integrate your cluster into your existing infrastructure. In addition, the provided sample deployment also uses a private cluster configuration, meaning your API server will NOT be accessible publically, and only from sources with "visibility" to your virtual network.
+Once you have your address space and/or subnet configured you can proceed. The included sample deployment uses Azure CNI to help integrate your cluster into your existing infrastructure. In addition, the provided sample deployment also uses a private cluster configuration, meaning your API server will NOT be accessible publicly, and only from sources with "visibility" to your virtual network.
 
 ### Notice: Internal Load Balancer Configuration
 
@@ -52,7 +52,7 @@ To deploy the provided example, simply use the Azure CLI's ```az deploy``` comma
 az deployment group create --resource-group <resource group name> --name MQAKS --template-file ./azure/aks.bicep
 ```
 
-You will be prompted for values for things like the cluter name, location, and more. When the deployment finishes, you can get the cluster credentials added to your local ```.kubecfg``` by using the following commands:
+You will be prompted for values for things like the cluster name, location, and more. When the deployment finishes, you can get the cluster credentials added to your local ```.kubecfg``` by using the following commands:
 
 ```bash
 az aks get-credentials --resource-group <resource group name> --name <cluster name>
@@ -77,12 +77,12 @@ You will need the ObjectID of that identity for the next step of the process. Mo
 For AKS to successfully manage and connect to your storage resources, the managed identity of your cluster control plane needs 'contributor' access to the resource group that contains the virtual network you connceted the cluster to. You can assign this permission by running the following command:
 
 ```bash
-az role assignment create --assignee "<managed identity object ID>" --role "Contribtor" --scope "/subscriptions/<subscriptionId>/resourcegroups/<resourceGroupName>"
+az role assignment create --assignee "<managed identity object ID>" --role "Contributor" --scope "/subscriptions/<subscriptionId>/resourcegroups/<resourceGroupName>"
 ```
 
 ### Create NFS Storage Class
 
-For persistent storage, IBM MQ requires NFS-backed shared storage. For this reason, it is reccomended to use Azure Premium File storage with NFS shares in your cluster. To enable this, you must first create an NFS storage class using the ```file.csi.azure.com``` provisioner. A sample .yaml file is available in this repository (```azurefile-premium-nfs-storagecass.yaml```) to help you.
+For persistent storage, IBM MQ requires NFS-backed shared storage. For this reason, it is recommended to use Azure Premium File storage with NFS shares in your cluster. To enable this, you must first create an NFS storage class using the ```file.csi.azure.com``` provisioner. A sample .yaml file is available in this repository (```azurefile-premium-nfs-storagecass.yaml```) to help you.
 
 ```bash
 kubectl apply -f ./azurefile-premium-nfs-storageclass.yaml
@@ -90,7 +90,7 @@ kubectl apply -f ./azurefile-premium-nfs-storageclass.yaml
 
 ### Create Config Maps / Secrets
 
-Before you deploy your helm chart, you can should specify and MQSC commands you want to run as part of your deployment. This will autoamtically take care of things like creating your queues and channels at the time of your deployment versus having to do this manually post-deployment. The ```mq-mqsc.yaml``` file contains a sample configmap that contains these commands. You should replace the commands in this sample file under the ```mq.mqsc``` property with your specific queue commands; the commands provided are for example purposes only.
+Before you deploy your helm chart, you can should specify and MQSC commands you want to run as part of your deployment. This will automatically take care of things like creating your queues and channels at the time of your deployment versus having to do this manually post-deployment. The ```mq-mqsc.yaml``` file contains a sample configmap that contains these commands. You should replace the commands in this sample file under the ```mq.mqsc``` property with your specific queue commands; the commands provided are for example purposes only.
 
 The is also an ```mq.ini``` section that can be further customized for other MQ configuration options. More details can be found here: https://github.com/ibm-messaging/mq-helm/tree/main/charts/ibm-mq
 
@@ -121,13 +121,13 @@ Finally, set up your deployment values file. A sample has been provided in this 
 
 And much more. A full set of values you can set are provided here: https://github.com/ibm-messaging/mq-helm/tree/main/charts/ibm-mq#configuration
 
-The provided sample configuration value file (```mq-aks-values.yaml```) takes care of the basics like persistent storage and native HA for your cluster. Once you've reviewed the configurration file and made any adjustments, you can use Helm to deploy MQ into your AKS cluster with the following command:
+The provided sample configuration value file (```mq-aks-values.yaml```) takes care of the basics like persistent storage and native HA for your cluster. Once you've reviewed the configuration file and made any adjustments, you can use Helm to deploy MQ into your AKS cluster with the following command:
 
 ```bash
 helm install omsmq <path to ibm-messaging repo you cloned>/charts/ibm-mq -f mq-aks-values.yaml
 ```
 
-In the above example, your queue manager name will be same name as your deployment. In otherwords, the queue manager name will be "omsmq."
+In the above example, your queue manager name will be same name as your deployment. In other words, the queue manager name will be "omsmq."
 
 ### Create JMS Bindings File
 
