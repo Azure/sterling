@@ -1,6 +1,6 @@
 # QuickStart Guide: Sterling Order Management on Azure
 
-This repository provides deployument guidance and best practices for running IBM Sterling Order management (OMS) on Azure Redhat OpenShift (ARO) in the Azure public cloud. This guide was written and tested with Azure RedHat OpenShift 4.9.9.
+This repository provides deployment guidance and best practices for running IBM Sterling Order management (OMS) on Azure Redhat OpenShift (ARO) in the Azure public cloud. This guide was written and tested with Azure RedHat OpenShift 4.9.9.
 
 > 🚧 **NOTE**: The scripts contained within this repo were written with the intention of testing various configurations and integrations on Azure. They allow you to quickly deploy the required infrastructure on Azure so that you migrate an existing OMS to Azure, or start fresh with new development.
 
@@ -29,12 +29,12 @@ This repository provides deployument guidance and best practices for running IBM
     - [Deploy Alternative JMS Message Broker (if applicable)](#deploy-alternative-jms-message-broker-if-applicable)
     - [Install Tools](#install-tools)
   - [Step 5: Logging into your OpenShift Cluster with the OpenShift Command Line Tool](#step-5-logging-into-your-openshift-cluster-with-the-openshift-command-line-tool)
-  - [Step 6: Deploy OMS Prerequisites & Artifacts](#step-6-deploy-oms-prerequisites--artifacts)
+  - [Step 6: Deploy OMS Prerequisites \& Artifacts](#step-6-deploy-oms-prerequisites--artifacts)
     - [Create OMS Namespace](#create-oms-namespace)
     - [Install Azure Files CSI Driver](#install-azure-files-csi-driver)
     - [Add Azure Container Registry Credentials to Namespace Docker Credential Secret](#add-azure-container-registry-credentials-to-namespace-docker-credential-secret)
     - [Install IBM Operator Catalog and the Sterling Operator](#install-ibm-operator-catalog-and-the-sterling-operator)
-    - [Create Required Database User & Assign Permissions](#create-required-database-user--assign-permissions)
+    - [Create Required Database User \& Assign Permissions](#create-required-database-user--assign-permissions)
     - [Update Maximum Connections to Azure PostgreSQL Database (if applicable)](#update-maximum-connections-to-azure-postgresql-database-if-applicable)
     - [Create OMS Secret](#create-oms-secret)
     - [Create MQ Bindings ConfigMap (if needed)](#create-mq-bindings-configmap-if-needed)
@@ -101,7 +101,7 @@ To successfully install and configure OMS on Azure, you'll need to make sure you
  * A quota of at least 40 vCPU allowed for your VM type(s) of choice. Request a quota increase if needed.
  * You will need subscription owner permissions for the deployment.
 * A target resource group to deploy to
-* You will need to deploy a JMS-based messaging system into your environment. Most likely, this is IBM MQ, but there are other alteratives. As such, you can:
+* You will need to deploy a JMS-based messaging system into your environment. Most likely, this is IBM MQ, but there are other alternatives. As such, you can:
   * Deploy Virtual Machines configured with appropriate storage and install the messaging components yourself, OR
   * Deploy MQ in an Azure Kubernetes Cluster (or ARO) with a High Availability configuration, OR
   * Deploy one or more alterative JMS Broker nodes in Azure Container Instances
@@ -129,9 +129,9 @@ At a minimum, your Azure environment should contain a resource group that contai
     - management (/30): this subnet is used for your "Jump Box" virtual machine(s) that can be used to securely connect to all other resources inside this network
     - development (/28): this subnet can be used to deploy developer virtual machines, if needed, to develop, test, and deploy OMS customized container images securely to the Azure Container Registry.
     - endpoints (/25): this subnet exists for hosting private endpoints for Azure services such as storage accounts, container registries, and other services to provide private connectivity.
-    - data (/26): this subnet should be used to deploy Azure PostgreSQL Flexible Server, as that service requires a delegted subnet
+    - data (/26): this subnet should be used to deploy Azure PostgreSQL Flexible Server, as that service requires a delegated subnet
     - anf (/24): this subnet should be delegated to Azure NetApp Files (in the case of you deploying DB2 on virtual machines)
-    - Note: This is by no means a complete or exhausitve list; depending on other components you wish to deploy, you should plan and/or expand your address spaces and subnets as needed
+    - Note: This is by no means a complete or exhaustive list; depending on other components you wish to deploy, you should plan and/or expand your address spaces and subnets as needed
 2. Azure Premium Files storage account: For hosting MQ Queue Manager data
 3. Azure Virtual Machines:
     - (If needed) At least one Virtual Machine to host IBM DB2. For production scenarios, you should consider configuring more than one host and using high availability for the instances. More information on this configuration (as well as performance guidelines) can be found here: https://learn.microsoft.com/en-us/azure/virtual-machines/workloads/sap/dbms_guide_ibm
@@ -418,7 +418,7 @@ Before you deploy OMS, make sure that the database username and password you int
 
 ### Update Maximum Connections to Azure PostgreSQL Database (if applicable)
 
-If you're using Azure PostgreSQL database as your database platform, you may need to adjust your ```max_connections``` server property to allow for the required number of agent/application connection simultaniously. More information can be found here: https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/concepts-server-parameters
+If you're using Azure PostgreSQL database as your database platform, you may need to adjust your ```max_connections``` server property to allow for the required number of agent/application connection simultaneously. More information can be found here: https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/concepts-server-parameters
 
 ### Create OMS Secret
 
@@ -567,7 +567,7 @@ Post-installation, if you have not already (and you're using IBM DB2 and/or IBM 
 If you are moving to Sterling OMS on Azure and you have an existing OMS environment, you should think carefully about your data migration scenario. Usually, this falls into one of two scenarios:
 
 1. You're migrating an existing DB2 Database into DB2 hosted in Azure, or
-2. You're going to migrate your data to Azure PostgreSQL Database - Fleixble Server
+2. You're going to migrate your data to Azure PostgreSQL Database - Flexible Server
 
 You will also need to think carefully about how you minimize your downtime for your migration scenario. This may mean doing a majority of your data movement first, then when you're ready to cut-over to your Azure-based OMS environment, you'll need to do a final data reconciliation.
 
