@@ -15,7 +15,7 @@ One of the main challenges this pipeline solves is automatic mapping of data typ
 
 ## Important Note: Production Readiness
 
-This ADF pipeline is provided for demonstration and testing purposes only; you **should not** run this in any production capacity without thourough testing and planning under any circumstance! This process was tested with a sample OMS dataset from IBM DB2 to Azure Postgres Flexible Server.
+This ADF pipeline is provided for demonstration and testing purposes only; you **should not** run this in any production capacity without thorough testing and planning under any circumstance! This process was tested with a sample OMS dataset from IBM DB2 to Azure Postgres Flexible Server.
 
 ## Setting up
 
@@ -60,7 +60,7 @@ Inside the ```adf``` folder is a ARM template that contains all the basic artifa
 
 ### Install a Self-Hosted Integration Runtime and Connect to ADF Instance
 
-Next, you need to set up your self-hosted integration runtime (SHIR). This is a utility that is designed to run on a Windows machine, and provides a way for the process to read data from your source DB2 instance. The general idea is that this SHIR should reside on a machine that can succesfully connect to your source DB2 instance, whether that be on premesis, in the cloud, etc.
+Next, you need to set up your self-hosted integration runtime (SHIR). This is a utility that is designed to run on a Windows machine, and provides a way for the process to read data from your source DB2 instance. The general idea is that this SHIR should reside on a machine that can successfully connect to your source DB2 instance, whether that be on premises, in the cloud, etc.
 
 You can download the latest SHIR runtime here: https://www.microsoft.com/en-us/download/details.aspx?id=39717
 
@@ -81,7 +81,7 @@ You may have lots of data to move, so figuring out the most efficient process wi
 On your target database, if any indexes exist on the target tables, you should drop them first before running the pipeline. Then, when the copies finish, add the indexes back. In PostgreSQL, you can script out each index with a query such as:
 
 ```pgsql
---Index maintanence scripts. SAVE EACH OUTPUT BEFORE RUNNING THE STATEMENTS!
+--Index maintenance scripts. SAVE EACH OUTPUT BEFORE RUNNING THE STATEMENTS!
 --NOTE: Modify your WHERE clause for your schema(s)
 
 --Script to recreate indexes:
@@ -98,13 +98,13 @@ from pg_indexes
 where schemaname = 'oms';
 ```
 
-### Adjusting Paralell Copies
+### Adjusting Parallel Copies
 
 Inside your the pipeline "Iterate Through Plan" is a "ForEach" operator. In the settings for this operator is a setting for "Batch Count." This controls how many child pipelines run at a time (aka how many tables are simultaniously copied) 
 
 ![ADF Adjust Batch Count](../docs/images/adf-batch-count.png)
 
-It might be tempting to set to this a high value, but remember: it is very easy to saturate your network between your source an destination, and you may be limited in your read and/or write speeds at your source and destinations, respectively. The key is finding out what is feasible to maintain high performance. The current setting in this repository is four simultanious copies.
+It might be tempting to set to this a high value, but remember: it is very easy to saturate your network between your source an destination, and you may be limited in your read and/or write speeds at your source and destinations, respectively. The key is finding out what is feasible to maintain high performance. The current setting in this repository is four simultaneous copies.
 
 ### Scaling to more Self-Hosted IRs
 
