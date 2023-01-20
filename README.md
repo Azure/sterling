@@ -367,7 +367,7 @@ wget -nv https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/az
 envsubst < /tmp/azurefiles-standard.yaml > /tmp/azurefiles-standard-updated.yaml
 sudo -E oc apply -f /tmp/azurefiles-standard-updated.yaml
 
-#Deploy premium Storage Class
+#Deploy Azure Files Premium Storage Class
 wget -nv https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/azure-file-storage/azurefiles-premium.yaml -O /tmp/azurefiles-premium.yaml
 envsubst < /tmp/azurefiles-premium.yaml > /tmp/azurefiles-premium-updated.yaml
 sudo -E oc apply -f /tmp/azurefiles-premium-updated.yaml
@@ -471,6 +471,34 @@ oc create -f oms-pvc-updated.yaml
 
 Once this PVC is created, this share will be used by your deployment of your OMEnvironment, and you can stage files to this share via the Azure CLI or Azure Storage Explorer (for example, your keystore and truststore files, see below)
 
+There are multi mount options that optionally can be used in the storage class depeding on the functionalities needed.  
+
+```bash
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: azure-files-example
+provisioner: kubernetes.io/azure-file
+mountOptions:
+  - dir_mode=0777
+  - file_mode=0777
+  - uid=0
+  - gid=0
+  - mfsymlinks
+  - cache=strict
+  - actimeo=30
+  - noperm
+parameters:
+  skuName: Standard_LRS
+  location: us-east
+```
+
+Optionally - More information about the mount options:
+```info
+- mfsymlinks: Will make Azure Files mount (cifs) support symbolic links
+- nobrl will prevent sending byte range lock requests to the server. This setting is necessary for certain applications that break with cifs style mandatory byte range locks. 
+- Most cifs servers does not yet support requesting advisory byte range locks.
+```
 ### Create RBAC Role
 
 There is a specialized RBAC role required for Sterling OMS. To deploy it, you can run the following commands:
