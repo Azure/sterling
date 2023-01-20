@@ -1,6 +1,6 @@
 # QuickStart Guide: Sterling Order Management on Azure
 
-This repository provides deployument guidance and best practices for running IBM Sterling Order management (OMS) on Azure Redhat OpenShift (ARO) in the Azure public cloud. This guide was written and tested with Azure RedHat OpenShift 4.9.9.
+This repository provides deployment guidance and best practices for running IBM Sterling Order management (OMS) on Azure Redhat OpenShift (ARO) in the Azure public cloud. This guide was written and tested with Azure RedHat OpenShift 4.9.9.
 
 > 🚧 **NOTE**: The scripts contained within this repo were written with the intention of testing various configurations and integrations on Azure. They allow you to quickly deploy the required infrastructure on Azure so that you migrate an existing OMS to Azure, or start fresh with new development.
 
@@ -29,12 +29,12 @@ This repository provides deployument guidance and best practices for running IBM
     - [Deploy Alternative JMS Message Broker (if applicable)](#deploy-alternative-jms-message-broker-if-applicable)
     - [Install Tools](#install-tools)
   - [Step 5: Logging into your OpenShift Cluster with the OpenShift Command Line Tool](#step-5-logging-into-your-openshift-cluster-with-the-openshift-command-line-tool)
-  - [Step 6: Deploy OMS Prerequisites & Artifacts](#step-6-deploy-oms-prerequisites--artifacts)
+  - [Step 6: Deploy OMS Prerequisites \& Artifacts](#step-6-deploy-oms-prerequisites--artifacts)
     - [Create OMS Namespace](#create-oms-namespace)
     - [Install Azure Files CSI Driver](#install-azure-files-csi-driver)
     - [Add Azure Container Registry Credentials to Namespace Docker Credential Secret](#add-azure-container-registry-credentials-to-namespace-docker-credential-secret)
     - [Install IBM Operator Catalog and the Sterling Operator](#install-ibm-operator-catalog-and-the-sterling-operator)
-    - [Create Required Database User & Assign Permissions](#create-required-database-user--assign-permissions)
+    - [Create Required Database User \& Assign Permissions](#create-required-database-user--assign-permissions)
     - [Update Maximum Connections to Azure PostgreSQL Database (if applicable)](#update-maximum-connections-to-azure-postgresql-database-if-applicable)
     - [Create OMS Secret](#create-oms-secret)
     - [Create MQ Bindings ConfigMap (if needed)](#create-mq-bindings-configmap-if-needed)
@@ -101,7 +101,7 @@ To successfully install and configure OMS on Azure, you'll need to make sure you
  * A quota of at least 40 vCPU allowed for your VM type(s) of choice. Request a quota increase if needed.
  * You will need subscription owner permissions for the deployment.
 * A target resource group to deploy to
-* You will need to deploy a JMS-based messaging system into your environment. Most likely, this is IBM MQ, but there are other alteratives. As such, you can:
+* You will need to deploy a JMS-based messaging system into your environment. Most likely, this is IBM MQ, but there are other alternatives. As such, you can:
   * Deploy Virtual Machines configured with appropriate storage and install the messaging components yourself, OR
   * Deploy MQ in an Azure Kubernetes Cluster (or ARO) with a High Availability configuration, OR
   * Deploy one or more alterative JMS Broker nodes in Azure Container Instances
@@ -366,7 +366,7 @@ wget -nv https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/az
 envsubst < /tmp/azurefiles-standard.yaml > /tmp/azurefiles-standard-updated.yaml
 sudo -E oc apply -f /tmp/azurefiles-standard-updated.yaml
 
-#Deploy premium Storage Class
+#Deploy Azure Files Premium Storage Class
 wget -nv https://raw.githubusercontent.com/Azure/sterling/$BRANCH_NAME/config/azure-file-storage/azurefiles-premium.yaml -O /tmp/azurefiles-premium.yaml
 envsubst < /tmp/azurefiles-premium.yaml > /tmp/azurefiles-premium-updated.yaml
 sudo -E oc apply -f /tmp/azurefiles-premium-updated.yaml
@@ -417,7 +417,7 @@ Before you deploy OMS, make sure that the database username and password you int
 
 ### Update Maximum Connections to Azure PostgreSQL Database (if applicable)
 
-If you're using Azure PostgreSQL database as your database platform, you may need to adjust your ```max_connections``` server property to allow for the required number of agent/application connection simultaniously. More information can be found here: https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/concepts-server-parameters
+If you're using Azure PostgreSQL database as your database platform, you may need to adjust your ```max_connections``` server property to allow for the required number of agent/application connection simultaneously. More information can be found here: https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/concepts-server-parameters
 
 ### Create OMS Secret
 
@@ -470,6 +470,34 @@ oc create -f oms-pvc-updated.yaml
 
 Once this PVC is created, this share will be used by your deployment of your OMEnvironment, and you can stage files to this share via the Azure CLI or Azure Storage Explorer (for example, your keystore and truststore files, see below)
 
+There are multi mount options that optionally can be used in the storage class depeding on the functionalities needed.  
+
+```bash
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: azure-files-example
+provisioner: kubernetes.io/azure-file
+mountOptions:
+  - dir_mode=0777
+  - file_mode=0777
+  - uid=0
+  - gid=0
+  - mfsymlinks
+  - cache=strict
+  - actimeo=30
+  - noperm
+parameters:
+  skuName: Standard_LRS
+  location: us-east
+```
+
+Optionally - More information about the mount options:
+```info
+- mfsymlinks: Will make Azure Files mount (cifs) support symbolic links
+- nobrl will prevent sending byte range lock requests to the server. This setting is necessary for certain applications that break with cifs style mandatory byte range locks. 
+- Most cifs servers does not yet support requesting advisory byte range locks.
+```
 ### Create RBAC Role
 
 There is a specialized RBAC role required for Sterling OMS. To deploy it, you can run the following commands:
@@ -566,7 +594,7 @@ Post-installation, if you have not already (and you're using IBM DB2 and/or IBM 
 If you are moving to Sterling OMS on Azure and you have an existing OMS environment, you should think carefully about your data migration scenario. Usually, this falls into one of two scenarios:
 
 1. You're migrating an existing DB2 Database into DB2 hosted in Azure, or
-2. You're going to migrate your data to Azure PostgreSQL Database - Fleixble Server
+2. You're going to migrate your data to Azure PostgreSQL Database - Flexible Server
 
 You will also need to think carefully about how you minimize your downtime for your migration scenario. This may mean doing a majority of your data movement first, then when you're ready to cut-over to your Azure-based OMS environment, you'll need to do a final data reconciliation.
 
