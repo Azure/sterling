@@ -129,9 +129,8 @@ At a minimum, your Azure environment should contain a resource group that contai
     - management (/30): this subnet is used for your "Jump Box" virtual machine(s) that can be used to securely connect to all other resources inside this network
     - development (/28): this subnet can be used to deploy developer virtual machines, if needed, to develop, test, and deploy OMS customized container images securely to the Azure Container Registry.
     - endpoints (/25): this subnet exists for hosting private endpoints for Azure services such as storage accounts, container registries, and other services to provide private connectivity.
-    - data (/26): this subnet should be used to deploy Azure PostgreSQL Flexible Server, as that service requires a delegated subnet
-    - anf (/24): this subnet should be delegated to Azure NetApp Files (in the case of you deploying DB2 on virtual machines)
-    - Note: This is by no means a complete or exhaustive list; depending on other components you wish to deploy, you should plan and/or expand your address spaces and subnets as needed
+    - anf (/24): this subnet should be delegated to Azure NetApp Files (in the case of you deploying DB2 on virtual machines or require NetApp Files for any other storage requirements).
+    - Note: This is by no means a complete or exhausitve list; depending on other components you wish to deploy, you should plan and/or expand your address spaces and subnets as needed
 2. Azure Premium Files storage account: For hosting MQ Queue Manager data
 3. Azure Virtual Machines:
     - (If needed) At least one Virtual Machine to host IBM DB2. For production scenarios, you should consider configuring more than one host and using high availability for the instances. More information on this configuration (as well as performance guidelines) can be found here: https://learn.microsoft.com/en-us/azure/virtual-machines/workloads/sap/dbms_guide_ibm
