@@ -127,6 +127,7 @@ At a minimum, your Azure environment should contain a resource group that contai
     - data (/27): this delegated subnet can be used for PostgreSQL (if needed)
     - vms (/27): this subnet holds the virtual machines running services on IaaS virtual machines, such as IBM DB2 and IBM MQ servers.
     - management (/30): this subnet is used for your "Jump Box" virtual machine(s) that can be used to securely connect to all other resources inside this network
+    - Azure Bastion (/26): Used for [Azure Bastion](https://learn.microsoft.com/en-us/azure/bastion/bastion-overview) secure connections to your resources.
     - development (/28): this subnet can be used to deploy developer virtual machines, if needed, to develop, test, and deploy OMS customized container images securely to the Azure Container Registry.
     - endpoints (/25): this subnet exists for hosting private endpoints for Azure services such as storage accounts, container registries, and other services to provide private connectivity.
     - anf (/24): this subnet should be delegated to Azure NetApp Files (in the case of you deploying DB2 on virtual machines or require NetApp Files for any other storage requirements).
