@@ -127,6 +127,7 @@ At a minimum, your Azure environment should contain a resource group that contai
     - data (/27): this delegated subnet can be used for PostgreSQL (if needed)
     - vms (/27): this subnet holds the virtual machines running services on IaaS virtual machines, such as IBM DB2 and IBM MQ servers.
     - management (/30): this subnet is used for your "Jump Box" virtual machine(s) that can be used to securely connect to all other resources inside this network
+    - Azure Bastion (/26): Used for [Azure Bastion](https://learn.microsoft.com/en-us/azure/bastion/bastion-overview) secure connections to your resources.
     - development (/28): this subnet can be used to deploy developer virtual machines, if needed, to develop, test, and deploy OMS customized container images securely to the Azure Container Registry.
     - endpoints (/25): this subnet exists for hosting private endpoints for Azure services such as storage accounts, container registries, and other services to provide private connectivity.
     - anf (/24): this subnet should be delegated to Azure NetApp Files (in the case of you deploying DB2 on virtual machines or require NetApp Files for any other storage requirements).
@@ -440,6 +441,8 @@ oc create -f /tmp/oms-secret-updated.yaml
 rm /tmp/oms-secret-updated
 ```
 
+**Note** If you would like to store your secrets outside of the ARO cluster, you can also consider using the Azure KeyVault CSI driver. A sample walkthrough of this can be found here: https://azure.github.io/secrets-store-csi-driver-provider-azure/docs/demos/standard-walkthrough/
+
 ### Create MQ Bindings ConfigMap (if needed)
 
 Users of IBM MQ for their messaging platform will need to create a configuration map in their OMS namespace that contains queue binding information. After you have configured your queue managers and created your JMS bindings, you need to obtain a copy of your ```.bindings``` file. Next, you'll create your configuration map with the following command:
@@ -599,6 +602,10 @@ If you are moving to Sterling OMS on Azure and you have an existing OMS environm
 You will also need to think carefully about how you minimize your downtime for your migration scenario. This may mean doing a majority of your data movement first, then when you're ready to cut-over to your Azure-based OMS environment, you'll need to do a final data reconciliation.
 
 For more detailed data migration information, as well as guidance on how to migrate your data, check out the ./datamigration folder in this repository
+
+## Securing Access to your Cluster With Azure Front Door
+
+If you would like to have users and/or applications access your cluster securely from their own virtual networks, you can also consider setting up Azure Front Door for access to your ingress controller(s). More information about setting this up can be found here: https://learn.microsoft.com/en-us/azure/openshift/howto-secure-openshift-with-front-door 
 
 ## Contributing
 
