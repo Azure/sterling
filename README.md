@@ -441,6 +441,8 @@ oc create -f /tmp/oms-secret-updated.yaml
 rm /tmp/oms-secret-updated
 ```
 
+**Note** If you would like to store your secrets outside of the ARO cluster, you can also consider using the Azure KeyVault CSI driver. A sample walkthrough of this can be found here: https://azure.github.io/secrets-store-csi-driver-provider-azure/docs/demos/standard-walkthrough/
+
 ### Create MQ Bindings ConfigMap (if needed)
 
 Users of IBM MQ for their messaging platform will need to create a configuration map in their OMS namespace that contains queue binding information. After you have configured your queue managers and created your JMS bindings, you need to obtain a copy of your ```.bindings``` file. Next, you'll create your configuration map with the following command:
