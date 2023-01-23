@@ -601,6 +601,10 @@ You will also need to think carefully about how you minimize your downtime for y
 
 For more detailed data migration information, as well as guidance on how to migrate your data, check out the ./datamigration folder in this repository
 
+## Securing Access to your Cluster With Azure Front Door
+
+If you would like to have users and/or applications access your cluster securely from their own virtual networks, you can also consider setting up Azure Front Door for access to your ingress controller(s). More information about setting this up can be found here: https://learn.microsoft.com/en-us/azure/openshift/howto-secure-openshift-with-front-door 
+
 ## Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
