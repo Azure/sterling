@@ -1,6 +1,6 @@
 param clusterName string
 param location string
-param k8sversion string = '1.23.8'
+param k8sversion string = '1.24.6'
 param virtualNetworkName string
 param subnetName string
 param serviceCidr string
@@ -53,7 +53,7 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2022-07-02-previ
         maxPods: 30
         type: 'VirtualMachineScaleSets'
         enableAutoScaling: false
-        orchestratorVersion: '1.23.8'
+        orchestratorVersion: '1.24.6'
         enableNodePublicIP: false
         enableCustomCATrust: false
         mode: 'User'
