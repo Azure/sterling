@@ -53,7 +53,7 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2022-07-02-previ
         maxPods: 30
         type: 'VirtualMachineScaleSets'
         enableAutoScaling: false
-        orchestratorVersion: '1.24.6'
+        orchestratorVersion: k8sversion
         enableNodePublicIP: false
         enableCustomCATrust: false
         mode: 'User'
