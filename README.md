@@ -23,7 +23,7 @@ This repository provides deployment guidance and best practices for running IBM 
   - [Step 4: Post Azure Redhat Openshift Deployment Tasks](#step-4-post-azure-redhat-openshift-deployment-tasks)
     - [Private VM Outbound Internet Access](#private-vm-outbound-internet-access)
     - [Install and Configure IBM DB2 (if applicable)](#install-and-configure-ibm-db2-if-applicable)
-    - [Configure your Azure PostgresSQL Database (if applicable)](#configure-your-azure-postgressql-database-if-applicable)
+    - [Configure your Azure PostgreSQL Database (if applicable)](#configure-your-azure-postgressql-database-if-applicable)
     - [Install and Configure IBM MQ on a Virtual Machine (if applicable)](#install-and-configure-ibm-mq-on-a-virtual-machine-if-applicable)
     - [Install and Configure IBM MQ on an Azure Kubernetes Cluster (if applicable)](#install-and-configure-ibm-mq-on-an-azure-kubernetes-cluster-if-applicable)
     - [Deploy Alternative JMS Message Broker (if applicable)](#deploy-alternative-jms-message-broker-if-applicable)
@@ -227,19 +227,19 @@ sudo sudo ./db2cppcmk -i
 For more information, please refer to this documentation about building a highly-available DB2 instance in Azure: https://docs.microsoft.com/en-us/azure/virtual-machines/workloads/sap/high-availability-guide-rhel-ibm-db2-luw. Additional considerations, such as performance and scaling options for DB2 on Azure can be found here: https://learn.microsoft.com/en-us/azure/virtual-machines/workloads/sap/dbms_guide_ibm 
 
 
-### Configure your Azure PostgresSQL Database (if applicable)
+### Configure your Azure PostgreSQL Database (if applicable)
 
 If you chose to deploy Azure PostgreSQL as your backend database system, you should now make sure your database and target schemas exist. You can do this by using a tool (such as ) to login and create your database and/or schema:
 
 ```bash
-psql -d "<your Azure PostgresSQL Connection String>" -U '<admin user name>' -P '<admin password>' -c "CREATE SCHEMA OMS"
+psql -d "<your Azure PostgreSQL Connection String>" -U '<admin user name>' -P '<admin password>' -c "CREATE SCHEMA OMS"
 ```
 
 Furthermore, you may want to create a new database user for your deployment:
 
 ```bash
-psql -d "<your Azure PostgresSQL Connection String>" -U '<admin user name>' -P '<admin password>' -c "CREATE USER OMSUser"
-psql -d "<your Azure PostgresSQL Connection String>" -U '<admin user name>' -P '<admin password>' -c "GRANT ALL PRIVILEGES ON DATABASE <database name> TO OMSUser"
+psql -d "<your Azure PostgreSQL Connection String>" -U '<admin user name>' -P '<admin password>' -c "CREATE USER OMSUser"
+psql -d "<your Azure PostgreSQL Connection String>" -U '<admin user name>' -P '<admin password>' -c "GRANT ALL PRIVILEGES ON DATABASE <database name> TO OMSUser"
 ```
 
 Note: You may use whatever PostgreSQL utility you'd like for this task, provided the client running the tool can successfully access the correct database endpoint.
